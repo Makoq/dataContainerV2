@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/favicon.ico">
+    <title>分布式地理建模平台数据服务</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">  
+    <link href="/css/style.css" rel="stylesheet">
+
+    <style type="text/css">
+        body {
+            padding-top: 120px;
+            /*padding-top: 50px;*/
+            padding-bottom: 20px;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <% include header.ejs %>
+        <div class="bodycenter container" >       
+            <!-- Example row of columns -->
+            
+            <div class="row col-lg-6">
+               
+                <h1  class="left_top_title" style="padding-left:2px;">注册</h1>
+                 <label id="tips" style="float:right; font-size:12px;color:red;"></label>
+                <form>
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        
+                        <input type="text" class="form-control" id="username" placeholder="由英文、字母、下划线组成">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" class="form-control" id="password" placeholder="由英文、数字组成，至少六位">
+                    </div>
+                    <button type="button" id="register" class="btn btn-default"style="float:right;">注册</button>
+                </form>
+                
+            </div>
+        </div>
+
+        <hr>
+        </div>
+
+        <% include footer.ejs %>
+
+            <!-- Bootstrap core JavaScript -->
+            <!-- Placed at the end of the document so the pages load faster -->
+            <script src="/js/jquery-1.11.3.min.js"></script>
+            <script src="/js/bootstrap.min.js"></script>
+
+            <script type="text/javascript">
+
+                  $("#username").focusin(function(){
+                    $("#tips").html("");
+                    return;
+                  });
+
+                $("#username").focusout(function(){
+                    var username = $("#username").val();
+                  if(username==""){
+                       $("#tips").html("请输入用户名");
+                       return;
+                  }
+                  $("#tips").html("正在验证该用户名是否可用..");
+
+                  $.post("/accounts/checkUser", {
+                        "username": username
+                    }, function (result) {
+                        if (result == "YES") {
+                            sessionStorage.userExist="1";
+                             $("#tips").html("该用户名可用");
+                        } else if (result == "NO") {
+                            sessionStorage.userExist="-1";
+                            $("#tips").html("该用户名已被注册");
+                        } else if (result == "error") {
+                            //error
+                            alert('error');
+                        }
+                    });   
+                   
+                })
+                $("#register").click(function () {
+                    //注册按钮的事件，用ajax提交表单
+                    var username = $("#username").val();
+                    var password = $("#password").val();
+                    var email = 
+                    if(username==""){
+                        $("#tips").html("请输入用户名");
+                        return;
+                    }
+                    if(sessionStorage.userExist =="-1"){
+                        return;
+                    }
+                    if(password==""){
+                         $("#tips").html("请输入密码");
+                        return;
+                    }
+                    
+                    if(password.length<6) {
+                        $("#tips").html("密码位数小于6");
+                        return ;
+                    }
+
+                    $.post("/accounts/doRegister", {
+                        "username": username,
+                        "password": password
+                    }, function (result) {
+                        if (result == "successful") {
+                            //successful
+                            alert("Register successfully.");
+                            window.location = "/accounts/login";
+                        } else if (result == "exist") {
+                            //exist
+                            
+                            $("#tips").html(username+" exist");
+                        } else if (result == "error") {
+                            //error
+                            alert('error');
+                        }
+                    },);
+                });
+            </script>
+</body>
+
+</html>

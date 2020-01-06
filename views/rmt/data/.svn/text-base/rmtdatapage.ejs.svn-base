@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!-- <link href="/css/custom-css/my-filter.css" rel="stylesheet" type="text/css" /> -->
+        <!--分页  -->
+        <link href="/plugins/ogms.paginator/ogms.page.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li>
+                                            <i class="fa fa-home" aria-hidden="true"></i>
+                                            <a href="index.html">Home</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <span>Data</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <!--<div class="container">-->
+                                <div>
+                                    <p style="float:right;font-family:Arial, Helvetica, sans-serif;font-size:14px;">New Data? <a href="/data/uploadpage">To upload</a></p>
+                                    <div class="clear"></div>
+                                </div>
+
+                                <!--搜索  -->
+                                <div class='pull-left'>
+                                    <strong>search：</strong><input id='txt_search' type="text" />
+                                </div>
+                                <!--分页  -->
+                                <div class="pull-right">
+                                    <ul class="page" maxshowpageitem="5" pagelistcount="10" id="paginator"></ul>
+                                </div>
+                                <div class="clear"></div>
+
+                                <!--选择主机ip-->
+                                <div class="dropdown" style="margin:0px">
+                                    <button type="button" class="btn dropdown-toggle btn-success" id="dropdownMenu1" data-toggle="dropdown">
+											Remote Hosts
+											<span class="caret"></span>
+										</button>
+                                    <ul id='hosts' class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                        <!--<li role="presentation">
+												<a role="menuitem" tabindex="-1" href="#">Java</a>
+											</li>-->
+                                    </ul>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table id="tab_services" class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <center>Number</center>
+                                                </th>
+                                                <th>
+                                                    <center>Data Information</center>
+                                                </th>
+                                                <th>
+                                                    <center>Snapshot</center>
+                                                </th>
+                                                <th>
+                                                    <center>Available</center>
+                                                </th>
+                                                <th>
+                                                    <center>Operation</center>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tBody">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- BEGIN CONTAINER-->
+                        </div>
+                        <!-- END CONTENT BODY -->
+                    </div>
+                    <!-- END CONTENT -->
+            </div>
+            <!-- END CONTAINER -->
+            <!-- BEGIN FOOTER -->
+            <%include ../../footer.ejs%>
+
+                <script type="text/template" id="moban">
+                    <tr>
+                        <td style="text-align:center;vertical-align:inherit;">
+                            <div><span>{{= id }}</span></div>
+                        </td>
+                        <td>
+                            <div><a href="/common/detail?id={{=_id}}&type=data">{{= name }}</a></div>
+                            <p>{{= description }}</p>
+                        </td>
+                        <td style="text-align:center;vertical-align:inherit;"><img style='width：150px;height:70px;' src="{{=imgSrc}}" /></td>
+                        <td style="text-align:center;vertical-align:inherit;">
+                            {{=status}}
+                        </td>
+                        <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                            <div>
+                                <span><a class='btn btn-custom-info' title="Detail" href="/rmt/common/detail?id={{=_id}}&type=data&ip={{=ip}}"><i class="fa fa-info" aria-hidden="true"></i></a></span>
+                                <span><a class='btn btn-custom-call' title="Download" href="/rmt/data/download?id={{=_id}}&ip={{=ip}}"><i class="fa fa-cloud-download" aria-hidden="true"></i></a></span>
+                                {{=swith}}
+                                <span><a class='btn btn-custom-trash' title="Delete" href="javascript:void(0);" onclick='deleteService("{{=_id}}","data","{{=ip}}");'><i class="fa fa-trash-o" aria-hidden="true"></i></a></span>
+                            </div>
+                        </td>
+                    </tr>
+                </script>
+                <!-- <span><button class='btn btn-custom-stop' title="Stop" href="/data/stop?id={{=_id}}"><i class="fa fa-stop" aria-hidden="true"></i></button></span>
+                <span><button class='btn btn-custom-trash' title="Delete" href="/data/delete?id={{=_id}}"><i class="fa fa-trash-o" aria-hidden="true"></i></button></span> -->
+    </div>
+
+    <% include ../../include_js.ejs %>
+        <script src="/js/underscore-noflect.js"></script>
+        <script src="/js/custom-js/my-filter.js"></script>
+        <script src='/myjs/rmt_tools.js'></script>
+        <!--分页  -->
+        <script src="/plugins/ogms.paginator/ogms.pageEn.js"></script>
+
+        <script>
+            // 启用表格搜索
+            enable_search('txt_search');
+            
+            function rmt_loadServices(data,ip) {
+                // 远程转发返回的是一个字符串
+                data = JSON.parse(data);
+
+                var compiled = _.template($("#moban").html());
+                $("#tBody").html('');
+
+                (function iterator(i) {
+                    if (i == data.length) {
+                        return;
+                    }
+                  
+                    var status = '';
+                    var swith = '';
+                    // var associate = '';
+                    if (data[i].available === '1') {
+                        status = '<span id="sAvailble' + i + '" class="label label-success">Available</span>';
+                        swith = '<span><button id="btnSwitch' + i + '" class="btn btn-custom-trash" value="start" did="' + data[i]._id.toString() + '" title="Stop"><i class="fa fa-stop" aria-hidden="true"></i></button></span>';
+                    } else {
+                        status = '<span id="sAvailble' + i + '" class="label label-danger">Disabled</span>';
+                        swith = '<span><button id="btnSwitch' + i + '" class="btn btn-custom-trash" value="stop" did="' + data[i]._id.toString() + '" title="Start"><i class="fa fa-play" aria-hidden="true"></i></button></span>';
+                    }
+                    var html = compiled({
+                        id: i + 1,
+                        name: data[i].name,
+                        description: data[i].description,
+                        _id: data[i]._id.toString(),
+                        imgSrc: data[i].snapshot,//"data:image/" + format + ";base64," + imgData,
+                        status: status,
+                        swith: swith,
+                        ip:ip
+                    });
+                    $("#tBody").append($(html));
+
+                    // 开启/停止
+                    $('#btnSwitch' + i).click(function () {
+                        if ($(this).attr('value') === 'start') {
+                            // 点击停止服务
+                            $.get('/rmt/common/switch', { type: 'data', id: $(this).attr('did'), status: 'available', tostatus: '-1',ip:ip }, function (data) {
+                                if (data === '-1') {
+                                    toastr.error('failed to switch the status of this data service.', 'Error', { timeOut: 3000 });
+                                    return;
+                                }
+                                $('#btnSwitch' + i).attr('value', 'stop');
+                                $('#btnSwitch' + i).attr('title', 'Start');
+
+                                $('#sAvailble' + i).text('Disabled');
+                                $('#sAvailble' + i).removeClass('label-success').addClass('label-danger');
+
+                                $($('#btnSwitch' + i).children('i')[0]).removeClass('fa-stop').addClass('fa-play');
+                            });
+                        } else if ($(this).attr('value') === 'stop') {
+                            // 点击开启服务
+                            $.get('/rmt/common/switch', { type: 'data', id: $(this).attr('did'), status: 'available', tostatus: '1',ip:ip }, function (data) {
+                                if (data === '-1') {
+                                    toastr.error('failed to switch the status of this data service.', 'Error', { timeOut: 3000 });
+                                    return;
+                                }
+                                $('#btnSwitch' + i).attr('value', 'start');
+                                $('#btnSwitch' + i).attr('title', 'Stop');
+
+                                $('#sAvailble' + i).text('Availble');
+                                $('#sAvailble' + i).removeClass('label-danger').addClass('label-success');
+
+                                $($('#btnSwitch' + i).children('i')[0]).removeClass('fa-play').addClass('fa-stop');
+                            });
+                        }
+                    });
+
+                    iterator(i + 1);
+                })(0);
+            }
+
+            // 拿到所有的局域网的ip地址
+            function loadAllIPs() {
+                $.get('/rmt/ips', {}, function (data) {
+                    // 获取局域网内的ip所有主机的ip地址
+                    if (data === '-1') {
+                        toastr.error('failed to get the host information, the server is busy.', 'Error', { timeOut: 3000 });
+                        return;
+                    }
+
+                    var firstip = '';
+                    var html = '';
+                    for (var i = 0; i < data.length; i++) {
+                        if (i === 0) {
+                            firstip = data[i].host + ':' + data[i].port;
+                        }
+                        html += '<li role="presentation">';
+                        html += '<a role="menuitem" tabindex="-1" onclick="rmt_initPaginator(\'data\',10,\'' + data[i].host + ':' + data[i].port + '\');" href="javascript:void(0);">' + data[i].host + ':' + data[i].port + '</a>';
+                        html += '</li>';
+                    }
+
+                    $('#hosts').append($(html));
+
+                    // 加载第一个host的datamap服务
+                    rmt_initPaginator('data', 10, firstip);
+                });
+            }
+
+            $(function () {
+                loadAllIPs();
+            });
+        </script>
+
+</body>
+
+</html>

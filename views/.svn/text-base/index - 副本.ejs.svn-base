@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include header.ejs%>
+            <!-- END HEADER -->
+            <!-- BEGIN HEADER & CONTENT DIVIDER -->
+            <div class="clearfix"> </div>
+            <!-- END HEADER & CONTENT DIVIDER -->
+            <!-- BEGIN CONTAINER -->
+            <div class="page-container">
+                <!-- BEGIN SIDEBAR -->
+                <% include sidebar.ejs %>
+                    <!-- END SIDEBAR -->
+                    <!-- BEGIN CONTENT -->
+                    <div class="page-content-wrapper">
+                        <!-- BEGIN CONTENT BODY -->
+                        <div class="page-content">
+                            <!-- BEGIN PAGE HEADER-->
+                            <!-- BEGIN THEME PANEL -->
+                            <% include theme_setting.ejs %>
+                                <!-- END THEME PANEL -->
+                                <!-- BEGIN PAGE BAR -->
+                                <!--<div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li>
+                                            <a href="index.html">Home</a>
+                                            <i class="fa fa-circle"></i>
+                                        </li>
+                                        <li>
+                                            <span>Dashboard</span>
+                                        </li>
+                                    </ul>
+                                </div>-->
+                                <!-- END PAGE BAR -->
+                                <!-- BEGIN PAGE TITLE-->
+
+                                <!-- BEGIN PAGE TITLE-->
+                                <h1 class="">Data Service Container &nbsp <small>Distributed geographic modeling platform</small></h1>
+                                <!-- END PAGE TITLE-->
+                                <!-- END PAGE TITLE-->
+                                <!-- END PAGE HEADER-->
+
+                                <div class="container-fluid" style="padding:0px;">
+                                    <div id="myCarousel" class="carousel slide">
+                                        <ol class="carousel-indicators">
+                                            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                                            <li data-target="#myCarousel" data-slide-to="1"></li>
+                                            <li data-target="#myCarousel" data-slide-to="2"></li>
+                                        </ol>
+                                        <div class="carousel-inner">
+                                            <div class="item active" style="background:#223240">
+                                                <img src="images/slide1.png" alt="第一张">
+                                            </div>
+                                            <div class="item" style="background:#F5E4DC;">
+                                                <img src="images/slide2.png" alt="第二张">
+                                            </div>
+                                            <div class="item" style="background:#DE2A2D;">
+                                                <img src="images/slide3.png" alt="第三张">
+                                            </div>
+                                        </div>
+                                        <a href="#myCarousel" data-slide="prev" class="carousel-control left">
+				<span class="glyphicon glyphicon-chevron-left"></span></a>
+                                        <a href="#myCarousel" data-slide="next" class="carousel-control right">
+				<span class="glyphicon glyphicon-chevron-right"></span></a>
+                                    </div>
+
+                                    <!--轮播结束-->
+
+
+
+
+                                    <!--Body-->
+                                    <div class="tab1">
+                                        <div class="container-fluid">
+                                            <h2 class="tab-h2">「Why We Choose Vge Data Services Center」</h2>
+                                            <p class="tab-p">资深的一线地理模型数据研究专家，强大的码农队伍，为您提供优质在线数据服务！</p>
+                                            <div class="row">
+                                                <div class="col-md-6 col">
+                                                    <div class="media">
+                                                        <div class="media-left">
+                                                            <a href="#"><img src="images/tab1-1.png" class="media-object" alt=""></a>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <h4 class="media-heading">Data Mapping Service</h4>
+                                                            <!--<p class="text-muted">其他：高校不知名的讲师编写，没有任何实战价值的教材！</p>-->
+                                                            <p>数据映射服务。</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col">
+                                                    <div class="media">
+                                                        <div class="media-left">
+                                                            <a href="#"><img src="images/tab1-2.png" class="media-object" alt=""></a>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <h4 class="media-heading">Data Refactor Service</h4>
+                                                            <!--<p class="text-muted">其他：非欧美正牌大学毕业的、业界没有知名度的讲师！</p>-->
+                                                            <p>数据重构服务。</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col">
+                                                    <div class="media">
+                                                        <div class="media-left">
+                                                            <a href="#"><img src="images/tab1-3.png" class="media-object" alt=""></a>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <h4 class="media-heading">Data Sharing Service</h4>
+                                                            <!--<p class="text-muted">其他：无法保证上课效率、没有时间表，任务无法完成！</p>-->
+                                                            <p>数据服务</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col">
+                                                    <div class="media">
+                                                        <div class="media-left">
+                                                            <a href="#"><img src="images/tab1-4.png" class="media-object" alt=""></a>
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <h4 class="media-heading">Visualization Service</h4>
+                                                            <!--<p class="text-muted">其他：社会招聘的、服务水平参差不齐的普通员工！</p>-->
+                                                            <p>可视化服务。</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab2">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 tab2-img">
+                                                    <img src="/images/tab2.jpg" class="auto img-responsive center-block" alt="">
+                                                </div>
+                                                <div class="text col-md-6 col-sm-6 tab2-text">
+                                                    <h3>专业的数据服务团队</h3>
+                                                    <p>经过地理模型专家的层层把关，让您安全方便地完成数据转换工作。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="tab3">
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6">
+                                                    <img src="/images/tab3.jpg" class="auto img-responsive center-block" alt="">
+                                                </div>
+                                                <div class="text col-md-6 col-sm-6">
+                                                    <h3>安全的云数据存储</h3>
+                                                    <p>最前沿的数据集成方案，让您对数据所见即所得。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+            <%include footer.ejs%>
+    </div>
+
+
+    <% include include_js.ejs %>
+        <script src="/myjs/ui_handle.js" type="text/javascript"></script>
+        <script>
+            $(function () {
+                // Override global options
+
+                // http://www.bootcdn.cn/toastr.js/readme/ for help
+                // toastr.success('We do have the Kapua suite available.', 'Turtle Bay Resort', { timeOut: 5000 });
+                add_notifications("notifications_list", "#", 1, "This is a test1.", "2017-5-18 20:20:00");
+                add_notifications("notifications_list", "#", 1, "This is a test2.", "2017-5-18 20:20:00");
+                add_notifications("notifications_list", "#", 1, "This is a test3.", "2017-5-18 20:20:00");
+
+            })
+        </script>
+</body>
+
+</html>

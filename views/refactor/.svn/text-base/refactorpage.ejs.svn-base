@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Refactor services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!-- <link href="/css/custom-css/my-filter.css" rel="stylesheet" type="text/css" /> -->
+        <!--分页  -->
+        <link href="/plugins/ogms.paginator/ogms.page.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include ../header.ejs%>
+            <!-- END HEADER -->
+            <!-- BEGIN HEADER & CONTENT DIVIDER -->
+            <div class="clearfix"> </div>
+            <!-- END HEADER & CONTENT DIVIDER -->
+            <!-- BEGIN CONTAINER -->
+            <div class="page-container">
+                <!-- BEGIN SIDEBAR -->
+                <!-- BEGIN SIDEBAR -->
+                <% include ../sidebar.ejs %>
+                    <!-- END SIDEBAR -->
+                    <!-- END SIDEBAR -->
+                    <!-- BEGIN CONTENT -->
+                    <div class="page-content-wrapper">
+                        <!-- BEGIN CONTENT BODY -->
+                        <div class="page-content">
+                            <!-- BEGIN PAGE HEADER-->
+                            <!-- BEGIN THEME PANEL -->
+                            <% include ../theme_setting.ejs %>
+                                <!-- END THEME PANEL -->
+                                <!-- BEGIN PAGE BAR -->
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+
+                                        <li><span>Refactors</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+
+                                    <!--<div class="container">-->
+                                    <div>
+                                        <!-- <a href="/refactor/advance" class="btn btn-info pull-left" style="margin-top:12px;">For Advance</a> -->
+                                        <p style="float:right;font-family:Arial, Helvetica, sans-serif;font-size:14px;">New refactor service? <a href="/common/uploadservice?type=refactor">To upload</a></p>
+                                        <div class="clear"></div>
+                                    </div>
+
+                                    <!--筛选条件显示区域-->
+                                    <!-- <div class="panel-group row-fluid" id="tags-group">
+                                        <div id="group1" class="panel row custom-group">
+                                            <span class="col-md-2 group-head">Base Data 
+											<i></i>
+											</span>
+                                            <div class="col-md-10 group-body my-folding my-collapse">
+
+                                                <span class="selected"> Raster </span>
+                                                <span> Vector </span>
+                                                <span> Vector Grid Integration </span>
+                                                <span> Hi~ </span>
+                                                <span> Hi~ </span>
+                                            </div>
+                                        </div>
+
+                                        <div id="group2" class="panel row custom-group">
+                                            <span class="col-md-2 group-head">Raster Data 
+											<i></i>
+											</span>
+                                            <div class="col-md-10 group-body my-folding my-collapse">
+                                                <span> Ascii Grid </span>
+                                                <span> DEM </span>
+                                                <span> JPG </span>
+                                                <span> PNG </span>
+                                                <span> TIFF </span>
+                                            </div>
+                                        </div>
+
+                                        <div id="group3" class="panel row custom-group">
+                                            <span class="col-md-2 group-head">Vector Data 
+											<i></i>
+											</span>
+                                            <div class="col-md-10 group-body my-folding my-collapse">
+                                                <span> River </span>
+                                                <span> Road </span>
+                                                <span> Contour </span>
+                                                <span> Boundary </span>
+
+                                            </div>
+                                        </div>
+
+
+                                        <div id="group4" class="panel row custom-group">
+                                            <span class="col-md-2 group-head">Others
+											<i></i>
+											</span>
+                                            <div class="col-md-10 group-body my-folding my-collapse">
+                                                <span> Fvcom </span>
+                                                <span> grid </span>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                                    <!--搜索  -->
+                                    <div class='pull-left'>
+                                        <strong>search：</strong><input id='txt_search' type="text" />
+                                    </div>
+                                    <!--分页  -->
+                                    <div class="pull-right">
+                                        <ul class="page" maxshowpageitem="5" pagelistcount="10" id="paginator"></ul>
+                                    </div>
+
+                                    <!-- <ul style="margin-top:0px" id='paginator' class="pagination pull-right"> -->
+                                    <!-- <li><a href="#">&laquo;</a></li>
+                                        <li class="active"><a href="#">1</a></li>
+                                        <li><a href="#">2</a></li>
+                                        <li><a href="#">3</a></li>
+                                        <li><a href="#">4</a></li>
+                                        <li><a href="#">5</a></li>
+                                        <li><a href="#">&raquo;</a></li>   -->
+                                    <!-- </ul>  -->
+                                    <div class="clear"></div>
+
+                                    <div class="table-responsive">
+                                        <table id="tab_services" class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <center>Number</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Service Infomation</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Version</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Snapshot</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Register</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Available</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Operation</center>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBody">
+
+                                            </tbody>
+                                        </table>
+                                        <div id='divinfo' style="display:none;text-align:center">there has no more refactor services now.</div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+            <%include ../footer.ejs%>
+
+    </div>
+    <script type="text/template" id="moban">
+        <tr>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= id }}</span></div>
+            </td>
+            <td>
+                <div>
+                    <span><a href="/refactor/detail?id={{= _id }}">{{= name }}</a></span>
+                    <p>{{= description }}</p>
+                </div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                1.0
+            </td>
+            <td style="text-align:center;vertical-align:inherit;"><img style='width：150px;height:70px;' src="{{=imgSrc}}" /></td>
+            <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                {{=associate}}
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                {{=status}}
+            </td>
+            <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                <span><a class='btn btn-custom-info'  title="Detail" href="/common/detail?id={{=_id}}&type=refactor" class="btn btn-primary"> <i class="fa fa-info" aria-hidden="true"></i></a></span>
+                <span><a class='btn btn-custom-call' title="Invoke"    href="/refactor/detail?id={{=_id}}" class="btn btn-primary"><i class="fa fa-external-link" aria-hidden="true"></i></a></span>
+                <span><a class='btn btn-custom-call' title="upload"    href="#" class="btn btn-primary"><i class="fa fa-cloud-upload" aria-hidden="true"></i></a></span>    
+                {{=swith}}
+                <span><a class='btn btn-custom-trash' title="Delete" href="javascript:void(0);" onclick='deleteService("{{=_id}}","refactor");' class="btn red"><i class="fa fa-trash-o" aria-hidden="true"></i></a></span>
+                <!--<a href="/refactor/advance?id={{= _id }}" class="btn btn-default">高级调用</a>-->
+                <!--<div><span><a href="/datamap/use?id={{= _id }}">我是小白</a></span></div>
+                    <div><span><a href="/datamap/use?id={{= _id }}">资深玩家</a></span></div>-->
+            </td>
+        </tr>
+    </script>
+
+    <% include ../include_js.ejs %>
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src='/myjs/tools.js'></script>
+        <!-- <script src="/js/custom-js/my-filter.js"></script> -->
+        <!--分页  -->
+        <script src="/plugins/ogms.paginator/ogms.pageEn.js"></script>
+
+        <script>
+            // 启用表格搜索
+            enable_search('txt_search');
+
+
+            //url:请求的地址
+            //params：请求参数,包括：页码，每页显示的记录树。{'index':0,'count':10}
+            function loadServices(data) {
+
+                if (data.length <= 0) {
+                    $('#divinfo').css('display', 'block');
+                    return;
+                }
+
+                var compiled = _.template($("#moban").html());
+                $("#tBody").html('');
+                $('#divinfo').css('display', 'none');
+
+                (function iterator(i) {
+
+                    if (i === data.length) {
+                        return;
+                    }
+
+                    // 判断服务状态是否可用
+                    var status = '';
+                    var swith = '';
+
+                    var register = '';
+                    var associate = '';
+                    if (data[i].available === '1') {
+                        status = '<span id="sAvailble' + i + '" class="label label-success">Available</span>';
+                        swith = '<span><button id="btnSwitch' + i + '" class="btn btn-custom-trash" value="start" did="' + data[i]._id.toString() + '" title="Stop"><i class="fa fa-stop" aria-hidden="true"></i></button></span>';
+                    } else {
+                        status = '<span id="sAvailble' + i + '" class="label label-danger">Disabled</span>';
+                        swith = '<span><button id="btnSwitch' + i + '" class="btn btn-custom-trash" value="stop" did="' + data[i]._id.toString() + '" title="Start"><i class="fa fa-play" aria-hidden="true"></i></button></span>';
+                    }
+
+                    // 注册状态
+                    if (data[i].associate === '1') {
+                        associate = '<span id="sAssociate' + i + '" class="label label-success">Registered</span>';
+                        register = '<span><button id="btnRegister' + i + '" class="btn btn-custom-call" value="register" did="' + data[i]._id.toString() + '" title="UnRegister"><i class="fa fa-chain-broken" aria-hidden="true"></i></button></span>';
+                    } else { // -1 没关联
+                        associate = '<span id="sAssociate' + i + '" class="label label-danger">UnRegister</span>';
+                        register = '<span><button id="btnRegister' + i + '" class="btn btn-custom-call" value="unregister" did="' + data[i]._id.toString() + '" title="Register"><i class="fa fa-link" aria-hidden="true"></i></button></span>';
+                    }
+
+                    //数据绑定
+                    var html = compiled({
+                        id: i + 1,
+                        name: data[i].name,
+                        description: data[i].description,
+                        _id: data[i]._id.toString(),
+                        imgSrc: data[i].snapshot,
+                        status: status,
+                        swith: swith,
+                        associate: associate
+                    });
+
+                    //DOM操作，添加节点
+                    $("#tBody").append($(html));
+
+                    // 切换注册状态
+                    $('#btnRegister' + i).click(function () {
+                        if ($(this).attr('value') === 'register') {
+                            // 点击取消注册
+                            $.get('/common/register', { type: 'refactor', uid: data[i].uid, sname: data[i].name, action: '-1', sid: data[i]._id }, function (data) {
+                                if (data === '-1') {
+                                    toastr.error('failed to unregister current data service from portal.', 'Error', { timeOut: 3000 });
+                                    return;
+                                }
+                                $('#btnRegister' + i).attr('value', 'unregister');
+                                $('#btnRegister' + i).attr('title', 'Register');
+
+                                $('#sAssociate' + i).text('UnRegister');
+                                $('#sAssociate' + i).removeClass('label-success').addClass('label-danger');
+
+                                $($('#btnRegister' + i).children('i')[0]).removeClass('fa-chain-broken').addClass('fa-link');
+                            });
+
+                        } else if ($(this).attr('value') === 'unregister') {
+                            // 点击向门户注册
+                            $.get('/common/register', { type: 'refactor', uid: data[i].uid, sname: data[i].name, action: '1', sid: data[i]._id }, function (data) {
+                                if (data === '-1') {
+                                    toastr.error('failed to register current mapping service to portal.', { timeOut: 3000 });
+                                    return;
+                                }
+
+                                $('#btnRegister' + i).attr('value', 'register');
+                                $('#btnRegister' + i).attr('title', 'UnRegister');
+
+                                $('#sAssociate' + i).text('Registered');
+                                $('#sAssociate' + i).removeClass('label-danger').addClass('label-success');
+                                // 注册成功之后，更改按钮图标为断开注册
+                                $($('#btnRegister' + i).children('i')[0]).removeClass('fa-link').addClass('fa-chain-broken');
+                            });
+                        }
+                    });
+
+
+                    // 开启/停止
+                    $('#btnSwitch' + i).click(function () {
+                        if ($(this).attr('value') === 'start') {
+                            // 点击停止服务
+                            $.get('/common/switch', { type: 'refactor', status: 'available', tostatus: '-1', id: $(this).attr('did') }, function (data) {
+                                if (data === '-1') {
+                                    toastr.error('failed to switch the status of this data service.', 'Error', { timeOut: 3000 });
+                                    return;
+                                }
+                                $('#btnSwitch' + i).attr('value', 'stop');
+                                $('#btnSwitch' + i).attr('title', 'Start');
+
+                                $('#sAvailble' + i).text('Disabled');
+                                $('#sAvailble' + i).removeClass('label-success').addClass('label-danger');
+
+                                $($('#btnSwitch' + i).children('i')[0]).removeClass('fa-stop').addClass('fa-play');
+                            });
+                        } else if ($(this).attr('value') === 'stop') {
+                            // 点击开启服务
+                            $.get('/common/switch', { type: 'refactor', status: 'available', tostatus: '1', id: $(this).attr('did') }, function (data) {
+                                if (data === '-1') {
+                                    toastr.error('failed to switch the status of this data service.', 'Error', { timeOut: 3000 });
+                                    return;
+                                }
+                                $('#btnSwitch' + i).attr('value', 'start');
+                                $('#btnSwitch' + i).attr('title', 'Stop');
+
+                                $('#sAvailble' + i).text('Availble');
+                                $('#sAvailble' + i).removeClass('label-danger').addClass('label-success');
+
+                                $($('#btnSwitch' + i).children('i')[0]).removeClass('fa-play').addClass('fa-stop');
+                            });
+                        }
+                    });
+
+                    iterator(i + 1);
+                })(0);
+            }
+
+            //页面加载完毕，请求服务信息。
+            $(function () {
+                // 初始化页码导航
+                initPaginator('refactor', 10);
+                
+                // loadServices('/refactor/services', { "pageamount": 10, "page": 0, "ids": "all" });//查询全部
+            });
+        </script>
+</body>
+
+</html>

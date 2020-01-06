@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/VgeData/!svn/ver/43/views/rmt/datamap
+END
+rmtpage.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/VgeData/!svn/ver/47/views/rmt/datamap/rmtpage.ejs
+END
+rmtrunres.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/VgeData/!svn/ver/47/views/rmt/datamap/rmtrunres.ejs
+END
+rmtinstancepage.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/VgeData/!svn/ver/47/views/rmt/datamap/rmtinstancepage.ejs
+END
+rmtusepae.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/VgeData/!svn/ver/47/views/rmt/datamap/rmtusepae.ejs
+END
+rmtrecordpage.ejs
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/VgeData/!svn/ver/47/views/rmt/datamap/rmtrecordpage.ejs
+END

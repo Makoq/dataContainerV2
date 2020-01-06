@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/addon/tern
+END
+tern.css
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/addon/tern/tern.css
+END
+tern.js
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/addon/tern/tern.js
+END
+worker.js
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/addon/tern/worker.js
+END

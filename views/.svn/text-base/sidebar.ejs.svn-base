@@ -1,0 +1,310 @@
+<div class="page-sidebar-wrapper">
+    <div class="page-sidebar navbar-collapse collapse">
+        <ul class="page-sidebar-menu page-header-fixed page-sidebar-menu-closed" data-keep-expanded="false" data-auto-scroll="true"
+            data-slide-speed="200" style="padding-top: 0px">
+
+            <li <%if(active==="home" ){%>class="active"<%}%>>
+                    <a href="/" class="nav-link nav-toggle">
+                    <i class="icon-home"></i>
+                    <span class="title">Home</span>
+                </a>
+            </li>
+
+            <!--数据服务-->
+            <li <%if(active==="dataservice" ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <i class="fa fa-share-alt" aria-hidden="true"></i>
+                    <span class="title">Sharing Service</span>
+                    <%if(active==="dataservice" ){%>
+                    <span class="arrow open"></span>
+                    <%}else{%>
+                    <span class="arrow"></span>
+                    <%}%>
+                </a>
+
+                <ul class="sub-menu">
+                    <li <%if(subactive===( "dataservice_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                        <a href="/data" class="nav-link ">
+                            <i class="fa fa-television" aria-hidden="true"></i>
+                            <span class="title">Local Services</span>
+                        </a>
+                    </li>
+
+                    <li <%if(subactive===( "dataservice_1") ){%>class="nav-item active open" <%}else{%>class="nav-item"<%}%>>
+                        <a href="/rmt/data" class="nav-link ">
+                            <i class="fa fa-rss" aria-hidden="true"></i>
+                            <span class="title">Remote Services</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!--映射服务-->
+            <li <%if(active==="mapping" ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <i class="fa fa-sitemap" aria-hidden="true"></i>
+                    <span class="title">Mapping Service</span>
+                   <%if(active==="mapping" ){%>
+                    <span class="arrow open"></span>
+                    <%}else{%>
+                    <span class="arrow"></span>
+                    <%}%>
+                </a>
+                <!--本地二级菜单-->
+                <ul class="sub-menu">
+                    <li <%if(subactive===( "mapping_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <i class="fa fa-television" aria-hidden="true"></i>
+                            <span class="title">Local Services</span>
+                             <%if(subactive==="mapping_0" ){%>
+                                 <span class="arrow open"></span>
+                                     <%}else{%>
+                                 <span class="arrow"></span>
+                                 <%}%>
+                        </a>
+                        <!--本地三级菜单-->
+                        <ul class="sub-menu">
+                            <li <%if(th_active===( "mapping_0_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                                <a href="/datamap">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="title">Service Items</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "mapping_0_1") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                                <a href="/datamap/instance">
+                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                    <span class="title">Running Instances</span>
+                                </a>
+                            </li>
+                            <li<%if(th_active===( "mapping_0_2") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                                <a href="/datamap/record">
+                                    <i class="fa fa-history" aria-hidden="true"></i>
+                                    <span class="title">History Records</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "mapping_0_3") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                                <a href="/common/uploadservice?type=datamap">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                    <span class="title">Create Service</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--远程二级菜单-->
+                    <li <%if(subactive===( "mapping_1") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <i class="fa fa-rss" aria-hidden="true"></i>
+                            <span class="title">Remote Services</span>
+                             <%if(subactive==="mapping_1" ){%>
+                                 <span class="arrow open"></span>
+                                     <%}else{%>
+                                 <span class="arrow"></span>
+                                 <%}%>
+                        </a>
+                        <!--远程三级菜单-->
+                        <ul class="sub-menu">
+                            <li <%if(th_active===( "mapping_1_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                                <a href="/rmt/datamap">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="title">Service Items</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "mapping_1_1") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                                <a href="/rmt/datamap/instance">
+                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                    <span class="title">Running Instances</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "mapping_1_2") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/rmt/datamap/record">
+                                    <i class="fa fa-history" aria-hidden="true"></i>
+                                    <span class="title">History Records</span>
+                                </a>
+                            </li>
+                             <li <%if(th_active===( "mapping_1_3") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="#">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                    <span class="title">Create Service</span>
+                                </a>
+                            </li> 
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <!--重构服务-->
+            <li <%if(active==="refactor" ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%> >
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <i class="fa fa-cogs" aria-hidden="true"></i>
+                    <span class="title">Refactor Service</span>
+                   <%if(active==="refactor" ){%>
+                    <span class="arrow open"></span>
+                    <%}else{%>
+                    <span class="arrow"></span>
+                    <%}%>
+                </a>
+                
+                <ul class="sub-menu">
+                    <!--本地二级菜单-->
+                    <li <%if(subactive===( "refactor_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <i class="fa fa-television" aria-hidden="true"></i>
+                            <span class="title">Local Services</span>
+                            <%if(subactive==="refactor_0" ){%>
+                                 <span class="arrow open"></span>
+                                     <%}else{%>
+                                 <span class="arrow"></span>
+                                 <%}%>
+                        </a>
+                        <!--本地三级菜单-->
+                        <ul class="sub-menu">
+                            <li <%if(th_active===( "refactor_0_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/refactor">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="title">Service Items</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_0_3") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/refactor/advance">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="title">Multiple Service</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_0_1") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/refactor/instance">
+                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                    <span class="title">Running Instances</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_0_2") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/refactor/record">
+                                    <i class="fa fa-history" aria-hidden="true"></i>
+                                    <span class="title">History Records</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_0_4") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/common/uploadservice?type=refactor">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                    <span class="title">Create Service</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!--远程二级菜单-->
+                    <li <%if(subactive===( "refactor_1") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                             <i class="fa fa-rss" aria-hidden="true"></i>
+                            <span class="title">Remote Services</span>
+                              <%if(subactive==="refactor_1" ){%>
+                                 <span class="arrow open"></span>
+                                     <%}else{%>
+                                 <span class="arrow"></span>
+                                 <%}%>
+                        </a>
+                        <!--远程三级菜单-->
+                        <ul class="sub-menu">
+                            <li <%if(th_active===( "refactor_1_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/rmt/refactor">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="title">Service Items</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_1_4") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/rmt/refactor/advance">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="title">Multiple Service</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_1_1") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/rmt/refactor/instance">
+                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                    <span class="title">Running Instances</span>
+                                </a>
+                            </li>
+                            <li <%if(th_active===( "refactor_1_2") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="/rmt/refactor/record">
+                                    <i class="fa fa-history" aria-hidden="true"></i>
+                                    <span class="title">History Records</span>
+                                </a>
+                            </li>
+                             <li <%if(th_active===( "refactor_1_3") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                                <a href="#">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                    <span class="title">Create Service</span>
+                                </a>
+                            </li> 
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <!--可视化服务-->
+            <li <%if(active==="visualization" ){%> class="nav-item active" <%}else{%> class="nav-item" <%}%> >
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <i class="icon-pointer" aria-hidden="true"></i>
+                    <span class="title">Visualization Service</span>
+                   <%if(active==="visualization" ){%>
+                    <span class="arrow open"></span>
+                    <%}else{%>
+                    <span class="arrow"></span>
+                    <%}%>
+                </a>
+                <!-- 本地二级菜单  -->
+                <ul class="sub-menu">
+                    <li <%if(subactive===( "visualization_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                        <a href="/visualization" class="nav-link">
+                            <i class="fa fa-television" aria-hidden="true"></i>
+                            <span class="title">Local Services</span>
+                        </a>
+
+                    <!--远程二级菜单  -->
+                    <li <%if(subactive==="visualization_1" ){%> class="nav-item active" <%}else{%> class="nav-item" <%}%> >
+                        <a href="/rmt/visualization" class="nav-link">
+                            <i class="fa fa-rss" aria-hidden="true"></i>
+                            <span class="title">Remote Services</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+           
+            <!--回收站-->
+            <li <%if(active==="recycle" ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                    <span class="title">Recycle Bin</span>
+                    <%if(active==="recycle" ){%>
+                    <span class="arrow open"></span>
+                    <%}else{%>
+                    <span class="arrow"></span>
+                    <%}%>
+                </a>
+
+                <ul class="sub-menu">
+                    <li <%if(subactive===( "recycle_0") ){%> class="nav-item active open" <%}else{%> class="nav-item" <%}%>>
+                        <a href="/recycle" class="nav-link ">
+                            <i class="fa fa-television" aria-hidden="true"></i>
+                            <span class="title">Local Recycle Bin</span>
+                        </a>
+                    </li>
+
+                    <li <%if(subactive===( "recycle_1") ){%>class="nav-item active open" <%}else{%>class="nav-item"<%}%>>
+                        <a href="/rmt/recycle" class="nav-link ">
+                            <i class="fa fa-rss" aria-hidden="true"></i>
+                            <span class="title">Remote Recycle Bin</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <!--设置-->
+            <li <%if(active==="about" ){%> class="nav-item active" <%}else{%> class="nav-item" <%}%>>
+                <a href="#" class="nav-link nav-toggle">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    <span class="title">Setting</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

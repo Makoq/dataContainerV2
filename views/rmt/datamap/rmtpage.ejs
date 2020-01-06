@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Data services | distributed geographic modeling platform</title>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<meta content="" name="description" />
+	<meta content="" name="author" />
+	<!-- BEGIN GLOBAL MANDATORY STYLES -->
+	<% include ../../include_css.ejs %>
+		<!-- END THEME LAYOUT STYLES -->
+		<link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+		<!-- <link href="/css/custom-css/my-filter.css" rel="stylesheet" type="text/css" /> -->
+		<!--分页  -->
+		<link href="/plugins/ogms.paginator/ogms.page.css" rel="stylesheet" type="text/css" />
+		<link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+	<div class="page-wrapper">
+		<%include ../../header.ejs%>
+			<div class="clearfix"> </div>
+			<div class="page-container">
+				<% include ../../sidebar.ejs %>
+					<div class="page-content-wrapper">
+						<div class="page-content">
+							<% include ../../theme_setting.ejs %>
+								<div class="page-bar">
+									<ul class="page-breadcrumb">
+										<li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+											<i class="fa fa-angle-right" aria-hidden="true"></i>
+										</li>
+										<li><span>Mapping Services</span></li>
+									</ul>
+								</div>
+
+								<!-- BEGIN CONTAINER-->
+								<div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+									<!--<div class="container">-->
+									<div>
+										<p style="float:right;font-family:Arial, Helvetica, sans-serif;font-size:14px;">New mapping service? <a href="/rmt/common/uploadservice?type=datamap">To upload</a></p>
+										<div class="clear"></div>
+									</div>
+
+
+
+									<!--搜索  -->
+									<div class='pull-left' style="margin-bottom:10px;">
+										<strong>search：</strong><input id='txt_search' type="text" />
+									</div>
+									<!--分页  -->
+									<div class="pull-right">
+										<ul class="page" maxshowpageitem="5" pagelistcount="10" id="paginator"></ul>
+									</div>
+									<div class="clear"></div>
+
+									<!--选择主机ip-->
+									<div class="dropdown" style="margin:0px">
+										<button type="button" class="btn dropdown-toggle btn-success" id="dropdownMenu1" data-toggle="dropdown">
+											Remote Hosts
+											<span class="caret"></span>
+										</button>
+										<ul id='hosts' class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+											<!--<li role="presentation">
+												<a role="menuitem" tabindex="-1" href="#">Java</a>
+											</li>-->
+										</ul>
+									</div>
+									<div class="table-responsive">
+										<table id="tab_services" class="table table-bordered table-hover table-striped">
+											<thead>
+												<tr>
+													<th>
+														<center>Number</center>
+													</th>
+													<th>
+														<center>Service Information</center>
+													</th>
+													<th>
+														<center>Version</center>
+													</th>
+													<th>
+														<center>Snapshot</center>
+													</th>
+													<th>
+														<center>Register Status</center>
+													</th>
+													<th>
+														<center>Available Status</center>
+													</th>
+													<th>
+														<center>Operation</center>
+													</th>
+												</tr>
+											</thead>
+											<tbody id="tBody">
+
+											</tbody>
+										</table>
+										<div id='divinfo' style="display:none;text-align:center">there has no more refactor services now.</div>
+									</div>
+
+								</div>
+								<!-- BEGIN CONTAINER-->
+						</div>
+						<!-- END CONTENT BODY -->
+					</div>
+					<!-- END CONTENT -->
+			</div>
+			<!-- END CONTAINER -->
+			<!-- BEGIN FOOTER -->
+			<%include ../../footer.ejs%>
+
+	</div>
+
+	<% include ../../include_js.ejs %>
+
+		<!--category的模板-->
+		<script type="text/template" id="category_moban">
+			<a href="javascript:void(0);" onclick="loadServiceByCategory('{{=name}}');" class="list-group-item">{{=name}}</a>
+		</script>
+
+		<script type="text/template" id="moban">
+			<tr>
+				<td style="text-align:center;vertical-align:inherit;">
+					<div><span>{{= id }}</span></div>
+				</td>
+				<td>
+					<div><a href="/rmt/common/detail?id={{= _id }}&type=datamap&ip={{=ip}}">{{= name }}</a></div>
+					<p>{{= description }}</p>
+				</td>
+				<td style="text-align:center;vertical-align:inherit;">
+					1.0
+				</td>
+				<!-- <td style="text-align:center;vertical-align:inherit;">
+					<span class="label custom-label"><i class="fa fa-windows"></i>windows</span>
+				</td> -->
+				<td style="text-align:center;vertical-align:inherit;"><img style='width：150px;height:70px;' src="{{=imgSrc}}" /></td>
+				<td style="text-align:center;vertical-align:inherit;">
+					{{=associate}}
+				</td>
+				<td style="text-align:center;vertical-align:inherit;">
+					{{=status}}
+				</td>
+				<td style="text-align:center;vertical-align:inherit;">
+					<div>
+						<span><a class='btn btn-custom-info'  title="Detail" href="/rmt/common/detail?id={{=_id}}&type=datamap&ip={{=ip}}"><i class="fa fa-info" aria-hidden="true"></i></a></span>
+						<span><a class='btn btn-custom-call' title="Invoke" href="/rmt/datamap/use?id={{=_id}}&ip={{=ip}}"><i class="fa fa-external-link" aria-hidden="true"></i></a></span>
+						{{=register}} {{=swith}}
+						<span><a class='btn btn-custom-trash' title="Delete" href="javascript:void(0);" onclick='deleteService("{{=_id}}","datamap","{{=ip}}")'><i class="fa fa-trash-o" aria-hidden="true"></i></a></span>
+					</div>
+				</td>
+			</tr>
+		</script>
+
+		<script src="/js/underscore-noflect.js"></script>
+		<script src='/myjs/datamap_tools.js'></script>
+		<script src='/myjs/rmt_tools.js'></script>
+		<!-- <script src="/js/custom-js/my-filter.js"></script> -->
+		<!--分页  -->
+		<script src="/plugins/ogms.paginator/ogms.pageEn.js"></script>
+
+		<script>
+			// 启用表格搜索
+			enable_search('txt_search');
+
+			//url:请求的地址
+			//params：请求参数,包括：页码，每页显示的记录数。{'index':0,'count':10}
+			function rmt_loadServices(data,ip) {
+				if (data.length <= 0) {
+					$('#divinfo').css('display', 'block');
+					return;
+				}
+
+				data = JSON.parse(data);				
+
+				$('#divinfo').css('display', 'none');
+
+				var compiled = _.template($("#moban").html());
+				$("#tBody").html('');
+
+				(function iterator(i) {
+					if (i == data.length) {
+						return;
+					}
+
+					// 由于容器的id可能变化，所以，在一开始加载的时候，还需要再次检查每个服务是否能够正常链接门户，如果没有的话，则提示用户。
+					// $.get('/datamap/isregister', { uid: data[i].uid }, function (isregister) {
+					// 	if (isregister === '-1') {
+					// 		return;
+					// 	} else if (isregister == '0') {
+					// 	}
+
+					// 判断服务状态是否可用s
+					var status = '';
+					var swith = '';
+
+					var associate = '';
+					var register = '';
+					// 可用状态
+					if (data[i].available == '1') {
+						status = '<span id="sAvailble' + i + '" class="label label-success">Available</span>';
+						swith = '<span><button id="btnSwitch' + i + '" class="btn btn-custom-trash" value="start" did="' + data[i]._id.toString() + '" title="Stop"><i class="fa fa-stop" aria-hidden="true"></i></button></span>';
+					} else {
+						status = '<span id="sAvailble' + i + '" class="label label-danger">Disabled</span>';
+						swith = '<span><button id="btnSwitch' + i + '" class="btn btn-custom-trash" value="stop" did="' + data[i]._id.toString() + '" title="Start"><i class="fa fa-play" aria-hidden="true"></i></button></span>';
+					}
+					// 注册状态
+					if (data[i].associate === '1') {
+						associate = '<span id="sAssociate' + i + '" class="label label-success">Registered</span>';
+						register = '<span><button id="btnRegister' + i + '" class="btn btn-custom-call" value="register" did="' + data[i]._id.toString() + '" title="UnRegister"><i class="fa fa-chain-broken" aria-hidden="true"></i></button></span>';
+					} else { // -1 没关联
+						associate = '<span id="sAssociate' + i + '" class="label label-danger">UnRegister</span>';
+						register = '<span><button id="btnRegister' + i + '" class="btn btn-custom-call" value="unregister" did="' + data[i]._id.toString() + '" title="Register"><i class="fa fa-link" aria-hidden="true"></i></button></span>';
+					}
+
+					var html = compiled({
+						id: i + 1,
+						name: data[i].name,
+						description: data[i].description,
+						_id: data[i]._id.toString(),
+						imgSrc: data[i].snapshot,//"data:image/" + format + ";base64," + imgData,
+						status: status,
+						swith: swith,
+						associate: associate,
+						uid: data[i].uid,
+						register: register,
+						ip:ip
+					});
+					$("#tBody").append($(html));
+
+					// 切换注册状态
+					$('#btnRegister' + i).click(function () {
+						if ($(this).attr('value') === 'register') {
+							// 点击取消注册
+							$.get('/rmt/common/register', {type:'datamap', uid: data[i].uid, sname: data[i].name, action: '-1',  sid: data[i]._id,ip:ip }, function (data) {
+								if (data === '-1') {
+									toastr.error('failed to unregister current data service from portal.', 'Error', { timeOut: 3000 });
+									return;
+								}
+								data = JSON.parse(data);
+								
+								$('#btnRegister' + i).attr('value', 'unregister');
+								$('#btnRegister' + i).attr('title', 'Register');
+
+								$('#sAssociate' + i).text('UnRegister');
+								$('#sAssociate' + i).removeClass('label-success').addClass('label-danger');
+
+								$($('#btnRegister' + i).children('i')[0]).removeClass('fa-chain-broken').addClass('fa-link');
+							});
+
+						} else if ($(this).attr('value') === 'unregister') {
+							// 点击向门户注册
+							$.get('/rmt/common/register', { type:'datamap',uid: data[i].uid, sname: data[i].name, action: '1',  sid: data[i]._id,ip:ip }, function (data) {
+								if (data === '-1') {
+									toastr.error('failed to register current mapping service to portal.', { timeOut: 3000 });
+									return;
+								}
+								data = JSON.parse(data);
+
+								$('#btnRegister' + i).attr('value', 'register');
+								$('#btnRegister' + i).attr('title', 'UnRegister');
+
+								$('#sAssociate' + i).text('Registered');
+								$('#sAssociate' + i).removeClass('label-danger').addClass('label-success');
+								// 注册成功之后，更改按钮图标为断开注册
+								$($('#btnRegister' + i).children('i')[0]).removeClass('fa-link').addClass('fa-chain-broken');
+							});
+						}
+					});
+
+					// 开启/停止 服务
+					$('#btnSwitch' + i).click(function () {
+						if ($(this).attr('value') === 'start') {
+							// 点击停止服务
+							$.get('/rmt/common/switch', { type: 'datamap', status: 'available', tostatus: '-1', id: $(this).attr('did'),ip:ip }, function (data) {
+								if (data === '-1') {
+									toastr.error('failed to switch the status of this data service.', 'Error', { timeOut: 3000 });
+									return;
+								}
+								data = JSON.parse(data);
+
+								$('#btnSwitch' + i).attr('value', 'stop');
+								$('#btnSwitch' + i).attr('title', 'Start');
+
+								$('#sAvailble' + i).text('Disabled');
+								$('#sAvailble' + i).removeClass('label-success').addClass('label-danger');
+
+								$($('#btnSwitch' + i).children('i')[0]).removeClass('fa-stop').addClass('fa-play');
+							});
+						} else if ($(this).attr('value') === 'stop') {
+							// 点击开启服务
+							$.get('/rmt/common/switch', { type: 'datamap', status: 'available', tostatus: '1', id: $(this).attr('did'),ip:ip }, function (data) {
+								if (data === '-1') {
+									toastr.error('failed to switch the status of this data service.', 'Error', { timeOut: 3000 });
+									return;
+								}
+								data = JSON.parse(data);
+
+								$('#btnSwitch' + i).attr('value', 'start');
+								$('#btnSwitch' + i).attr('title', 'Stop');
+
+								$('#sAvailble' + i).text('Availble');
+								$('#sAvailble' + i).removeClass('label-danger').addClass('label-success');
+
+								$($('#btnSwitch' + i).children('i')[0]).removeClass('fa-play').addClass('fa-stop');
+							});
+						}
+					});
+
+					iterator(i + 1);
+					// });
+				})(0);
+			}
+
+			// 拿到所有的局域网的ip地址
+			function loadAllIPs() {
+				$.get('/rmt/ips', {}, function (data) {
+
+					// 获取局域网内的ip所有主机的ip地址
+					if (data === '-1') {
+						toastr.error('failed to get the host information, the server is busy.', 'Error', { timeOut: 3000 });
+						return;
+					}
+
+					var firstip = '';
+					var html = '';
+					for (var i = 0; i < data.length; i++) {
+						if (i === 0) {
+							firstip = data[i].host + ':' + data[i].port;
+						}
+						html += '<li role="presentation">';
+						html += '<a role="menuitem" tabindex="-1" onclick="rmt_initPaginator(\'datamap\',10,\'' + data[i].host + ':' + data[i].port + '\');" href="javascript:void(0);">' + data[i].host + ':' + data[i].port + '</a>';
+						html += '</li>';
+					}
+
+					$('#hosts').append($(html));
+
+					// 加载第一个host的datamap服务
+					rmt_initPaginator('datamap', 10, firstip);
+				});
+			}
+
+			//页面加载完毕，请求服务信息。
+			$(function () {
+				// var mapServices = loadMapServices('/datamap/services', { "pageamount": 10, "page": 0, "ids": "all" });//查询全部
+				// rmt_initPaginator('datamap', 10,ip);
+				loadAllIPs();
+			});
+		</script>
+
+</body>
+
+</html>

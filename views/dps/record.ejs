@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../include_css.ejs %>
+        <!-- END THEME LAYOUT STYLES -->
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href='/dp'>DPS</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <span>Records</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+
+                                    <p><strong>DPS Records</strong></p>
+
+                                     <div class="table-responsive">
+                                                <table class="table table-bordered table-hover table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                                <center>Id</center>
+                                                            </th>
+                                                            <th>
+                                                                <center>Alias</center>
+                                                            </th>
+                                                            <th>
+                                                                <center>Start Time</center>
+                                                            </th>
+                                                            <th>
+                                                                <center>Duration</center>
+                                                            </th>
+                                                            <th>
+                                                                <center>Invoker</center>
+                                                            </th>
+                                                            <th>
+                                                                <center>Status</center>
+                                                            </th>
+                                                            <th>
+                                                                <center>Operation</center>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="advancebody">
+
+                                                    </tbody>
+                                                </table>
+                                                <div id='rinfo2' style="display:none;text-align:center">there has no more items now.</div>
+                                            </div>
+
+                                </div>
+                                <!--END CONTAINER-->
+                        </div>
+                    </div>
+            </div>
+            <%include ../footer.ejs%>
+    </div>
+
+
+    <!--advance template-->
+    <script type="text/template" id="admoban">
+        <tr>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{=id}}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><a href='/dp/advanceresult?guid={{=guid}}'>{{=alias}}</a></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{=starttime}}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{=duration}}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{=invoker}}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{=status}}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                <a href='/dps/result?guid={{=guid}}' class="btn btn-info btn-xs" type="button"><i class="fa fa-book"></i>Details</a>
+                <a href='javascript:void(0);' onclick='deleteRecord("{{=guid}}","dp_advance");' class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash"></i>Delete</a>
+            </td>
+        </tr>
+    </script>
+
+    <% include ../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src="/js/custom-js/my-filter.js"></script>
+        <script src='/myjs/tools.js'></script>
+
+        <script>
+            $(function () {
+               
+                // 请求串联重构服务运行实例信息
+                $.get('/common/records', { type: 'dps', pageamount: 10, page: 0 }, function (data) {
+                    if (data === '-1') {
+                        toastr.error('failed to load advance refactor records.', 'Error', { timeOut: 3000 });
+                        return;
+                    }
+
+                    if (data.length <= 0) {
+                        // toastr.warning('there has no more records now.', 'Warning', { timeOut: 3000 });
+                        $('#rinfo2').css('display', 'block');
+                        return;
+                    }
+
+                    var compiled = _.template($("#admoban").html());
+                    $("#advancebody").html('');
+                    $('#rinfo2').css('display', 'none');
+
+                    var statusHtml = '';
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].status === '1') {
+                            statusHtml = '<span class="label label-success">success</span>';
+                        } else if (data[i].status === '-1') {
+                            statusHtml = '<span class="label label-danger">error</span>';
+                        }
+
+                        var end = new Date(data[i].endtime);
+                        var start = new Date(data[i].starttime);
+                        var duration = (end - start) / 1000;
+
+                        var html = compiled({
+                            id: i + 1,
+                            guid: data[i].guid,
+                            alias: data[i].ins_alias, //当前实例的别名，可能涉及到多个实例
+                            starttime: data[i].starttime,
+                            duration: duration + ' s',
+                            status: statusHtml,
+                            invoker: data[i].username
+                        });
+
+                        $("#advancebody").append($(html));
+                    }
+                });
+
+            });
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <% include ../include_css.ejs %>
+
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/jquery-ui.min.css" />
+  <link rel="stylesheet" href="/css/jquery.dataTables.min.css" />
+
+</head>
+
+<body>
+
+  <div style="margin: 10px;">
+    <table class="table table-bordered table-hover" id='serTable'>
+      <thead>
+        <tr>
+          <th>
+            <center>Id</center>
+          </th>
+          <th>
+            <center>Service Name</center>
+          </th>
+          <th>
+            <center>Author</center>
+          </th>
+          <th>
+            <center>Operation</center>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="tBody">
+
+      </tbody>
+    </table>
+
+    <button class="btn btn-primary btn-sm" style="float: right; width:100px;margin-top: 10px;" id='btnOK'>OK</button>
+
+  </div>
+
+  <% include ../include_js.ejs %>
+  <script src="/js/jquery-ui.min.js"></script>
+  <script src="/js/jquery.dataTables.min.js"></script>
+
+  <script>
+
+    $(function () {
+      // 请求重构服务
+      $.get('/common/services', { type: 'data', ids: 'all' }, function (data) {
+        if (data === '-1') {
+          toastr.error('failed to get refactor services.', 'Error', { timeOut: 5000 });
+          return;
+        }
+        console.log(data)
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+          html += '<tr>' +
+            '<td>' + i + '</td>' +
+            '<td>' + data[i].name + '</td>' +
+            '<td>' + data[i].author + '</td>' +
+            '<td><input type="checkbox" name="cb" sname="' + data[i].name + '" id="' + data[i]._id + '" /><label for="' + data[i]._id + '">choose</label></td>' +
+            '</tr>';
+        }
+        $('tBody').append($(html));
+
+        // TODO: 单选 因为现在只有1个服务
+        // var cbs = $("input[name='cb']:checked");
+        // console.log(cbs);
+        // for (var i = 0; i < cbs.length; i++) {
+        //   sids.push($(cbs[i]).attr('id'));
+        // }
+        // $("input[type='checkbox']").on('click', function () {
+        // });
+
+        $('#serTable').DataTable();
+      });
+
+      $('#btnOK').click(function () {
+
+        // 选择的服务ids
+        var sids = new Array();
+
+        var cbs = $("input[name='cb']:checked");
+        if (cbs.length > 1 || cbs.length <= 0)
+          toastr.error('You can only select one item ', { timeOut: 100 });
+
+        var filename = $(cbs[0]).attr('sname');
+        var oid = $(cbs[0]).attr('id');
+        window.opener.fileinput({ parentid: '', filename: filename, format: '', oid: oid });
+
+        return;
+      });
+    });
+
+
+
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+method.exe -h    // 帮助信息
+method.exe -v    // 版本信息
+method.exe -s    // Schema信息
+method.exe -c    // 支持可访问的节点
+
+method.exe -w -u dd.xml -f rr.tif    // write: udx -> src  完整转换
+method.exe -r -f rr.tif -u udx.xml   // read: src -> udx   完整转换
+
+method.exe -r -f rr.tif -n header    // read: src -> udx   转换指定节点
+method.exe -r -f rr.tif -n header -i [1,2]   // read: src -> udx   转换list中的节点，以数组表示层次关系。	

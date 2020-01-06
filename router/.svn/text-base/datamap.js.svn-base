@@ -1,0 +1,682 @@
+var db = require("../models/db.js");
+var ObjectID = require('mongodb').ObjectID;//数据库ObjectId
+var fs = require('fs');
+var child_process = require('child_process');
+var formidable = require('formidable');
+
+var file = require('./file.js');
+// 配置文件
+var settings = require("../settings.js");
+
+// 对http请求的封装模块
+var request = require('request');
+// var querystring = require('querystring');
+
+//显示数据映射页面
+exports.showMapPage = function (req, res, next) {
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    // req.session.currentRouter = "/datamap";
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+    res.render("datamap/mappage", {
+        "login": login,
+        "username": username,
+        "active": "mapping",
+        "subactive": "mapping_0",
+        "th_active": "mapping_0_0"
+    });
+}
+
+//得到所有数据映射服务
+// exports.getMapServices = function (req, res, next) {
+//     //get提交，获取参数  {"pageamount":10,"page":10}
+//     var paramJson = req.query;
+
+//     //var param =  req.params.name;//get按照{}传递参数，req.params获取不到
+//     var pageamount = parseInt(paramJson.pageamount);//每页的行数
+//     var page = parseInt(paramJson.page);//第几页
+//     var ids = paramJson.ids;
+
+//     var findConditioin = new Array();
+
+//     if (ids == "all") {//查询全部
+//         findConditioin.push({});
+//     } else if (ids instanceof Array) {
+//         for (var i = 0; i < ids.length; i++) {
+//             findConditioin.push({ "_id": ObjectID(ids[i]) });
+//         }
+//     }
+
+//     // 排序  "sort":{"name":1}
+//     db.find("datamap", { "$or": findConditioin ,delete:'-1'}, { "pageamount": pageamount, "page": page, "sort": { "datetime": 1 } }, function (err, result) {
+//         if (err) {
+//             console.log(err);
+//             res.send('-1');//获取数据失败
+//             return;
+//         }
+//         res.send(result);
+//     });
+// }
+
+// 获取映射服务的个数
+// exports.getMapServiceCount = function (req, res, next) {
+//     db.getAllCount('datamap', function (count) {
+//         res.send(count + '');
+//     });
+// }
+
+
+//显示使用映射服务的界面
+exports.showUsePage = function (req, res, next) {
+    // req.session.currentRouter = "/datamap/use";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+    res.render('datamap/usePage', {
+        "login": login,
+        "username": username,
+        "active": "mapping",
+        "subactive": "mapping_0",
+        "th_active": "mapping_0_0"
+    });
+}
+
+//获取udx schema
+exports.getUdxSchema = function (req, res, next) {
+    var params = req.query;
+    var datamapId = params.id;
+    var type = params.type;//remote
+
+    if (datamapId == undefined) {
+        res.send('-1');//id参数无效
+        return;
+    }
+
+    var basepath = __dirname + "/../upload/datamap/" + datamapId + '/';
+    var cfgJson = '';
+    //1.读取配置文件，获取schema所在路径
+    try {
+        cfgJson = JSON.parse(fs.readFileSync(basepath + 'cfg.json'));
+    } catch (e) {
+        console.log('read cfg.json error: ' + e);
+        res.send('-2');
+        return;
+    }
+
+    var schemaPath = cfgJson.schema;
+
+    //********************************************************* */
+
+    if (type === 'json') {
+        // schema 所在的路径
+        var path = basepath + schemaPath + '/schema.json';
+
+        var json_string = '';
+        try {
+            json_string = fs.readFileSync(path, "utf-8"); //同步读取文件的方法
+        } catch (ex) {
+            console.log('read schema.json error: ' + ex);
+            res.send('-3');
+            return;
+        }
+
+        res.send(json_string);
+    } else if(type === 'xml'){
+
+        // 远程请求
+        // schema 所在的路径
+        var path = basepath + schemaPath + '/schema.xml';
+
+        var xml_string = '';
+        try {
+            xml_string = fs.readFileSync(path, "utf-8"); //同步读取文件的方法
+        } catch (ex) {
+            console.log('read schema.xml error: ' + ex);
+            res.send('-3');
+            return;
+        }
+        res.send(xml_string);
+    }
+
+    // 以前的实现，执行exe后去json版本的schema
+    // var path = __dirname + "/../upload/datamap/" + datamapId + '/vge.exe';//绝对路径
+    // console.log(path + " schema");
+    // var options={encoding:'utf8'};
+    // var schema = exec(path+" schema",options);
+    // cwd 指定工作目录
+    // child_process.exec(path + " schema -json", { cwd: __dirname + "/../upload/datamap/" + datamapId }, function (err, data, stderr) {
+    //     if (err) {
+    //         console.log(err, stderr);
+    //         res.send("-1");
+    //         return;
+    //     }
+    //     res.send(JSON.parse(data));
+    // });
+
+    //**************************************************** */
+    // schema.stdout.on('data', function (data) {
+    // console.log('标准输出：' + data);
+    // var builder = new xml2js.Builder();  // JSON->xml
+    // xml =  builder.buildObject(json);
+    // console.log(data);
+    // console.log("========================");
+
+    // console.log(jsonData);
+    //JSON.parse(jsonstr); //可以将json字符串转换成json对象 
+    //console.log(JSON.stringify(jsonData)); //可以将json对象转换成json对符串  
+
+    //var jsonObj = JSON.parse(data);
+    //res.send(jsonObj);
+
+    // });
+
+    // schema.on('exit', function (code) {
+    //     console.log('Udx Schema读取子进程正常关闭，代码：' + code);
+    // });
+}
+
+// exports.getUdxSchemas = function (req, res, next) {
+//     var params = req.query;
+//     var datamapIds = params.ids;
+
+//     var ids = new Array();
+//     for (var i = 0; i < datamapIds.length; i++) {
+//         ids.push({ "_id": ObjectID(datamapIds[i]) });
+//     }
+
+//     // 拿着id去找 对应的映射服务的地址
+//     db.find("datamap", { "$or": ids }, function (err, result) {
+//         if (err) {
+//             res.send('-1');//获取数据失败
+//             return;
+//         }
+//         //resul 是一个数组
+
+//         // 这里使用匿名函数，异步转同步。
+//         var finalDataArray = new Array();
+//         (function iterator(i) {
+//             if (i == result.length) {
+//                 //遍历结束
+//                 res.send(finalDataArray);
+//                 return;
+//             }
+
+//             var path = __dirname + "/.." + result[i].path + '/' + result[i]._id + '/vge.exe';//绝对路径
+//             // cwd 指定工作目录
+//             child_process.exec(path + " schema -json", { cwd: __dirname + "/.." + result[i].path + '/' + result[i]._id }, function (err, data, stderr) {
+//                 if (err) {
+//                     console.log(err, stderr);
+//                     res.send("");
+//                     return;
+//                 }
+//                 // console.log(data);
+//                 // res.send(JSON.parse(data));
+//                 finalDataArray.push(JSON.parse(data));
+//                 iterator(i + 1);
+//             });
+//         })(0);
+//     });
+// }
+
+//获取节点值
+exports.getNode = function (req, res, next) {
+    //'filename':filename,'nodename':data.node.text,'type':'xml'
+    var paramObj = req.query;
+    var serviceid = paramObj.id;//服务id
+    //var filename = paramObj.filename;//原始文件路径
+    var nodename = paramObj.nodename;
+    // var type = paramObj.type;
+    var username = req.session.username;
+
+    // 如果是远程请求的话，这里的username是没有值，是undefined，除非是本地请求。
+
+    if (username === undefined) {
+        username = req.query.username;
+    }
+
+    //var parentid = paramObj.parentid;//当前数据的父目录
+    var oid = paramObj.oid;//原始文件名，因为原始文件都是以其id进行命名的。
+
+    var srcPath = __dirname + '/../upload/userdata/' + username + '/' + oid;
+
+
+    var basedir = __dirname + "/../upload/datamap/" + serviceid + '/';
+    // 1. 读取配置文件，获取该映射服务的调用信息
+    var cfgJson = '';
+    try {
+        cfgJson = JSON.parse(fs.readFileSync(basedir + 'cfg.json'));
+    } catch (e) {
+        console.log('read cfg.json error: ' + e);
+        res.send('-1');
+        return;
+    }
+
+    var type = cfgJson.type;//映射服务的调用类型：jar、exe
+    var start = cfgJson.start;//映射服务的入口
+    var cmd = '';
+    if (type === 'exe') {
+        cmd = basedir + start;
+    } else if (type === 'jar') {
+        cmd = 'java -jar ' + basedir + start;
+    } else {
+        res.send('the datamapping service has not been supported yet.');
+    }
+
+    // 参数
+    var p = ' -r -f ' + srcPath + ' -n ' + nodename;
+
+    //调用映射服务
+    child_process.exec(cmd + p, { cwd: basedir }, function (err, data, stderr) {
+        if (err) {
+            console.log('getnode error: ' + err + ';' + stderr);
+            res.send('-2');
+            return;
+        }
+        res.send(data);
+    });
+
+
+    // var path = basedir + 'vge.exe';//绝对路径
+
+    // 旧版本的命名格式
+    // child_process.exec(path + " " + nodename + " -" + type + ' ' + srcPath, { cwd: __dirname + "/../upload/datamap/" + serviceid }, function (err, data, stderr) {
+    //     if (err) {
+    //         console.log(err, stderr);
+    //         res.send("-1");
+    //         return;
+    //     }
+    //     res.send(data);
+    // });
+};
+
+
+// 执行 src -> udx 映射操作。
+// exports.callRead = function (req, res, next) {
+
+// }
+
+// 显示上传datamap的页面
+// exports.showUploadMapService = function (req, res, next) {
+//     // req.session.currentRouter = "/datamap/uploadservice";
+//     if (req.session.login != "1") {//未登录
+//         //重定向
+//         res.redirect('/accounts/login');
+//         return;
+//     }
+
+//     if (req.session.login == "1") {
+//         //如果登陆了
+//         var username = req.session.username;
+//         req.session.TempName = "";
+//         var login = true;
+//     } else {
+//         //没有登陆
+//         var username = "";  //制定一个空用户名
+//         var login = false;
+//     }
+
+//     res.render("datamap/uploadzip", {
+//         "login": login,
+//         "username": username,
+//         "active": "mapping",
+//         "subactive": "mapping_0",
+//         "th_active": "mapping_0_3"
+//     });
+// }
+
+// 上传Map Services
+// exports.uploadDatamapService = function (req, res, next) {
+
+// }
+
+//得到datamap的snapshot
+// exports.getSnapshot = function (req, res, next) {
+//     var sid = req.query.sid;
+//     var pic = req.query.pic;
+//     try {
+//         var imageBuf = fs.readFileSync(__dirname + '/../upload/datamap/' + sid + '/' + pic);
+//     } catch (err) {
+//         console.log('read datamap snapshot error : ' + err);
+//         //给一个默认图片
+//         res.send('/images/logo.png');
+//     }
+//     if (imageBuf === undefined) {
+//         res.send('/images/logo.png');
+//     } else
+//         res.send(imageBuf.toString('base64'));
+// }
+
+//删除映射服务
+// exports.deleteDatamap = function (req, res, next) {
+// var sid = req.query.id;
+
+// // var dir = __dirname + '/../upload/datamap/' + sid;
+// //1.首先删除物理磁盘上的数据：调用子进程删除本地文件夹。
+// file.deleteDir( __dirname + "/../upload/datamap",sid,function(err, data, stderr){
+//     if (err) {
+//         console.log('delete datamap error: ' + err);
+//         res.send('-1');
+//         return;
+//     }
+//     //2.再删除数据中的信息
+//     db.deleteMany('datamap', { _id: ObjectID(sid) }, function (err1, resul) {
+//         if (err1) {
+//             console.log('delete datamap db error: ' + err1);
+//             res.send('-2');
+//             // return;
+//             // 设置该服务为不可用，因为执行到这一步，说明该服务已经物理删除了。
+//             db.updateMany('datamap', { _id: ObjectID(sid) }, { $set: { 'available': '0' } }, function (err2, result) {
+//                 if (err2) {
+//                     console.log('update datamap error: ' + err2);
+//                     res.send('-3');
+//                     return;
+//                 }
+//                 res.send('-4');
+//                 return;
+//             });
+//         } else {
+
+//             // 删除该服务的运行记录
+//             db.deleteMany('mappingrecord', { sid: sid }, function (err, resul) {
+//                 if (err) {
+//                     consolelog('delete datamap record error: ' + err);
+//                     res.send('-5');
+//                     return;
+//                 }
+//                 res.redirect('/datamap');
+//             });
+//         }
+//     });
+// });
+
+// child_process.exec('rd /s /q ' + sid, { cwd: __dirname + "/../upload/datamap" }, function (err, data, stderr) {
+//     if (err) {
+//         console.log('delete datamap error: ' + err);
+//         res.send('-1');
+//         return;
+//     }
+//     //2.再删除数据中的信息
+//     db.deleteMany('datamap', { _id: ObjectID(sid) }, function (err1, resul) {
+//         if (err1) {
+//             console.log('delete datamap db error: ' + err1);
+//             res.send('-2');
+//             // return;
+//             // 设置该服务为不可用，因为执行到这一步，说明该服务已经物理删除了。
+//             db.updateMany('datamap', { _id: ObjectID(sid) }, { $set: { 'available': '0' } }, function (err2, result) {
+//                 if (err2) {
+//                     console.log('update datamap error: ' + err2);
+//                     res.send('-3');
+//                     return;
+//                 }
+//                 res.send('-4');
+//                 return;
+//             });
+//         } else {
+
+//             // 删除该服务的运行记录
+//             db.deleteMany('mappingrecord', { sid: sid }, function (err, resul) {
+//                 if (err) {
+//                     consolelog('delete datamap record error: ' + err);
+//                     res.send('-5');
+//                     return;
+//                 }
+//                 res.redirect('/datamap');
+//             });
+//         }
+//     });
+// });
+
+// }
+
+//切换映射服务状态
+// exports.switchDatamap = function (req, res, next) {
+//     var sid = req.query.id;
+//     var action = req.query.action;
+//     var available = '-1'; // -1
+
+//     if (action === 'stop') {
+//         available = '-1';
+//     } else if (action === 'start') {
+//         available = '1';
+//     }
+
+//     db.updateMany('datamap', { _id: ObjectID(sid) }, { $set: { available: available } }, function (err, result) {
+//         if (err) {
+//             console.log("switch datamap service status error: " + err);
+//             res.send('-1');
+//             return;
+//         }
+//         res.send('1');
+//     });
+// }
+
+
+// 显示运行实例界面
+exports.showInstancePage = function (req, res, next) {
+
+    // req.session.currentRouter = "/datamap/use";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+    res.render('datamap/instancepage', {
+        "login": login,
+        "username": username,
+        "active": "mapping",
+        "subactive": "mapping_0",
+        'th_active': 'mapping_0_1'
+    });
+}
+
+// 获取正在运行的实例数据
+// exports.getInstanceInfo = function (req, res, next) {
+//     // 从内存中加载datamap运行实例的信息
+
+// }
+
+
+// 显示运行记录界面
+exports.showRecordPage = function (req, res, next) {
+
+    // req.session.currentRouter = "/datamap/use";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+    res.render('datamap/recordpage', {
+        "login": login,
+        "username": username,
+        "active": "mapping",
+        "subactive": "mapping_0",
+        'th_active': 'mapping_0_2'
+    });
+}
+
+
+// 获取运行记录信息
+// exports.getRecordInfo = function (req, res, next) {
+//     var pageamount = parseInt(req.query.pageamount);
+//     var page = parseInt(req.query.page);
+//     var guid = req.query.guid;
+
+//     var condition = {};
+//     if (guid != undefined) {
+//         condition = { guid: guid };
+//     }
+
+//     db.find('mappingrecord', condition, { pageamount: pageamount, page: page, sort: { "starttime": -1 } }, function (err, result) {
+//         if (err) {
+//             console.log('failed to read record info : ' + err);
+//             res.send('-1');
+//             return;
+//         }
+//         res.send(result);
+//     });
+// }
+
+// 显示运行结果页面
+exports.showResPage = function (req, res, next) {
+    // req.session.currentRouter = "/datamap/use";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+    res.render('datamap/runres', {
+        "login": login,
+        "username": username,
+        "active": "mapping",
+        "subactive": "mapping_0",
+        'th_active': 'mapping_0_2'
+    });
+}
+
+// 显示映射服务迁移页面
+exports.showDatamapTransPage = function (req, res, next) {
+    // req.session.currentRouter = "/datamap/use";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+    res.render('datamap/transferpage', {
+        "login": login,
+        "username": username,
+        "active": "mapping",
+        "subactive": "mapping_0",
+        'th_active': 'mapping_0_0'
+    });
+}
+
+// 注册映射服务到门户
+exports.registerDatamapping = function (req, res, next) {
+    // uid: uid, sname: sname, action:'1',type:'dataMapping'
+
+    var sid = req.query.sid;//服务id
+    var uid = req.query.uid;
+    var sname = req.query.sname;
+    var action = req.query.action;//1  注册   -1 取消注册
+    var type = req.query.type;
+
+    // 发送远程服务
+
+    // var formData = { "id": uid, "computeCollection": sname, "collName": collName };
+
+    var url = 'http://223.2.47.78:8080/registerDataMappingServlet';
+
+    request.get({ url: url, qs: { id: uid, sname: encodeURIComponent(sname), action: action, collName: type, sid: sid, port: settings.port } }, function (error, response, body) {
+        if (error) {
+            console.log('rmt register error: ' + error);
+            return;
+        }
+
+        if (response.statusCode === 200) {
+            // res.send(body);
+            var associate = '-1';
+            if (body === '0') {//已经注册过了
+                associate = '1';
+            }
+
+            db.updateMany('datamap', { uid: uid }, { $set: { associate: associate } }, function (err, result) {
+                if (err) {
+                    console.log("switch datamap service status error: " + err);
+                    res.send('-1');
+                    return;
+                }
+                res.send('1');
+            });
+        } else {
+            res.send('-1');
+        }
+    });
+
+}
+
+// 判断映射服务是否已经注册：主要用于数据容器ip更改时，自动取消与门户的关联
+exports.isRegisterDatamapping = function (req, res, next) {
+    var uid = req.query.uid;
+
+    request.get({ url: 'http://223.2.40.81:8080/isAssociateServlet', qs: { id: uid, collName: 'dataMapping' } }, function (error, response, body) {
+        if (error) {
+            console.log(error);
+            res.send('-1');
+            return;
+        }
+
+        if (response.statusCode === 200) {
+            res.send(body);
+        }
+    });
+}

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../../include_css.ejs %>
+        <!--jquery ui-->
+        <link rel="stylesheet" href="/css/jquery-ui.min.css" />
+        <!-- <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css"> -->
+        <link rel="stylesheet" href="/css/jquery.dataTables.min.css" />
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!--checkbox样式  -->
+        <!-- <link href="/css/custom-css/cb.css" rel="stylesheet" type="text/css" /> -->
+        <link rel="stylesheet" href="/assets/global/plugins/loader/loaders.css">
+        <link rel="shortcut icon" href="favicon.ico" />
+
+
+        <style>
+            #container {
+                min-height: 700px;
+                position: relative;
+                border: 1px solid #666666;
+                background-color: #ffffff;
+                border-radius: 5px;
+                z-index: 0;
+                overflow: hide;
+            }
+
+            #container {
+                background: url('/images/grid.png') repeat
+            }
+
+            #contextmenu {
+                border: 1px solid #aaa;
+                border-bottom: 0;
+                background: #eee;
+                position: absolute;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: none;
+            }
+
+            #contextmenu li a {
+                display: block;
+                padding: 10px;
+                border-bottom: 1px solid #aaa;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+            #contextmenu li a:hover {
+                background: #fff;
+            }
+        </style>
+
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include ../../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/refactor">Refactoring Services</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Multiple Refactors</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <%include ../../loading.ejs%>
+                                    <div class="container-fluid" style="padding:0px;margin-top:0px;min-height: 700px;">
+                                        <div style="margin-top:20px;margin-bottom:20px;">
+
+                                            <div class="container-fluid row">
+                                                <div class='pull-right'>
+                                                    <strong>Current Mode: </strong><label class='label label-info' id='curMode'>Selection Mode</label>
+                                                </div>
+                                                <div class="btn-toolbar">
+                                                    <div class="btn-group btn-group-sm btn_custom" style="margin-bottom:5px;">
+                                                        <!-- <input type="file" id="files" style="display:none" onchange="importFile();" />
+                                                        <button id="btnOpen" title="choose services" type="button" class="btn btn-default"><i class="fa fa-folder-open" style="color:#000" aria-hidden="true"></i></button> -->
+                                                        <button id='btnAdd' title="add service" type="button" class="btn btn-default"><i class="fa fa-plus" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id='btnZoomIn' title="zoom in" type="button" class="btn btn-default"><i class="fa fa-search-plus" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id='btnZoomOut' title="zoom out" type="button" class="btn btn-default"><i class="fa fa-search-minus" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id='btnSelect' title="select mode" type="button" class="btn btn-default"><i class="fa fa-location-arrow" style="color:#000" aria-hidden="true"></i></span></button>
+                                                        <button id='btnLink' title="link mode" type="button" class="btn btn-default"><i class="fa fa-code-fork" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id='btnSavePic' title="save picture" type="button" class="btn btn-default"><i class="fa fa-picture-o" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id="btnCenter" title="center" type="button" class="btn btn-default"><i class="fa fa-bars" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id="btnRun" title="run model" type="button" class="btn btn-default"><i class="fa fa-play" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id='btnRefresh' type="button" class="btn btn-default"><i class="fa fa-refresh" style="color:#000" aria-hidden="true"></i></button>
+                                                        <button id='btnDelete' title="delete node(s)" type="button" class="btn btn-default"><i class="fa fa-trash-o" style="color:#000" aria-hidden="true"></i></span></button>
+                                                    </div>
+                                                </div>
+
+                                                <div id="method_list" class="col-xs-3 custom_list" style="border:1px solid #666666; min-height:700px;background-color: #fff; border-radius:5px;padding-top: 12px;">
+                                                    <!--<article>-->
+                                                    <!--搜索框-->
+                                                    <!-- <div class="input-group"><input type="text" name="raster-src-file" class="form-control input-args-field"
+                                                            placeholder="refactor services" required="required">
+                                                        <div class="input-group-addon file-choose-btn" id="input-file-btn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                                        </div>
+                                                    </div> -->
+                                                    <!--重构方法库列表-->
+                                                    <div class="panel-group" id="accordion" style="margin-top:10px;">
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div id="container" class="col-xs-9" style='padding:0px'>
+                                                    <!--<div id="container">-->
+                                                    <canvas width="975px" height="690px" id="scene"></canvas>
+                                                    <!--</div>-->
+                                                </div>
+                                            </div>
+                                            <!--<div style="margin-top:10px" id="divOutputFile"></div>-->
+                                        </div>
+                                    </div>
+
+                                    <!--添加Schema模态框-->
+                                    <div id="addModal" class="modal fade" aria-labelledby="addModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <!--content-->
+                                            <div class="modal-content">
+                                                <!--header-->
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                    <h4 class="modal-title" id="addModalLabel">Choose services you want to integrated</h4>
+                                                </div>
+                                                <!--选择主机ip-->
+                                                <div class="dropdown" style="margin:0px">
+                                                    <button type="button" class="btn dropdown-toggle btn-success" id="dropdownMenu1" data-toggle="dropdown">
+                                                            Remote Hosts
+                                                            <span class="caret"></span>
+                                                        </button>
+                                                    <ul id='hosts' class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+
+                                                    </ul>
+                                                </div>
+                                                <!--body-->
+                                                <div class="modal-body">
+                                                    <table class="table table-bordered table-hover" id='serTable'>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>
+                                                                    <center>Id</center>
+                                                                </th>
+                                                                <th>
+                                                                    <center>Service Name</center>
+                                                                </th>
+                                                                <th>
+                                                                    <center>Author</center>
+                                                                </th>
+                                                                <th>
+                                                                    <center>Operation</center>
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tBody">
+
+                                                        </tbody>
+                                                    </table>
+
+
+                                                </div>
+                                                <!--footer-->
+                                                <div class="modal-footer">
+                                                    <button id="btn_add_ok" type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                      <!--运行之前弹出的模态框：为当前运行实例起一个别名  -->
+                                    <div id="runModal" class="modal fade" aria-labelledby="runModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <!--content-->
+                                            <div class="modal-content">
+                                                <!--header-->
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                    <h4 class="modal-title" id="runModalLabel">Warning</h4>
+                                                </div>
+                                                <!--body-->
+                                                <div class="modal-body">
+                                                    <label>Please input one alias for current instance, so you can find it conveniently later.</label>
+                                                    <input type="text" id='ins_alias' class="form-control" placeholder="please input current instance alias">
+                                                </div>
+                                                <!--footer-->
+                                                <div class="modal-footer">
+                                                    <button id="btn_run_ok" type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ui-dialog -->
+                                    <div id="dialog" hidden="hidden" title="Refactor Toolbox">
+
+                                    </div>
+                        </div>
+                    </div>
+            </div>
+            <%include ../../footer.ejs%>
+    </div>
+
+    <!-- <ul id="contextmenu" style="display:none;">
+        <li><a>设置为参数</a></li>
+        <li><a>取消设置为参数</a></li>
+        <li><a>删除该节点</a></li>
+    </ul> -->
+
+    <% include ../../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src="/plugins/jstree/jstree.min.js"></script>
+        <!--jquery ui-->
+        <script src="/js/jquery-ui.min.js"></script>
+        <!-- <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>   -->
+
+        <!--绘图-->
+        <script src="/plugins/jtopo/js/jtopo-0.4.8-min.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src='/myjs/rmt_refactor_toolbar.js'></script>
+
+        <script src="/js/jquery.dataTables.min.js"></script>
+
+        <!--加载动画-->
+        <script src='/assets/global/plugins/loader/loaders.css.js'></script>
+        <script>
+            var win = null;//选择数据对话框
+            var scene = '';
+            var stage = '';
+            var isLinkMode = false;// 是否是链接模式
+            var beginNode = null;// 链接开始的节点
+            var currentNode = '';//菜单事件
+
+            //绘图颜色
+            var initColor = '204,102,51';
+            var setValueColor = '0,255,0';
+            var setParamColor = '0,0,255';
+
+            // var editor;
+            //导入外部文件
+            function importFile() {
+                var selectedFile = document.getElementById("files").files[0];//获取读取的File对象
+                // var name = selectedFile.name;//读取选中文件的文件名
+                // var size = selectedFile.size;//读取选中文件的大小
+                // console.log("文件名:" + name + "大小：" + size);
+                var reader = new FileReader();//这里是核心！！！读取操作就是由它完成的。
+                reader.readAsText(selectedFile);//读取文件的内容
+
+                reader.onload = function () {
+                    //console.log(this.result);//当读取完成之后会回调这个函数，然后此时文件的内容存储到了result中。直接操作即可。
+                    //editor.setValue(this.result);
+
+                    // var json = this.result;
+                    // stage = JTopo.createStageFromJson(json, document.getElementById('scene'));
+                };
+            }
+
+            // callback: 将选择的数据填充到文本框中。
+            function fileinput(data) {
+                // data是一个json对象，其结构如下：
+                // { parentid: parentid, filename: filename, format: format, oid: oid }
+                // 所在目录id、文件名、类型(文件/文件夹)、在数据库中的ObjecID
+                // if (win.curNode.iotype === 'in') {//输入参数
+                //     if (data.format === 'Folder') {//选择的是文件夹
+                //         toastr.error('please choose a directiry for the output file(s)..', 'Error', { timeOut: 2000 });
+                //         return;
+                //     }
+                // } else {//输出参数
+                //     if (data.format === 'Common File') {//选择的是文件
+                //         toastr.error('please choose a file for the iutput file..', 'Error', { timeOut: 2000 });
+                //         return;
+                //     }
+                // }
+
+                if (data.format === 'Folder') {// 选择的是文件夹
+                    toastr.warning('please choose a file', 'Warning', { timeOut: 5000 });
+                    return;
+                }
+
+                // 设置到文本框，命名规范：方法名_参数名
+                $('#' + win.curNode.methodName + '_' + win.curNode.text).val(data.filename);
+                win.curNode.datapath = data.filename;//当前选择的别名
+                win.curNode.pid = data.parentid;// 目录id
+                win.curNode.realpath = data.oid;// 存储真实的数据路径。如果是输出数据的话，data.oid表示输出数据的目录
+
+                //设置数据之后，变色文本框
+                win.curNode.fillColor = setValueColor;
+                win.close();
+            }
+
+            // 右键菜单事件
+            // function handler(event) {
+            //     if (event.button == 2) {// 右键
+            //         // 当前位置弹出菜单（div）
+            //         $("#contextmenu").css({
+            //             top: event.pageY,
+            //             left: event.pageX
+            //         }).show();
+            //     }
+            // }
+
+            /* 右键菜单处理 */
+            // $("#contextmenu a").click(function () {
+            //     var text = $(this).text();
+
+            //     if (text == '设置为参数') {
+            //         currentNode.fillColor = setParamColor;
+            //         currentNode.isParam = '1'; // 设置为参数
+            //     }
+
+            //     if (text == '取消设置为参数') {
+            //         currentNode.isParam = '0'; // 取消设置为参数
+            //         if (currentNode.datapath != undefined) {
+            //             if (myTrim(currentNode.datapath) != '')
+            //                 currentNode.fillColor = setValueColor;
+            //         } else {
+            //             currentNode.fillColor = initColor; // 一开始设置的颜色
+            //         }
+            //     }
+
+            //     if (text == '删除该节点') {
+            //         scene.remove(currentNode);
+            //         currentNode = null;
+            //     }
+
+            //     $("#contextmenu").hide();
+            // });
+
+            // 调整画布大小
+            $(window).resize(function (event) {
+                var mContainer = $("#container");
+                var mMethodList = $("#method_list");
+                var m_canvas = document.getElementById('scene');
+                var height1 = mMethodList.height();
+                var width1 = mContainer.width();
+                $(m_canvas).attr("width", width1);
+                $(m_canvas).attr("height", height1);
+            });
+
+            // 请求局域网内的所有重构服务
+            // function getAllRefactotServices() {
+            //     $.get('/refactor/all', {}, function (data) {
+            //         console.log(data);
+            //     });
+            // }
+
+            // 页面加载完毕之后
+            $(function () {
+                // getAllRefactotServices();
+                $('#loading').hide();
+
+                var canvas = document.getElementById('scene');
+                // var stage = new JTopo.Stage(canvas); // 创建一个舞台对象
+                // var scene = new JTopo.Scene(stage); // 创建一个场景对象
+
+                // var node = new JTopo.Node("Hello");    // 创建一个节点
+                // node.setLocation(10,10);    // 设置节点坐标                    
+                // scene.add(node); // 放入到场景中
+
+                stage = new JTopo.Stage(canvas);
+                // stage.frames = 24;
+
+                stage.click(function (event) {
+                    if (event.button == 0) {// 右键
+                        // 关闭弹出菜单（div）
+                        $("#contextmenu").hide();
+                    }
+                });
+
+                //显示工具栏
+                //showJTopoToobar(stage);
+
+                scene = new JTopo.Scene(stage);
+                //一开始默认就是框选模式
+                scene.mode = 'select';
+                //scene.background = '';//如果使用默认的toJson()，则必须设置这个属性，否则会报错。
+
+                // 节点信息的显示事件
+                scene.dbclick(function (event) {
+                    if (event.target == null) return;
+                    var node = event.target;
+                    if (node instanceof JTopo.CircleNode) {//参数
+                        // 拿着方法名去，请求参数信息
+
+                        // 判断是输入参数还是输出参数
+                        //console.log(node.inLinks,node.outLinks);
+                        if (node.iotype === 'in' || node.iotype === 'out') { //方法参数（输入、输出、控制参数：针对手动输入的参数）
+                            // 清空对话框中的内容
+                            $('#dialog').html('');
+
+                            // 所有属性已经保存到对应的node，直接请求schema
+                            $.get('/rmt/refactor/paramSchema', { id: node.serviceId, schema: node.schema, iotype: node.iotype, ip: cur_ip }, function (udxSchema) {
+                                // 这里，我们给输出文件返回一个id，表示其oid
+                                if (node.iotype === 'in') {
+                                    udxSchema = udxSchema.replace(/</g, "&lt;");
+                                } else {
+                                    var arr = udxSchema.split('|');
+                                    var oid = arr[1];// 服务端传过来的oid，用于标识输出文件的文件名
+                                    udxSchema = arr[0].replace(/</g, "&lt;");
+                                    //没有定义过，则添加，都一样过，则忽略。（多次打开设置参数窗口）
+                                    if (node.oid === undefined) {
+                                        node.oid = oid;
+                                    }
+                                }
+
+                                var html = '<p><font size="3px"><strong>Name：</strong></font>' + node.text + '</p>';
+                                html += '<p><font size="3px"><strong>Description：</strong></font>' + node.description + '</p>';
+                                html += '<p><font size="3px"><strong>Data Type：</strong></font>' + node.datatype + '</p>';
+                                html += '<p><font size="3px"><strong>Udx Schema：</strong></font></p>';
+                                html += '<pre style="width:auto;height:auto;">' + udxSchema + '</pre></div>';
+
+                                // 选择文件对话框
+                                var parentDiv = $('<div class="input-group">');
+                                var txtInput = '';
+                                if (node.iotype === 'in') {
+                                    html += '<p><font size="3px"><strong>Input File：</strong></font></p>';
+                                    txtInput = $('<input disabled type="text" name="raster-src-file" class="form-control input-args-field" placeholder="Please choose input file from your filemanager" required="required">');
+                                } else {// out
+                                    html += '<p><font size="3px"><strong>Output Directory：</strong></font></p>';
+                                    txtInput = $('<input disabled type="text" name="raster-src-file" class="form-control input-args-field" placeholder="Please choose output file from your filemanager" required="required">');
+                                }
+
+                                // 文本框的id： 方法名_参数名
+                                txtInput.attr('id', node.methodName + '_' + node.text);
+                                var div = $('<div class="input-group-addon file-choose-btn" id="input-file-btn">');
+                                var span1 = $('<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>');
+                                var span2 = $('<span style="padding-left: 5px;cursor:pointer">Choose …</span>');
+                                // 失去焦点
+                                // txtInput.blur(function () {
+                                //     if (txtInput.val().length > 0) {
+                                //         node.datapath = txtInput.val();
+                                //         node.realpath = txtInput.val();//真实数据，有一个限制，输入文件不能手写。
+                                //         //设置数据之后，变色文本框
+                                //         node.fillColor = setValueColor;
+                                //     } else {
+                                //         node.datapath = '';
+                                //         //设置数据之后，变色文本框
+                                //         node.fillColor = initColor;
+                                //     }
+                                // });
+
+                                // 数据回写，如果node.datapath有值的话，则回写到文本框
+                                if (node.datapath != undefined) {
+                                    if (myTrim(node.datapath) != '')
+                                        txtInput.val(node.datapath);
+                                }
+
+                                span2.mousedown(function () {
+                                    //打开窗口
+                                    win = window.open('/rmt/user/filemanager?ip='+cur_ip, 'self-filemanager-dlg', 'height=500,width=900,top=100,left=100');
+                                    win.curNode = node;
+                                });
+
+                                div.append(span1);
+                                div.append(span2);
+                                parentDiv.append(txtInput);
+                                parentDiv.append(div);
+
+                                // 输出数据还要加上输出数据的名字属性
+                                // if(node.iotype === 'out'){
+                                //     html += '<p><font size="3px"><strong>Output Filename：</strong></font></p>';
+                                //     var txtOutput = $('<input type="text" name="raster-src-file" class="form-control input-args-field" placeholder="Please input the filename for the output file." required="required">');
+                                //     txtOutput
+                                // }   
+
+                                $('#dialog').html($(html));
+                                $('#dialog').append(parentDiv);
+                                // 打开对话框
+                                $("#dialog").dialog("open");
+                            });
+                        } else {
+
+                        }
+                    } else if (node instanceof JTopo.Node) {//方法
+                        // 清空对话框中的内容
+                        $('#dialog').html('');
+                        var html = '<p><font size="3px"><strong>Name：</strong></font>' + node.text + '</p>';
+                        html += '<p><font size="3px"><strong>Description：</strong></font>' + node.description + '</p>';
+                        $('#dialog').append($(html));
+                        $("#dialog").dialog("open");
+                    }
+
+                });
+
+                //******************link mode :  begin  ***********************
+                var tempNodeA = new JTopo.Node('tempA');;
+                tempNodeA.setSize(1, 1);
+
+                var tempNodeZ = new JTopo.Node('tempZ');;
+                tempNodeZ.setSize(1, 1);
+
+                var link = new JTopo.Link(tempNodeA, tempNodeZ);
+
+                scene.mouseup(function (e) {
+                    if (isLinkMode) {
+                        if (e.button == 2) {
+                            scene.remove(link);
+                            return;
+                        }
+                        if (e.target != null && e.target instanceof JTopo.Node) {
+                            if (beginNode == null) {//开始
+                                beginNode = e.target;
+                                tempNodeA.setLocation(e.x, e.y);
+                                tempNodeZ.setLocation(e.x, e.y);
+                                scene.add(link);
+                            } else if (beginNode !== e.target) {//结束
+
+                                if (beginNode.iotype === 'in') {
+                                    toastr.warning('this behavior can not be supported.', 'Warning', { timeOut: 2000 });
+                                    return;
+                                }
+
+                                var endNode = e.target;
+                                var l = new JTopo.Link(beginNode, endNode);
+                                l.arrowsRadius = 12;
+                                scene.add(l);
+
+                                // 如果前者设置了值，则给后者赋前者的值。
+                                if (beginNode.datapath != undefined) {
+                                    endNode.datapath = beginNode.datapath;
+                                    // 只能是输出连到输入
+                                    endNode.realpath = beginNode.oid;//赋值真实的数值
+                                    endNode.pid = beginNode.pid;
+                                    endNode.fillColor = setValueColor;
+                                }
+
+                                beginNode = null;
+                                scene.remove(link);
+                            } else {
+                                beginNode = null;
+                            }
+                        } else {
+                            scene.remove(link);
+                        }
+                    }
+                });
+                scene.mousedown(function (e) {
+                    if (isLinkMode) {
+                        if (e.target == null || e.target === beginNode || e.target === link) {
+                            beginNode = null;
+                            scene.remove(link);
+                        }
+                    }
+                });
+                scene.mousemove(function (e) {
+                    if (isLinkMode) {
+                        tempNodeZ.setLocation(e.x, e.y);
+                    }
+                });
+                //******************link mode :  end  ***********************
+
+            });
+        </script>
+</body>
+
+</html>

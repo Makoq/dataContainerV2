@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <meta content="" name="description" />
+
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link href="/plugins/editor_md/css/editormd.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a id='alink'></a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Detail Edit</span></li>
+                                    </ul>
+                                </div>
+                                <!-- END PAGE BAR -->
+                                <!-- BEGIN PAGE TITLE-->
+                                <br/>
+                                <!-- END PAGE TITLE-->
+                                <!-- END PAGE HEADER-->
+
+                                <!-- BEGIN CONTAINER-->
+                                <div id="test-editormd">
+                                    <textarea style="display:none;">
+                                        
+                                        </textarea>
+                                </div>
+                                <div class="row row-fluid">
+                                    <button id="save-doc" class="btn btn-success col col-sm-offset-10">Save</button>
+                                </div>
+                                <!-- END CONTAINER-->
+                        </div>
+                        <!-- END CONTENT BODY -->
+                    </div>
+                    <!-- END CONTENT -->
+            </div>
+            <!-- END CONTAINER -->
+            <!-- BEGIN FOOTER -->
+            <%include ../footer.ejs%>
+    </div>
+
+
+    <% include ../include_js.ejs %>
+        <script src="/plugins/editor_md/editormd.js"></script>
+        <script src="/myjs/datamap_tools.js"></script>
+
+        <script type="text/javascript">
+            var testEditor = editormd("test-editormd", {
+                width: "90%",
+                height: 640,
+                markdown: "",
+                path: "/plugins/editor_md/lib/",
+                //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为 true
+                //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为 true
+                //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为 true
+                //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为 0.1
+                //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为 #fff
+                imageUpload: true,
+                toolbarIcons: "custom",
+                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL: "/common/detail/images?sid=" + GetQueryString('id') + '&type=' + GetQueryString('type') + '&ip=' + GetQueryString('ip')
+
+                /*
+                 上传的后台只需要返回一个 JSON 数据，结构如下：
+                 {
+                    success : 0 | 1,           // 0 表示上传失败，1 表示上传成功
+                    message : "提示的信息，上传成功或上传失败及错误信息等。",
+                    url     : "图片地址"        // 上传成功时才返回
+                 }
+                 */
+            });
+
+            function init() {
+                bindClick();
+                loadContent();
+            }
+
+            // 保存详情信息到数据库
+            function bindClick() {
+                $("#save-doc").on("click", function () {
+                    // alert(testEditor.getMarkdown());
+                    var detail_content = testEditor.getMarkdown();
+                    $.post("/common/detail/save", { sid: GetQueryString('id'), data: detail_content, type: GetQueryString('type') }, function (result) {
+                        if (result === '-1') {
+                            toastr.error('save ' + GetQueryString('type') + ' detail error, you may try again later.', 'Error', { timeOut: 3000 });
+                            return;
+                        }
+                        if (result === "1") {
+                            window.location.href = "/common/detail?id=" + GetQueryString('id') + '&type=' + GetQueryString('type');
+                        }
+                    });
+                })
+            }
+
+            // 数据回写到编辑器中（读取数据库）
+            function loadContent() {
+                $.get("/common/detailcontent", { sid: GetQueryString('id'), type: GetQueryString('type') }, function (result) {
+                    $("#test-editormd textarea").text(result);
+                });
+            }
+
+            $(function () {
+                init();
+
+                if (GetQueryString('type') === 'data') {
+                    $('#alink').attr('href', '/data');
+                    $('#alink').html('Data');
+                } else if (GetQueryString('type') === 'datamap') {
+                    $('#alink').attr('href', '/datamap');
+                    $('#alink').html('Mappings');
+                } else if (GetQueryString('type') === 'refactor') {
+                    $('#alink').attr('href', '/refactor');
+                    $('#alink').html('Refactor');
+                }
+            });
+        </script>
+</body>
+
+</html>

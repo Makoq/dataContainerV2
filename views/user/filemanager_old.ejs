@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>filemanager</title>
+	<link rel="shortcut icon" type="image/x-icon" href="/images/site.png" media="screen" />
+	<!-- Bootstrap core CSS -->
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/custom-style.css" rel="stylesheet">
+	<!--jquery fileupload-->
+	<!--<link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">-->
+	<!-- <link rel="stylesheet" href="/css/jquery.dataTables.min.css" /> -->
+
+	<link rel="stylesheet" href="/plugins/jquery.upload/css/jquery.fileupload.css">
+	<link rel="stylesheet" href="/plugins/jquery.upload/css/jquery.fileupload-ui.css">
+	<!--分页  -->
+	<link href="/plugins/ogms.paginator/ogms.page.css" rel="stylesheet" type="text/css" />
+
+	<!--toast-->
+	<link href="/assets/global/plugins/bootstrap-toastr/toastr.min.css" rel="stylesheet" type="text/css" />
+
+	<style>
+		.file-btn {
+			font-size: 15px;
+			width: 100px;
+			text-align: center;
+			height: 30px;
+			line-height: 30px;
+			border-radius: 3px;
+			cursor: pointer;
+			float: left;
+			margin-right: 15px;
+			background-color: silver;
+		}
+
+		.select_tr {
+			background-color: #FBEC88 !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="pull-left">
+		<button id="btnUpload" class="btn btn-default" data-toggle="modal" data-target="#dlgUpload"><span class="glyphicon glyphicon-upload"></span>Upload</button>
+		<button id='btnNewFolder' class="btn btn-default"><span class="glyphicon glyphicon-folder-close"></span>New Folder</button>
+		<button id='btnNewFile' class="btn btn-default"><span class="glyphicon glyphicon-file"></span>New File</button>
+		<button id='btnRename' class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span>Rename</button>
+		<button id='btnDelete' class="btn btn-default"><span class="glyphicon glyphicon-trash"></span>Delete</button>
+
+		<%if(active){%>
+			<button id='btnChoose' class="btn btn-default"><span class="glyphicon glyphicon-ok"></span>Choose</button>
+			<%}%>
+	</div>
+
+
+	<!--分页  -->
+	<div class="pull-right">
+		<ul class="page" maxshowpageitem="5" pagelistcount="10" id="paginator"></ul>
+	</div>
+	<div class="clear"></div>
+
+	<div style='margin-top:10px;'>
+		<label><strong>current position：</strong></label>
+		<span id='cp'>
+			<a href="javascript:void(0);" fid="-1" onclick="loadUserData(this);">all data</a>
+		</span>
+		<!-- 搜索框  -->
+		<div class="pull-right">
+			<strong>search</strong>
+			<input type="text" id='txt_search' />
+			<!-- <button id='btn_search' class="glyphicon glyphicon-search"></button> -->
+		</div>
+	</div>
+
+	<div style="margin-top:0px;padding-top:0px">
+		<table id="tab_data" class="table table-bordered mTable table-hover">
+			<thead>
+				<tr>
+					<th>
+						File Name
+					</th>
+					<th>
+						File Format
+					</th>
+					<th>
+						Create Time
+					</th>
+					<th>
+						File Size
+					</th>
+					<th>
+						Download
+					</th>
+				</tr>
+			</thead>
+			<tbody id="tBody">
+
+			</tbody>
+		</table>
+	</div>
+
+
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" data-backdrop="false" id="dlgUpload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" id="modalDialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							&times;
+						</button>
+					<h4 class="modal-title" id="myModalLabel">
+						File Upload
+					</h4>
+				</div>
+				<div id="uploaddiv" class="modal-body" style="padding:2px">
+					<!--上传form-->
+					<!--*************begin****************-->
+					<form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+						<div class="row fileupload-buttonbar">
+							<!-- class="col-lg-7"-->
+							<div class="container">
+								<!-- The fileinput-button span is used to style the file input field as button -->
+								<span class="btn btn-success fileinput-button">
+										<i class="glyphicon glyphicon-plus"></i>
+										<span>Add files...</span>
+								<input type="file" name="files" multiple>
+								</span>
+								<button type="submit" class="btn btn-primary start">
+										<i class="glyphicon glyphicon-upload"></i>
+										<span>Start upload</span>
+									</button>
+								<button type="reset" class="btn btn-warning cancel">
+										<i class="glyphicon glyphicon-ban-circle"></i>
+										<span>Cancel upload</span>
+									</button>
+								<button type="button" class="btn btn-danger delete">
+										<i class="glyphicon glyphicon-trash"></i>
+										<span>Clear</span>
+									</button>
+								<!--<input type="checkbox" class="toggle" />-->
+								<!-- The global file processing state -->
+								<span class="fileupload-process"></span>
+							</div>
+
+							<!--设置要上传的文件的位置：上传到哪个文件夹中-->
+							<input type="hidden" id='pid' name="parentid" value="">
+
+						</div>
+						<!-- The table listing the files available for upload/download -->
+						<table role="presentation" class="table table-striped">
+							<tbody class="files"></tbody>
+						</table>
+
+						<div class="fileupload-progress fade">
+							<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+								<div class="progress-bar progress-bar-success" style="width:0%;"></div>
+							</div>
+
+							<div class="progress-extended">&nbsp;</div>
+						</div>
+					</form>
+					<br />
+					<!-- The blueimp Gallery widget -->
+					<!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
+							<div class="slides"></div>
+							<h3 class="title"></h3>
+							<a class="prev">‹</a>
+							<a class="next">›</a>
+							<a class="close">×</a>
+							<a class="play-pause"></a>
+							<ol class="indicator"></ol>
+						</div>-->
+					<!--*************end****************-->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+					<!-- <button type="button" class="btn btn-primary">OK</button> -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--<script type="text/template" id="moban">
+		<tr>
+			<td>
+				<div>{{=filename}}</div>
+			</td>
+			<td>
+				<div>
+					{{= format }}
+				</div>
+			</td>
+			<td>
+				<div>{{= time }}</div>
+			</td>
+			<td>
+				<div>{{= size }} KB</div>
+			</td>
+			<td>
+				<a href='#'>Download</a>
+			</td>
+		</tr>
+	</script>-->
+
+	<script src="/js/jquery-1.11.3.min.js"></script>
+	<!--引入 jquery-ui 支持modal窗口拖拽-->
+	<script src="/js/jquery-ui.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+
+	<!--**************************************************-->
+	<!--juqery file upload-->
+	<script src="/plugins/jquery.upload/js/jquery.ui.widget.js"></script>
+
+	<!--<script src="//blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+	<script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+	<script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+	<script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>-->
+
+	<script src="/plugins/jquery.upload/js/tmpl.min.js"></script>
+	<script src="/plugins/jquery.upload/js/load-image.all.min.js"></script>
+	<script src="/plugins/jquery.upload/js/canvas-to-blob.min.js"></script>
+	<script src="/plugins/jquery.upload/js/jquery.blueimp-gallery.min.js"></script>
+
+	<script src="/plugins/jquery.upload/js/jquery.iframe-transport.js"></script>
+	<script src="/plugins/jquery.upload/js/jquery.fileupload.js"></script>
+	<script src="/plugins/jquery.upload/js/jquery.fileupload-process.js"></script>
+	<script src="/plugins/jquery.upload/js/jquery.fileupload-validate.js"></script>
+	<script src="/plugins/jquery.upload/js/jquery.fileupload-ui.js"></script>
+	<script src="/myjs/tools.js"></script>
+	<!--DataTable  -->
+	<!-- <script src="/js/jquery.dataTables.min.js"></script> -->
+	<!--分页  -->
+	<script src="/plugins/ogms.paginator/ogms.pageEn.js"></script>
+
+	<!--toast-->
+	<script src="/assets/global/plugins/bootstrap-toastr/toastr.min.js" type="text/javascript"></script>
+
+	<script>
+		// var CtrlPress = false;
+		// document.onkeydown = function (e) {
+
+		// 	if (e.keyCode == 17) {
+		// 		CtrlPress = true;
+		// 	}
+
+		// 	//e.preventDefault();
+		// }
+		// document.onkeyup = function (e) {
+		// 	var ctrlKey = e.ctrlKey || e.metaKey;
+		// 	if (e.keyCode == 17) {
+		// 		CtrlPress = false;
+		// 	}
+		// 	//e.preventDefault();
+		// }
+
+		// $('#btnUpload').click(function () {
+		// $("#progress").css("width","50%").text("50%");
+		// $('#dlgUpload').modal('show');
+		// alert('ok');
+		// $('#dlg').dialog('open');
+		// });
+
+		// 搜索文件
+		// $('#btn_search').click(function () {
+		// });
+		var to = false;
+		$('#txt_search').keyup(function () {
+			if (to) {
+				clearTimeout(to);
+			}
+			to = setTimeout(function () {
+				var sstxt = $('#txt_search').val();
+				$("table tbody tr")
+					.hide()
+					.filter(":contains('" + sstxt + "')")
+					.show();
+			}, 250);
+		});
+
+		// 新建文件
+		$('#btnNewFile').click(function () {
+			var parentid = $('#cp a:last').attr('fid');
+
+			var tr = '<tr>' +
+				'<td><span>&nbsp;<img src="/images/icon-file.png" />&nbsp;<a href="javascript:void(0);" id="newA' + $('#tab_data tr').length + '" fid="' + parentid + '" style="text-decoration: none; color:#777;cursor:default;"></a></span><input type="text" id="newFile' + $('#tab_data tr').length + '" value="untitled" /></td>' +
+				//'<td><span><img src="/images/icon-file.png" />&nbsp;<a fid="' + parentid + '" id="newA' + $('#tab_data tr').length + '" href="javascript:void(0);"></a></span><input id="newFile' + $('#tab_data tr').length + '" type="text" value="untitled" /></td>' +
+				'<td>New File</td>' +
+				'<td id="datetd' + $('#tab_data tr').length + '"></td>' +
+				'<td></td>' +
+				'<td></td>' +
+				'</tr>';
+
+			// 加到table的首行
+			$("#tab_data").prepend($(tr));
+
+			var inputId = $('#tab_data tr').length - 1;
+			$('#newFile' + inputId).focus();
+
+			// 失去焦点
+			$("#newFile" + inputId).unbind('blur').bind('blur', function () {
+				var filename = $("#newFile" + inputId).val();
+				var addTime = getNowFormatDate();
+
+				// 隐藏文本框
+				$("#newFile" + inputId).css('display', 'none');
+
+				// 设置文件显示名称
+				$('#newA' + inputId).html(filename);
+
+				// $(tr).children('td').eq(2).text('dsadsa');
+				// 添加时间
+				$('#datetd' + inputId).text(addTime);
+			});
+
+			// 注册tr的点击事件
+			$("#tab_data tbody tr").mousedown(function () {
+				$(this).removeClass('active');
+				$(this).addClass("select_tr").siblings("tr").removeClass("select_tr");
+			});
+		});
+
+		// 新建文件夹
+		$('#btnNewFolder').click(function () {
+			//获取位置路径的最后一个<a>,其中的fid属性就是即将添加文件夹的parentid
+			var parentid = $('#cp a:last').attr('fid');
+
+			var tr = '<tr>' +
+				'<td><span><img src="/images/icon-folder.png" />&nbsp;<a fid="' + parentid + '" id="newA' + $('#tab_data tr').length + '" href="javascript:void(0);"></a></span><input id="newFolder' + $('#tab_data tr').length + '" type="text" value="untitled" /></td>' +
+				'<td>Folder</td>' +
+				'<td id="datetd' + $('#tab_data tr').length + '"></td>' +
+				'<td></td>' +
+				'<td></td>' +
+				'</tr>';
+
+			// 加到table的首行
+			$("#tab_data").prepend($(tr));
+
+			var inputId = $('#tab_data tr').length - 1;
+			$('#newFolder' + inputId).focus();
+
+			// 失去焦点
+			$("#newFolder" + inputId).unbind('blur').bind('blur', function () {
+				var foldername = $("#newFolder" + inputId).val();
+				var addTime = getNowFormatDate();
+				//先往数据库中添加 folder信息， 再在界面上显示，否则不予显示。
+				$.get('/user/addFolder', { 'parentid': parentid, 'foldername': foldername, 'addTime': addTime }, function (data) {
+					if (data === '-2' || data === '-1') {
+						toastr.error('failed to add folder.', 'Error', { timeOut: 3000 });
+						return;
+					}
+
+					if (data === '1') {
+						toastr.error('the folder name is repeate.', 'Error', { timeOut: 3000 });
+						return;
+					}
+
+					// 在数据库中插入folder成功
+					var status = data.split('|')[0];
+					var folderid = data.split('|')[1];
+					if (status === 'ok') {
+						// 隐藏文本框
+						$("#newFolder" + inputId).css('display', 'none');
+						// 设置folder的超链接
+						$('#newA' + inputId).html(foldername);
+						$('#newA' + inputId).attr('oid', folderid);//文件夹id
+
+						// $(tr).children('td').eq(2).text('dsadsa');
+						// 添加时间
+						$('#datetd' + inputId).text(addTime);
+
+						// 请求当前文件夹中的数据,parentid就是当前文件夹的id
+						$('#newA' + inputId).click(function () {
+							$.get('/user/files', { 'parentid': $('#newA' + inputId).attr('oid'), 'foldername': $('#newA' + inputId).html(), 'pageamount': 10, 'page': 0 }, function (data) {
+								// loadData(data);
+								loadUserData($('#newA' + inputId)[0], $('#newA' + inputId).attr('oid'));
+							});
+						});
+					}
+
+				});
+
+			});
+
+			// 注册tr的点击事件
+			$("#tab_data tbody tr").mousedown(function () {
+				$(this).removeClass('active');
+				$(this).addClass("select_tr").siblings("tr").removeClass("select_tr");
+			});
+		});
+
+		//重命名
+		$('#btnRename').click(function () {
+			//获取选中的那一行
+			if ($("#tab_data tbody tr").hasClass('select_tr')) {
+				$.each($("#tab_data tbody tr"), function (index, element) {
+					if ("select_tr" === element.className) {
+						//console.log($(element).children('td')[0].textContent.trim());//文件名
+						var oldname = $(element).children('td')[0].textContent.trim();
+						var oldtime = $(element).children('td')[2].textContent.trim();
+
+						//去掉当前td span中的内容
+						$($($($(element).children('td')[0]).children('span')[0]).children('a')[0]).html('');
+
+						var input = $($($(element).children('td')[0]).children('input')[0]);
+						//console.log(filename);
+						//input.css('display', 'show');
+						input.show();
+						input.focus();
+
+						// 失去焦点时，更新名称
+						input.unbind('blur').bind('blur', function () {
+
+							// 当前 td a 的id
+							var newname = input.val();
+							var oid = $($($($(element).children('td')[0]).children('span')[0]).children('a')[0]).attr('oid');
+							var newtime = getNowFormatDate();
+
+							$.get('/user/updatename', { 'oid': oid, 'newname': newname, 'newtime': newtime }, function (data) {
+								if (data === '-1') {
+									toastr.error('failed to update name, the server is busy.', 'Error', { timeOut: 3000 });
+									$($($($(element).children('td')[0]).children('span')[0]).children('a')[0]).html(oldname);//还原为原来的名字
+									return;
+								}
+								//修改成功
+								if (data === '1') {
+									toastr.success('update name successful.', 'Congratulation', { timeOut: 3000 });
+									$($($($(element).children('td')[0]).children('span')[0]).children('a')[0]).html(newname);//更换新名字
+									$(element).children('td')[2].textContent = newtime;
+								}
+							});
+
+							//隐藏文本框
+							input.hide();
+
+						});
+					}
+				});
+			}
+		});
+
+
+		// 当使用映射服务的时候，会选择文件
+		$('#btnChoose').click(function () {
+
+			//获取选择的文件名
+			if ($("#tab_data tr").hasClass('select_tr')) {
+				$.each($("#tab_data tr"), function (index, element) {
+					//console.log(element);
+					if ("select_tr" === element.className) {
+						//console.log($(element).children('td')[0].textContent.trim());//文件名
+						var filename = $(element).children('td')[0].textContent.trim();
+						var format = $(element).children('td')[1].textContent.trim();
+						// alert(filename);
+						var parentid = $('#cp a:last').attr('fid');
+						var oid = $($($($(element).children('td')[0]).children('span')[0]).children('a')[0]).attr('oid');
+
+						window.opener.fileinput({ parentid: parentid, filename: filename, format: format, oid: oid });
+						// window.opener.fileinput(parentid + '/' + filename + '/' + format + '/' + oid);
+						//不再执行循环了
+						return;
+					}
+				});
+			}
+		});
+
+		// 模态窗口显示之后
+		$('#dlgUpload').on('shown.bs.modal', function () {
+			//使得上传窗口支持拖拽
+			$("#modalDialog").draggable({
+				handle: ".modal-header"
+			});
+
+			//设置文件上次的位置
+			$('#pid').val($('#cp a:last').attr('fid'));
+
+		});
+		//modal dialog 隐藏之后，刷新界面
+		$('#dlgUpload').on('hidden.bs.modal', function () {
+			// 加载指定文件夹中的数据
+			var parentid = $('#cp a:last').attr('fid');
+
+			loadUserData(undefined, parentid);
+		});
+
+		//	上传界面，清空上传后的条目
+		$('.delete').click(function () {
+			$('.files').html('');
+		});
+
+		//删除文件
+		$('#btnDelete').click(function () {
+			if (confirm("are you sure?")) {
+				//获取选择的文件
+				if ($("#tab_data tbody tr").hasClass('select_tr')) {
+					$.each($("#tab_data tbody tr"), function (index, element) {
+						//console.log(element);
+						if ("select_tr" === element.className) {
+							// console.log($(element).children('td')[0].textContent.trim());//文件名
+							// var filename = $(element).children('td')[0].textContent.trim();
+							// 当前目录
+							var parentid = $('#cp a:last').attr('fid');
+							// 要删除对象的oid
+							var oid = $($($($(element).children('td')[0]).children('span')[0]).children('a')[0]).attr('oid');
+							var format = $(element).children('td')[1].textContent.trim();//删除的是文件还是文件夹
+							//请求删除数据
+							$.get('/user/deleteUserData', { oid: oid, format: format }, function (data) {
+								if (data === '-1') {
+									toastr.error('failed to delete operation.', 'Error', { timeOut: 3000 });
+									return;
+								}
+								if (data === '-2') {
+									toastr.warning('the file has already been deleted.', 'Warning', { timeOut: 3000 });
+									return;
+								}
+
+								if (data === '1') {
+									// 删除成功
+									loadUserData(undefined, parentid);
+									toastr.success('delete successful.', 'Congratulation', { timeOut: 3000 });
+								}
+							});
+						}
+					});
+				}
+			}
+		});
+
+		//文档加载完毕
+		$(function () {
+			//文件上传控件初始化
+			$("#fileupload").fileupload({
+				url: '/user/uploadfile',
+				dataType: 'text',
+				sequentialUploads: false,
+				done: function (e, data) {
+					// console.log(data.result);
+					// $.each(data.result.files, function (index, file) {
+					// 	$('p').text(file.name).appendTo($('#uploaddiv'));
+					// });
+					toastr.success('upload successful.', 'Congratulation', { timeOut: 3000 });
+				}
+			}).bind('fileuploadprogress', function (e, data) {
+				//var progress = parseInt(data.loaded / data.total * 100, 10);  
+				// alert(progress);
+
+			}).bind('fileuploaddone', function (e, data) {
+				//console.log('ok');
+
+			}).bind('fileuploadadd', function (e, data) {
+				// 检查上次的文件是否在当前目录下存在
+				// console.log(data.files[0].name);
+				(function iterator(i) {
+					if (i === data.files.length) {
+
+						return;
+					}
+					var filename = data.files[i].name;//即将要上传的文件名
+					var parentid = $('#cp a:last').attr('fid');//要上传的目录id
+					$.get('/user/checkRepeate', { filename: filename, parentid: parentid }, function (data) {
+						if (data === -1) {
+							toastr.error('the server is busy, please upload the data later.', 'Error', { timeOut: 3000 });
+							return;
+						}
+
+						if (data === '1') {//重复
+							toastr.warning('the file you upload already exist in the server.', 'Warning', { timeOut: 3000 });
+							return;
+						} else if (data === '0') {//不重复
+
+						}
+
+						iterator(i + 1);
+					});
+				})(0);
+			});
+			//加载用户个人数据
+			loadUserData();
+
+			
+		});
+
+		// 组织服务器返回的数据
+		function loadData(parentid, data) {
+			if (data == -1) {
+				// alert('查询数据失败.');
+				toastr.error('failed to load userdata.', 'Error', { timeOut: 5000 });
+				return;
+			}
+
+			// 清空数据表的内容
+			$("#tBody").html('');
+
+			for (var i = 0; i < data.length; i++) {
+				var html = '';
+
+				if (data[i].format === 'file') {
+					html += '<tr>'
+					//html += '<td><span class="glyphicon glyphicon-file"><a href="javascript:void(0);" fid="' + parentid + '" oid="' + data[i]._id + '" style="text-decoration: none; color:#777;cursor:default; ">' + data[i].name + '</a></span><input type="text" style="display:none;" value="' + data[i].name + '" /></td>';
+					html += '<td><span>&nbsp;<img src="/images/icon-file.png" />&nbsp;<a href="javascript:void(0);" fid="' + parentid + '" oid="' + data[i]._id + '" style="text-decoration: none; color:#777;cursor:default; ">' + data[i].name + '</a></span><input type="text" style="display:none;" value="' + data[i].name + '" /></td>';
+					html += '<td>Common File</td>';
+					html += '<td>' + data[i].datetime + '</td>';
+					html += '<td>' + data[i].size + '</td>';
+					html += '<td><a href="/user/download?filename=' + data[i]._id + '">Download</a></td>';
+					html += '</tr>';
+				} else if (data[i].format === 'folder') {
+					html += '<tr>';
+					// 默认请求第0页，每页10条数据
+					html += '<td><span><img src="/images/icon-folder.png" />&nbsp;<a href="javascript:void(0)" fid="' + parentid + '" oid="' + data[i]._id + '" onclick="loadUserData(this,\'' + data[i]._id + '\');">' + data[i].name + '</a></span><input type="text" style="display:none;" value="' + data[i].name + '" /></td>';
+					html += '<td>Folder</td>';
+					html += '<td>' + data[i].datetime + '</td>';
+					html += '<td></td>';
+					html += '<td></td>';
+					html += '</tr>';
+				}
+				// DOM操作，添加节点
+				$("#tBody").append($(html));
+			}
+
+			// table tr 的选中事件
+			$("#tab_data tbody tr").mousedown(function () {
+				$(this).removeClass('active');
+				$(this).addClass("select_tr").siblings("tr").removeClass("select_tr");
+			});
+
+			// $('#tab_data').DataTable({
+			// 	ordering:  false
+			// });
+		}
+
+		//加载用户个人数据
+		function loadUserData(element, parentid) {
+			// 默认加载根目录下的文件和文件夹
+			if (parentid === undefined) {
+				parentid = -1;
+			}
+
+			// 清空原来的内容
+			$("#tBody").html('');
+			$.get('/user/files', { 'parentid': parentid, 'pageamount': 15, 'page': 0 }, function (data) {
+				loadData(parentid, data);
+
+				if (element === undefined) {
+					return;
+				} else {
+					// 添加 位置信息
+					var html = '';
+					html += '<span> > </span><a href="javascript:void(0);" fid="' + parentid + '" onclick="loadUserData(this,\'' + parentid + '\')">' + element.innerHTML + '</a>';
+					$('#cp').append($(html));
+
+					// 去掉当前超链接后面的部分
+					$('#cp a').each(function (index, e) {
+						if (this === element) {
+							$(this).nextAll().remove();
+						}
+					});
+				}
+
+			});
+		}
+	</script>
+
+	<!-- The template to display files available for upload -->
+	<script id="template-upload" type="text/x-tmpl">
+		{% for (var i=0, file; file=o.files[i]; i++) { %}
+		<tr class="template-upload fade">
+			<td>
+				<span class="preview"></span>
+			</td>
+			<td>
+				<p class="name">{%=file.name%}</p>
+				<strong class="error text-danger"></strong>
+			</td>
+			<td>
+				<p class="size">Processing...</p>
+				<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+					<div class="progress-bar progress-bar-success" style="width:0%;"></div>
+				</div>
+			</td>
+			<td>
+				{% if (!i && !o.options.autoUpload) { %}
+				<button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Start</span>
+                </button> {% } %} {% if (!i) { %}
+				<button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button> {% } %}
+			</td>
+		</tr>
+		{% } %}
+	</script>
+	<!-- The template to display files available for download -->
+	<script id="template-download" type="text/x-tmpl">
+		{% for (var i=0, file; file=o.files[i]; i++) { %}
+		<tr class="template-download fade">
+			<td>
+				<span class="preview">
+					{% if (file.thumbnailUrl) { %}
+						<a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+					{% } %}
+				</span>
+			</td>
+			<td>
+				<p class="name">
+					{% if (file.url) { %}
+					<a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl? 'data-gallery': ''%}>{%=file.name%}</a>					{% } else { %}
+					<span>{%=file.name%}</span> {% } %}
+				</p>
+				{% if (file.error) { %}
+				<div><span class="label label-danger">Error</span> {%=file.error%}</div>
+				{% } %}
+			</td>
+			<td>
+				<span class="size">{%=o.formatFileSize(file.size)%}</span>
+			</td>
+			<td>
+				{% if (file.deleteUrl) { %}
+				<button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}" {% if (file.deleteWithCredentials)
+				 { %} data-xhr-fields='{"withCredentials":true}' {% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+				<input type="checkbox" name="delete" value="1" class="toggle"> {% } else { %}
+				<button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button> {% } %}
+			</td>
+		</tr>
+		{% } %}
+	</script>
+</body>
+
+</html>

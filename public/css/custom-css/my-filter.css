@@ -1,0 +1,92 @@
+/**group**/
+#tags-group{
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	padding: 5px 20px 5px 20px;
+}
+.custom-group{
+    margin:1px 1px 1px -10px!important;
+    padding: 1px 1px 3px 1px;
+	border-bottom:1px dashed #ccc;
+    -webkit-user-select: none; /* Chrome all / Safari all */
+    -moz-user-select: none; /* Firefox all */
+    -ms-user-select: none; 
+    -o-user-select: none;
+    user-select: none; 
+}
+.custom-group > span  > i{
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 11px  solid transparent;
+    border-left: 11px solid #E8E8E8;
+    border-bottom: 11px  solid transparent;
+    right: -11px;
+    top: 0;
+}
+
+
+.group-head,
+.group-body{
+   padding: 1px 1px 2px 2px;
+}
+
+
+.group-head{	
+    font:bold;
+	background-color: #E8E8E8;
+	color:#666;	
+	width:auto;
+    display: block;
+    height: 22px;
+ 
+}
+.group-body{
+    
+	margin-left:1%;
+	width:auto;
+}
+.group-body > span{
+    cursor: pointer;
+    border-radius:6px;
+    display: inline-block;
+	padding: 1px 3px 1px 4px;
+	margin-left: 1.9em;	
+    transition: background-color 0.2s,text-shadow 0.2s;
+    -moz-transition: background-color 0.2s,text-shadow 0.2s;	/* Firefox 4 */
+    -webkit-transition: background-color 0.2s,text-shadow 0.2s;	/* Safari 和 Chrome */
+    -o-transition: background-color 0.2s,text-shadow 0.2s;	/* Opera */
+}
+.group-body .selected{
+    background-color: #36c6d3;
+    border-radius: 2px;
+	color:#fff;
+}
+.group-body > span:hover{
+	text-shadow: 5px 1px 6px #666;
+}
+.selected:hover{
+    background-color: #36c6d3!important;
+	color:#fff;
+}
+
+/**实现折叠、展开**/
+
+div > .my-folding{
+  
+    overflow: hidden;
+     transition:  height 0.4s ease;
+    -moz-transition: height 0.4s ease;	/* Firefox 4 */
+    -webkit-transition: height 0.4s ease;	/* Safari 和 Chrome */
+    -o-transition: height 0.4s ease;	/* Opera */
+}
+.my-collapse{
+    height: 22px!important;
+    overflow: hidden;
+}
+
+/**folding button style**/
+.my-folding-button{
+    float: right;
+    margin-top:0px;
+}

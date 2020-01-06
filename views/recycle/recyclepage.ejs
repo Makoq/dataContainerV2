@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Data services | distributed geographic modeling platform</title>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<meta content="" name="description" />
+	<meta content="" name="author" />
+	<!-- BEGIN GLOBAL MANDATORY STYLES -->
+	<% include ../include_css.ejs %>
+		<!-- END THEME LAYOUT STYLES -->
+		<!-- <link href="/css/custom-style.css" rel="stylesheet" type="text/css" /> -->
+		<!-- <link href="/css/custom-css/my-filter.css" rel="stylesheet" type="text/css" /> -->
+		<!--分页  -->
+		<link href="/plugins/ogms.paginator/ogms.page.css" rel="stylesheet" type="text/css" />
+		<link rel="shortcut icon" href="favicon.ico" />
+
+		<style type="text/css">
+			/* ul li {
+				width: auto;
+				background: fffff
+			}
+
+			ul li:hover {
+				background: silver;
+				filter: alpha(opacity=20);
+			}
+
+			.select_li {
+				background-color: #FBEC88 !important;
+			} */
+		</style>
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+	<div class="page-wrapper">
+		<%include ../header.ejs%>
+			<div class="clearfix"> </div>
+			<div class="page-container">
+				<% include ../sidebar.ejs %>
+					<div class="page-content-wrapper">
+						<div class="page-content">
+							<% include ../theme_setting.ejs %>
+								<div class="page-bar">
+									<ul class="page-breadcrumb">
+										<li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+											<i class="fa fa-angle-right" aria-hidden="true"></i>
+										</li>
+										<li><span>Recycle</span></li>
+									</ul>
+								</div>
+
+								<!-- BEGIN CONTAINER-->
+								<div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px;">
+
+									<div style="margin-top:20px;margin-bottom:20px;">
+
+										<div class="container-fluid row">
+
+											<div id="method_list" class="col-xs-3 custom_list" style="border:1px solid #666666; min-height:700px;background-color: #fff; border-radius:5px;padding-top: 12px;">
+
+												<!--重构方法库列表-->
+												<div class="panel-group" id="accordion" style="margin-top:10px;">
+													<!-- 数据服务  -->
+													<div class="panel panel-success">
+														<div class="panel-heading">
+															<h4 class="panel-title">
+																<a data-toggle="collapse" data-parent="#accordion" href='#data'>Data Sharing Services</a>
+															</h4>
+														</div>
+														<div id="data" class="panel-collapse collapse in" style="cursor:pointer">
+															<ul class="list-group">
+																<li class="list-group-item" id='data_items'>Items</li>
+															</ul>
+														</div>
+														<div style="background:#D3EDF7;height:8px;">&nbsp;</div>
+													</div>
+													<!-- 映射服务  -->
+													<div class="panel panel-success">
+														<div class="panel-heading">
+															<h4 class="panel-title">
+																<a data-toggle="collapse" data-parent="#accordion" href='#datamap'>Data Mapping Services </a>
+															</h4>
+														</div>
+														<div id="datamap" class="panel-collapse collapse" style="cursor:pointer">
+															<ul class="list-group">
+																<li class="list-group-item" id='datamap_items'>Items</li>
+																<li class="list-group-item" id='datamap_records'>Recoreds</li>
+															</ul>
+														</div>
+														<div style="background:#D3EDF7;height:8px;">&nbsp;</div>
+													</div>
+													<!--重构服务  -->
+													<div class="panel panel-success">
+														<div class="panel-heading">
+															<h4 class="panel-title">
+																<a data-toggle="collapse" data-parent="#accordion" href='#refactor'>Data Refactor Services </a>
+															</h4>
+														</div>
+														<div id="refactor" class="panel-collapse collapse" style="cursor:pointer">
+															<ul class="list-group">
+																<li class="list-group-item" id='refactor_items'>Items</li>
+																<li class="list-group-item" id='refactor_records'>Recoreds</li>
+															</ul>
+														</div>
+														<div style="background:#D3EDF7;height:8px;">&nbsp;</div>
+													</div>
+													<!--串联重构服务  -->
+													<div class="panel panel-success">
+														<div class="panel-heading">
+															<h4 class="panel-title">
+																<a data-toggle="collapse" data-parent="#accordion" href='#refactor_advance'>Multiple Refactors Services </a>
+															</h4>
+														</div>
+														<div id="refactor_advance" class="panel-collapse collapse" style="cursor:pointer">
+															<ul class="list-group">
+																<li class="list-group-item" id='refactor_advance_records'>Recoreds</li>
+															</ul>
+														</div>
+														<div style="background:#D3EDF7;height:8px;">&nbsp;</div>
+													</div>
+													<!--用户数据  -->
+													<!-- <div class="panel panel-success">
+														<div class="panel-heading">
+															<h4 class="panel-title">
+																<a data-toggle="collapse" data-parent="#accordion" href='#userdata'>User Data</a>
+															</h4>
+														</div>
+														<div id="userdata" class="panel-collapse collapse" style="cursor:pointer">
+															<ul class="list-group">
+																<li class="list-group-item" id='userdata_items'>Items</li>
+															</ul>
+														</div>
+														<div style="background:#D3EDF7;height:8px;">&nbsp;</div>
+													</div> -->
+												</div>
+
+											</div>
+
+											<div id="container" class="col-xs-9" style='border:1px solid #666666; min-height:700px;background-color: #fff; border-radius:5px;padding-top: 12px;'>
+
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- BEGIN CONTAINER-->
+						</div>
+						<!-- END CONTENT BODY -->
+					</div>
+					<!-- END CONTENT -->
+			</div>
+			<!-- END CONTAINER -->
+			<!-- BEGIN FOOTER -->
+			<%include ../footer.ejs%>
+	</div>
+
+	<% include ../include_js.ejs %>
+
+		<!--data template  -->
+		<script id='item_template' type="text/html">
+			<div class="table-responsive">
+				<table id="tab_services" class="table table-bordered table-hover table-striped">
+					<thead>
+						<tr>
+							<th>
+								<center>Number</center>
+							</th>
+							<th>
+								<center>Name</center>
+							</th>
+							<th>
+								<center>Invoker/Creator</center>
+							</th>
+							<th>
+								<center>Delete Time</center>
+							</th>
+							<th>
+								<center>Note</center>
+							</th>
+							<th>
+								<center>Operation</center>
+							</th>
+						</tr>
+					</thead>
+					<tbody id='item_tb'>
+						{{trs}}
+					</tbody>
+				</table>
+				<div id='item_tb_info' style="display:none;text-align:center">there has no more items now.</div>
+			</div>
+		</script>
+
+
+		<script src="/js/underscore-noflect.js"></script>
+		<script src='/myjs/datamap_tools.js'></script>
+		<script src='/myjs/tools.js'></script>
+		<!-- <script src="/js/custom-js/my-filter.js"></script> -->
+		<!--分页  -->
+		<script src="/plugins/ogms.paginator/ogms.pageEn.js"></script>
+
+		<script>
+			// 读取模板
+			function loadTemplate(scriptID) {
+				var templateHtml = document.getElementById(scriptID);
+
+				var sourceCode = "";
+				var child = templateHtml.firstChild;
+				while (child) {
+					if (child.nodeType == child.TEXT_NODE) sourceCode += child.textContent;
+					child = child.nextSibling;
+				}
+				return sourceCode;
+			}
+
+			// 加载服务条目
+			function loadServiceItems(type) {
+				$('#container').html('');
+
+				var table = loadTemplate('item_template');
+
+				$.get('/common/services', { type: type, pageamount: 15, page: 0, ids: 'all', delete: '1' }, function (data) {
+					if (data === '-1') {
+						return;
+					}
+					var trs = '';
+					for (var i = 0; i < data.length; i++) {
+						trs += '<tr>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + (i + 1) + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + data[i].name + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + data[i].uname + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + data[i].deletetime + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">-</td>' +
+							'<td style="text-align:center;vertical-align:inherit;"><a sid="' + data[i]._id + '" class="btn btn-success" href="javascript:void(0);">restore</a><a class="btn btn-danger" href="javascript:void(0);">delete</a></td>' +
+							'</tr>';
+					}
+					table = table.replace('{{trs}}', trs);
+					$('#container').append($(table));
+
+					if (data.length <= 0) {
+						$('#item_tb_info').css('display', 'block');
+					} else {
+						$('#item_tb_info').css('display', 'none');
+					}
+
+					// 添加事件
+					var ele_trs = $('#item_tb tr');
+					for (var i = 0; i < ele_trs.length; i++) {
+						var btnRestore = $($(ele_trs[i]).children('td:eq(5)')).children('a:eq(0)');
+						var sid = btnRestore.attr('sid');
+						btnRestore.bind('click', function () {
+							//恢复
+							$.get('/common/switch', { type: type, id: sid, status: 'delete', tostatus: '-1' }, function (isDelete) {
+								if (isDelete == '-1') {
+									toastr.error('failed to change service status.', 'Error', { timeOut: 3000 });
+									return;
+								}
+								// 成功：删除当前行
+								// $('#item_tb').remove(ele_trs[i]);
+								// ele_trs.eq(i).remove();
+								// ele_trs
+								//$('#item_tb tr:eq('+i+')').remove(); 
+
+								loadServiceItems(type);
+
+								// if ($('#item_tb tr').length <= 0) {
+								// 	$('#item_tb_info').css('display', 'block');
+								// } else {
+								// 	$('#item_tb_info').css('display', 'none');
+								// }
+							});
+						});
+					}
+				});
+			}
+
+			// 加载服务运行记录
+			function loadServiceRecords(type) {
+				$('#container').html('');
+				var table = loadTemplate('item_template');
+				// 查询已经被删除的服务
+				$.get('/common/records', { type: type, pageamount: 10, page: 0, delete: '1' }, function (data) {
+					if (data === '-1') {
+						return;
+					}
+
+					// 如果没有数据
+					if (data.length <= 0) {
+						table = table.replace('{{trs}}', '');
+						$('#container').append($(table));
+
+						$('#item_tb_info').css('display', 'block');
+						return;
+					}
+
+					$('#item_tb_info').css('display', 'none');
+
+					var trs = '';
+
+					for (var i = 0; i < data.length; i++) {
+						trs += '<tr>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + (i + 1) + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + (data[i].service.name === undefined ? data[i].ins_alias : data[i].service.name) + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + data[i].username + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + data[i].deletetime + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;">' + (data[i].calltype === undefined ? '-' : data[i].calltype) + '</td>' +
+							'<td style="text-align:center;vertical-align:inherit;"><a sid="' + data[i]._id + '" class="btn btn-success" href="javascript:void(0);">restore</a><a class="btn btn-danger" href="javascript:void(0);">delete</a></td>' +
+							'</tr>';
+					}
+
+					table = table.replace('{{trs}}', trs);
+					$('#container').append($(table));
+
+					// 添加事件
+					var ele_trs = $('#item_tb tr');
+					for (var j = 0; j < ele_trs.length; j++) {
+						var btnRestore = $($(ele_trs[j]).children('td:eq(5)')).children('a:eq(0)');
+						var guid = btnRestore.attr('guid', data[j].guid);
+						// 还原删除项
+						btnRestore.bind('click', function () {
+							//恢复
+							$.get('/common/records/switch', { type: type, guid: btnRestore.attr('guid'), status: 'delete', tostatus: '-1' }, function (isDelete) {
+								if (isDelete == '-1') {
+									return;
+								}
+
+								loadServiceRecords(type);
+							});
+						});
+					}
+
+				});
+			}
+
+			//页面加载完毕
+			$(function () {
+				// 注册点击事件
+				$('#data_items').click(function () {
+					loadServiceItems('data');
+				});
+
+				// *****************datamap***********************
+				$('#datamap_items').click(function () {
+					loadServiceItems('datamap');
+				});
+
+				$('#datamap_records').click(function () {
+					loadServiceRecords('datamap');
+				});
+
+				// *****************refactor***********************
+				$('#refactor_items').click(function () {
+					loadServiceItems('refactor');
+				});
+
+				$('#refactor_records').click(function () {
+					loadServiceRecords('refactor');
+				});
+
+				// ****************refactor advance***************
+				$('#refactor_advance_records').click(function () {
+					loadServiceRecords('refactor_advance');
+				});
+
+				// ****************user data***************
+				$('#userdata_items').click(function () {
+
+				});
+
+			});
+		</script>
+
+</body>
+
+</html>

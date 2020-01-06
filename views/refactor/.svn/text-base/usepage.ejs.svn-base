@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/refactor">Refactors</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Single Refactor</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin:0px;min-height:655px">
+
+                                    <div class="col-md-12" style="padding:0px;margin-top:20px;margin-bottom:20px;">
+
+                                        <div class="panel panel-info">
+                                            <div class="panel-heading">
+                                                <span id="methodName" class="panel-title"></span>
+                                                <!--<a href="/refactor/use?id={{=id}}&method={{=methodName}}" class="btn btn-info  pull-right" style="margin-top: -6px;width:100px">调用</a>-->
+                                            </div>
+                                            <div class="panel-body">
+                                                <p>
+                                                    <font size="4px">Method Description：</font><span id="methodDesc"></span></p>
+                                                    <!--参数列表-->
+                                                <p>
+                                                    <font size="4px">Paramter List：</font><span id="methodDesc"></span></p>
+
+                                                <ul id="myTab" class="nav nav-tabs"></ul>
+
+                                                <div id="myTabContent" class="tab-content"></div>
+
+                                                <!--调用按钮-->
+                                                <center style="width:auto;margin-top:10px">
+                                                    <button style="width:200px" id="btnOK" class="btn btn-success">Call</button>
+                                                    <button style="width:200px" id="btnCancel" class="btn btn-warning">Cancel</button>
+                                                </center>
+
+                                                <!--进度条-->
+                                                <p>
+                                                    <font size="4px">Invoke process：</font><span id="methodDesc"></span></p>
+                                                <div class="progress progress-striped active" style="margin-top:10px;">
+                                                    <div id='probar' class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"
+                                                        style="width: 0%;">
+                                                        <!--<span class="sr-only">90% 完成</span>-->
+                                                    </div>
+                                                </div>
+
+                                                <!--<p style='margin-top:10px'>
+                                                    <font size="4px">Standard output Log:</font>
+                                                </p>
+                                                <pre id='pre_stdout'></pre>-->
+
+                                                <!--输出文件下载列表-->
+                                                <!--<p style='margin-top:10px'>
+                                                    <font size="4px">File output:</font>
+                                                </p>
+                                                <div id='divOutputFile'></div>-->
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+
+            <%include ../footer.ejs%>
+    </div>
+
+    <!--重构服务方法模板-->
+    <!-- <script type="text/template" id="param_moban">
+        <h3>Name:</h3>{{=paramName}}
+        <h3>Type:</h3>{{=paramType}}
+        <h3>Description:</h3>{{=paramDesc}}
+        <h3>Schema:</h3>
+        <pre>{{=paramSchema}}</pre>
+    </script> -->
+
+    <% include ../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+
+        <script>
+            //选择文件的对话框
+            var win;
+            //当前方法的参数个数
+            var paramCount = 0;
+
+            $(function () {
+                var methodName = GetQueryString('method');
+                $('#methodName').html(methodName);
+
+                //获取重构服务中指定方法信息
+                $.get('/refactor/methods', { 'id': GetQueryString('id') }, function (data) {
+                    //console.log(data);
+                    //解析json
+                    var methodInfo = JSON.parse(data).RefactorMethodInfo;
+                    //console.log(json.RefactorMethodInfo['@name']);
+
+                    for (var i = 0; i < methodInfo.Method.length; i++) {
+                        var info = methodInfo.Method[i];
+                        //console.log(info['@name'],info['@class'],info['@description']);
+                        var mName = info['@name'];//方法名
+                        //找到当前要执行的方法
+                        if (mName === methodName) {
+                            var methodDescription = info['@description'];
+                            $('#methodDesc').html(methodDescription);
+
+                            var params = info['Params'];
+                            var trHtml = '';
+
+                            //异步变同步
+                            (function iterator(j) {
+                                if (j == params.length) {
+                                    paramCount = j;
+                                    return;
+                                }
+
+                                trHtml = '';
+                                var param = params[j];
+                                var name = param['@name'];
+                                var type = param['@datatype'] == 'System.String' ? "String" : param['@datatype'];
+                                var iotype = param['@type'];//in:输入参数   out:输出参数
+                                var description = param['@description'];//参数描述
+                                var schema = param['@schema'];//参数对应的Schema
+
+                                if (j === 0) {
+                                    trHtml += '<li class="active">';
+                                } else {
+                                    trHtml += '<li>'
+                                }
+                                trHtml += '<a href="#' + name + '" data-toggle="tab">Parameter' + (j + 1) + '</a></li>';
+                                $('#myTab').append($(trHtml));
+
+
+                                trHtml = '';
+                                if (j === 0) {
+                                    trHtml += '<div class="tab-pane fade in active" id="' + name + '">';
+                                } else {
+                                    trHtml += '<div class="tab-pane fade in" id="' + name + '">';
+                                }
+
+                                //异步请求param的schema
+                                $.get('/refactor/paramSchema', { id: GetQueryString('id'), schema: schema }, function (udxSchema) {
+                                    //console.log(udxSchema);
+                                    // 返回的schema包含一个动态生成的oid。
+                                    udxSchema = udxSchema.split('|')[0].replace(/</g, "&lt;");
+                                    //布局参数列表
+                                    trHtml += '<div style="margin-top:10px"><font size="4px">Name: </font>' + name + '</div><br />' +
+                                        '<div style="margin-top:0px"><font size="4px">Type:</font>' + type + '</div><br />' +
+                                        '<div style="margin-top:0px"><font size="4px">Description:</font>' + description + '</div><br />' +
+                                        '<div style="margin-top:0px"><font size="4px">Schema:</font><pre style="width:auto;height:auto;">' + udxSchema + '</pre></div>';
+
+                                    //<!--文件选择框-->
+                                    var parentDiv = $('<div class="input-group">');
+                                    var txtInput = '';
+                                    if (iotype === 'in') {
+                                        txtInput = $('<input disabled type="text" name="raster-src-file" class="form-control input-args-field" placeholder="Please choose the input file from your filemanager" required="required">');
+                                    } else {
+                                        txtInput = $('<input disabled type="text" name="raster-src-file" class="form-control input-args-field" placeholder="Please choose the output file from your filemanager" required="required">');
+                                    }
+                                    txtInput.attr('id', "datapath" + (j + 1));
+                                    txtInput.attr('iotype', iotype);
+                                    var div = $('<div class="input-group-addon file-choose-btn" id="input-file-btn">');
+                                    var span1 = $('<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>');
+                                    var span2 = $('<span style="padding-left: 5px;cursor:pointer">Choose …</span>');
+
+                                    span2.mousedown(function () {
+                                        //打开窗口
+                                        win = window.open('/user/filemanager', 'self-filemanager-dlg-' + (j + 1), 'height=500,width=900,top=100,left=100');
+                                    });
+
+                                    span2.attr('id', "chooseFile" + (j + 1));
+                                    div.append(span1);
+                                    div.append(span2);
+                                    parentDiv.append(txtInput);
+                                    parentDiv.append(div);
+
+                                    trHtml += '</div>';
+
+                                    $('#myTabContent').append($(trHtml).append(parentDiv));
+
+                                    iterator(j + 1);
+                                });
+
+                            })(0);
+
+                            return;
+                        }
+                    }
+                });
+            });
+
+            //将选择的数据填充到文本框中。
+            //data:  父id / 名称 / 格式 / oid
+            function fileinput(data) {
+                var arr = win.name.split('-');
+                if (data.format === 'Folder') {
+                    toastr.warning('you must choose a file.', 'Warning', { timeOut: 5000 });
+                    return;
+                }
+
+                // 如果是输出数据，在应该选择一个文件夹，而不是一个文件
+                if ($('#datapath' + arr[arr.length - 1]).attr('iotype') === 'out') {
+                    // 如果输出文件目录选择的是普通文件，则无效
+                    if (data.format === 'Common File') {
+                        toastr.warning('the file already exist, you may override the file.', 'Warning', { timeOut: 5000 });
+                        // return;
+                    }
+                     $('#datapath' + arr[arr.length - 1]).val(data.filename);
+                     $('#datapath' + arr[arr.length - 1]).attr('data', JSON.stringify(data));
+
+                    // if (data.format === 'Folder') {
+                    //     $('#datapath' + arr[arr.length - 1]).val(data.filename);
+                    //     $('#datapath' + arr[arr.length - 1]).attr('data', JSON.stringify(data));
+                    //     win.close();
+                    // } else {//选择的不是文件夹
+                    //     toastr.error('please choose a directory for the output data.', 'Error', { timeOut: 5000 });
+                    //     return;
+                    // }
+                } else { // 输入，必须是文件
+                    // 如果选择的是文件夹，则无效。
+                    // if (data.format === 'Folder') {
+                    //     toastr.error('you have to choose the file item.', 'Error', { timeOut: 5000 });
+                    //     return;
+                    // }
+
+                    $('#datapath' + arr[arr.length - 1]).val(data.filename);
+                    $('#datapath' + arr[arr.length - 1]).attr('data', JSON.stringify(data));
+                }
+                 win.close();
+            }
+
+            //执行方法调用
+            $('#btnOK').click(function () {
+                //循环遍历所有的输入输出数据
+                var params = new Array();
+                for (var i = 1; i <= paramCount; i++) {
+                    if ($('#datapath' + i).val().length === 0) {
+                        toastr.error('please set the parameter ' + i + '.', 'Error', { timeOut: 3000 });
+                        return;
+                    }
+
+                    // 对于控制参数，由于不是从filemanager中选出来的，所以，不是一个json对象。
+                    if ($('#datapath' + i).attr('data') === undefined)
+                        params.push({ 'oid': $('#datapath' + i).val(), 'filename': $('#datapath' + i).val(), pid: '', 'iotype': $('#datapath' + i).attr('iotype') });
+                    else
+                        params.push({ 'oid': JSON.parse($('#datapath' + i).attr('data')).oid, filename: JSON.parse($('#datapath' + i).attr('data')).filename, pid: JSON.parse($('#datapath' + i).attr('data')).parentid, 'iotype': $('#datapath' + i).attr('iotype') });
+
+                }
+                // console.log(params.trim());
+                //id，方法名，参数列表(json数组：[{'path':'','iotype':''},{}])
+                $.get('/refactor/call', { id: GetQueryString('id'), method: GetQueryString('method'), params: params }, function (guid) {
+
+                    // 返回当前运行实例的guid
+
+                    //如果当前的页面不关闭，则拿着这个guid去请求 当前实例的状态，如果完成了，则跳转另一个页面
+                    setInterval(function () {
+                        $.get('/common/instances', { type:'refactor',guid: guid }, function (instance) {
+                            // 说明已经执行完毕了
+                            if (instance === '') {
+                                window.location = '/refactor/result?guid=' + guid;
+                            }
+                        });
+                    }, 1000);
+
+                    $('#probar').css('width', '100%');
+
+
+
+                    // if (data != "-1") {
+                    // toastr.success('computing done successful.', 'Congratulation', { timeOut: 3000 });
+                    //data :   {paths:  , log: ''}   path:生成的数据name + '|' + parentid
+                    // 显示日志信息
+                    // $('#pre_stdout').html(data.log);
+
+                    // 显示下载列表
+                    // $('#divOutputFile').html('');
+
+                    // for (var i = 0; i < data.paths.length; i++) {
+                    //     var filename = data.paths[i].split('|')[0];
+                    //     var outputHtml = $("<p><a href='/user/download?filename=" + filename + "'>" + filename + "</a></p>");
+                    //     $('#divOutputFile').append($(outputHtml));
+                    // }
+                    // } else {
+                    //     toastr.error('failed to calucate, the server is busy.', 'Error', { timeOut: 3000 });
+                    //     return;
+                    // }
+                });
+            });
+        </script>
+</body>
+
+</html>

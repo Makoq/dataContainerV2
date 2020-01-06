@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Demo: Generating JavaScript</title>
+  <script src="../../blockly_uncompressed.js"></script>
+  <!-- <script src="../../blocks_compressed.js"></script> -->
+  <script src="../../blocks/logic.js"></script>
+  <script src="../../blocks/loops.js"></script>
+  <script src="../../blocks/math.js"></script>
+  <script src="../../blocks/text.js"></script>
+  <script src="../../blocks/lists.js"></script>
+  <script src="../../blocks/colour.js"></script>
+  <script src="../../blocks/variables.js"></script>
+  <script src="../../blocks/procedures.js"></script>
+  <!-- <script src="../../javascript_compressed.js"></script> -->
+  <script src="../../generators/javascript.js"></script>
+  <script src="../../generators/javascript/logic.js"></script>
+  <script src="../../generators/javascript/loops.js"></script>
+  <script src="../../generators/javascript/math.js"></script>
+  <script src="../../generators/javascript/text.js"></script>
+  <script src="../../generators/javascript/lists.js"></script>
+  <script src="../../generators/javascript/colour.js"></script>
+  <script src="../../generators/javascript/variables.js"></script>
+  <script src="../../generators/javascript/procedures.js"></script>
+  <!-- <script src="../../msg/js/en.js"></script> -->
+  <script src="../../msg/messages.js"></script>
+
+
+  <script src="./myblock.js"></script>
+  <script src="./block_udx_kernel_type.js"></script>
+  <script src="./block_get_node_by_name.js"></script>
+  <script src="./block_udx.js"></script>
+
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+
+    #switch {
+      height: 300px;
+      width: 300px;
+      border-radius: 50%;
+      background-color: white;
+      border: solid 1px black;
+      position: absolute;
+      left: 760px;
+      top: 110px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+    <category name="Logic" colour="%{BKY_LOGIC_HUE}">
+      <block type="lightswitch">
+        <field name='lightColor'>red</field>
+        <field name='switch'>on</field>
+      </block>
+    </category>
+    <category name="UDX" colour="%{BKY_MATH_HUE}">
+      <block type="kernel_type">
+        <field name='kernel_type'>int</field>
+      </block>
+      <block type="block_get_node_by_name"></block>
+      <block type="block_udx"></block>
+    </category>
+    <category name="Text" colour="%{BKY_TEXTS_HUE}">
+      <block type="text"></block>
+      <block type="text_length"></block>
+      <block type="text_print"></block>
+    </category>
+  </xml>
+
+  <div id='switch'></div>
+
+  <button onclick="showCode()">show</button>
+  <button onclick="runCode()">run</button>
+
+  <script>
+    var demoWorkspace = Blockly.inject('blocklyDiv',
+      {
+        media: '../../media/',
+        toolbox: document.getElementById('toolbox')
+      });
+
+    demoWorkspace.addChangeListener(function (event) {
+      //console.log(event.type,event.element);
+
+      //      Blockly.Events.CREATE||
+
+      //      console.log(event.blockId)
+
+      // var block = demoWorkspace.getBlockById(event.blockId);
+      // if (block)
+      //   console.log(block, block.type);
+    });
+
+    // Blockly.Xml.domToWorkspace(document.getElementById('startBlocks'),
+    //                            demoWorkspace);
+
+    function showCode() {
+      // Generate JavaScript code and display it.
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
+      console.log(code)
+    }
+
+    function runCode() {
+      // Generate JavaScript code and run it.
+      window.LoopTrap = 1000;
+      Blockly.JavaScript.INFINITE_LOOP_TRAP =
+        'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+      var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      try {
+        console.log(code);
+        eval(code);
+      } catch (e) {
+        alert(e);
+      }
+    }
+  </script>
+
+</body>
+
+</html>

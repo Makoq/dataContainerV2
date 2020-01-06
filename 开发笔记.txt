@@ -1,0 +1,167 @@
+﻿mongodb 外部导入json数据
+
+//1.josn
+[{"name":"wj","pwd":"123"},
+{"name":"admin","pwd":"123"},
+{"name":"xiaoming","pwd":"123"}]
+
+查看帮助
+mongoimport --help
+
+mongoimport --host 127.0.0.1 --db VgeDataServicesDB --collection visualization --file D:\1.json --jsonArray
+
+
+删除文档（记录）
+db.users.remove({'name':'xxx'})
+
+删除集合：
+db.collectionName.drop();
+
+1 添加一个字段.  url 代表表名 , 添加字段 content。 字符串类型。
+
+db.url.update({}, {$set: {content:""}}, {multi: 1})
+
+2  删除一个字段
+
+db.url.update({},{$unset:{'content':''}},false, true)
+
+
+
+3.更新多个字段
+db.updateMany('userdata', { _id: ObjectID(fid) }, { $set: { 'name': newname, 'datetime': newtime } }, function (err, results) {
+        if (err) {
+            console.log('update file or folder name error: ' + err);
+            res.send('-1');
+            return;
+        }
+        res.send('1');
+    });
+
+
+4.更新一个字段
+db.updateMany('userdata', { _id: ObjectID(fid) }, { 'name': newname }, function (err, results) {
+        if (err) {
+            console.log('update file or folder name error: ' + err);
+            res.send('-1');
+            return;
+        }
+        res.send('1');
+    });
+
+
+数据库备份与恢复：
+mongodump.exe -h 127.0.0.1 -d VgeDataServicesDB -o D:\bak
+
+mongorestore.exe -h 223.2.41.140:27017 -d VgeDataServicesDB D:\bak\VgeDataServicesDB
+
+
+
+弹出框：
+toastr.error('failed to update name, the server is busy.', 'Error', { timeOut: 3000 });
+toastr.success('ok.', 'Congratulation', { timeOut: 3000 });
+toastr.warning('','',{});
+
+
+
+request get模块，传递参数（包括数组），参见：
+https://github.com/request/request    request(options, callback)
+
+
+// ids 传递过来的是一个数组，如果我们使用url传递到本地（/datamap/mapServices），则ids就会变成一个字符串。但是，本地原本ajax请求使用的$.get，其上传的数组，接受的就是数组。
+// 所以，现在能有什么办法，使request的get方法传递数组。
+request.get({ url: 'http://' + ip + '/datamap/mapServices', qs: { 'pageamount': pageamount, 'page': page, 'ids': ids } }, function (error, response, body) {
+    // if (!error && response.statusCode == 200) {
+    //     console.log(body) // Show the HTML for the baidu homepage.
+    // }
+
+    if (error) {
+        console.log('load rmt mapping services error: ' + error);
+        return;
+    }
+
+    if (response.statusCode == 200) {
+        res.send(body);
+    } else {
+        console.log('status code: ' + response.statusCode);
+        return;
+    }
+
+    // console.log(body);
+});
+
+
+
+功能划分
+1.数据映射
+2.数据重构
+3.数据共享
+4.其他
+
+users document:
+
+_id：使用mongo默认id
+name
+pwd
+email
+phone
+
+==================================
+data document
+
+_id：使用mongo默认id
+name:文件名字
+format://文件类型,是文件还是文件夹
+datetime：创建时间
+size:文件大小
+path://本地存储的位置
+url:存储在远程服务器的地址
+creatorid：创建者
+parentid：父节点，表示文件夹中的文件
+type:private还是public
+favoriteby:被哪个用户收藏
+
+
+==============================
+datamap document:
+
+_id：使用mongo默认id
+name：映射服务
+description：映射服务的描述信息
+datetime：发布时间
+author：作者
+usetimes：使用次数
+who:是一个数组，谁使用了这个数据服务。
+path:在本地的路径, 数据都存储在 path/_id 命名的文件夹中
+
+
+==============================
+comment document:
+
+_id：使用mongo默认id
+datamapid：对应哪个映射服务的comment
+replyto：回复的对象，默认是对datamap进行回复
+content：评论内容
+author：作者
+
+
+=======================================
+category document
+
+_id
+name
+tags: 关联的标签
+parent: 属于的大类别
+
+
+
+
+
+数据上传：
+TODO：上传控件会自动覆盖相同的文件，但是会依然存到数据库中。需要特殊处理。
+
+
+
+jstree的使用笔记：
+
+1.展开所有节点的两种方式：
+    jstree默认打开有两种方式，一种在生成树结构时在有子节点的li中加class="jstree-open"还有一种是树形载入完成后用jstree的所有节点open_all事件所有节点跳转是要在生成时在li中加XXX或在载入完后再用js加载

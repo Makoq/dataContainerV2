@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../../include_css.ejs %>
+        <!-- END THEME LAYOUT STYLES -->
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li>
+                                            <a href="/">
+                                                <i class="fa fa-home" aria-hidden="true"></i>
+                                                Home
+                                             </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/rmt/refactor">Refactoring Services</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <span>Record</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+
+                                    <!--服务信息-->
+                                    <div style='margin-top:10px;' class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Related Refactor Services</h3>
+                                        </div>
+                                        <div class="panel-body">
+
+                                            <div class="panel-group" id="accordion" style="margin-top:10px;">
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <!--运行信息-->
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Multiple Refactor Service Records</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="panel-body" id="msrInfo" style="padding:0px;">
+                                                <div style="padding:0px;margin:0px;">
+                                                    <p><strong>Invoker&nbsp;:&nbsp;</strong><span id='rInvoker'></span></p>
+                                                    <p><strong>Start Time&nbsp;:&nbsp;</strong><span id='rStartTime'></span></p>
+                                                    <p><strong>Duriation&nbsp;:&nbsp;</strong><span id='rClamp'></span></p>
+                                                    <!-- <p><strong>Instance GUID&nbsp;:&nbsp;</strong><span id='rGuid'></span></p> -->
+                                                    <p><strong>Instance Snapshot&nbsp;:&nbsp;</strong>
+                                                        <br>
+                                                        <img id='rSnapshot' style="width:auto;height:auto;" src='' alt="" />
+                                                    </p>
+                                                    <p><strong>I/O Detail&nbsp;:&nbsp;</strong><br>
+                                                        <div id='rIODetail'></div>
+                                                    </p>
+                                                    <p>
+                                                        <strong>Running information&nbsp;:&nbsp;</strong>
+                                                        <br>
+                                                        <div id='rLog'></div>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+            <%include ../../footer.ejs%>
+    </div>
+
+    <% include ../../include_js.ejs %>
+
+        <script type="text/template" id="moban">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="blog-img">
+                        <img style='width:200px;height:150px;' src="{{=sSnapshot}}" alt="">
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div style="font-size: 14px; color:#aaa">
+                        <strong>Service Name&nbsp;:&nbsp;</strong>{{=name}}
+                        <br>
+                        <strong>Author&nbsp;:&nbsp;</strong>{{=author}}
+                        <br>
+                        <strong>Tags&nbsp;:&nbsp;</strong>{{=tags}}
+                        <br>
+                        <strong>Platform&nbsp;:&nbsp;</strong>
+                        <span class="label custom-label"><i class="fa fa-windows"></i>windows</span>
+                        <br>
+                        <strong>Upload Datetime&nbsp;:&nbsp;</strong>{{=datetime}}
+                        <br>
+                        <strong>Status&nbsp;:&nbsp;</strong>{{=status}}
+                        <br>
+                        <strong>Service Description&nbsp;:&nbsp;</strong>
+                        <span>{{=description}}</span>
+                    </div>
+                    <br>
+                    <a href="/rmt/common/detail?id={{=sid}}&ip={{=ip}}&type=refactor">More Information >></a>
+                    <br>
+                    <p></p>
+                </div>
+            </div>
+        </script>
+
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src="/js/custom-js/my-filter.js"></script>
+
+        <script>
+            // 根据方法名，找对应的方法对象
+            function matchMethod(methods, mName) {
+                for (var i = 0; i < methods.length; i++) {
+                    if (methods[i].name === mName) {
+                        return methods[i];
+                    }
+                }
+                return null;
+            }
+
+            $(function () {
+                // 当前服务的运行实例
+                var guid = GetQueryString('guid');
+                var ip = GetQueryString('ip');
+
+                // 获取运行记录信息
+                $.get('/rmt/common/records', { type: 'refactor_advance', guid: guid, ip: ip }, function (data) {
+                    if (data === '-1') {
+                        toastr.error('failed to load record information.', 'Error', { timeOut: 3000 });
+                        return;
+                    }
+
+                    data = JSON.parse(data);
+
+                    // 服务id
+                    var runInfo = {
+                        // sid: data[0].service.sid,//数组
+                        guid: data[0].guid,
+                        starttime: data[0].starttime,
+                        endtime: data[0].endtime,
+                        status: data[0].status,  // 0 正在运行    1运行完毕    -1 运行错误
+                        error: data[0].error,
+                        log: data[0].log,
+                        imgData: data[0].imgData,
+                        username: data[0].username,
+                        cfg: data[0].cfg // 生成脚本的配置文件
+
+                    };
+
+
+                    // 请求服务信息   sid是一个数组
+
+
+                    sInfo = data[0].service;
+
+                    $('#accordion').html('');
+                    var compiled = _.template($("#moban").html());
+
+                    var panelParent = $('<div class="panel panel-success"></div>');
+                    for (var i = 0; i < sInfo.length; i++) {
+
+                        var panelHeading = $('<div class="panel-heading">'
+                            + '<h4 class="panel-title">'
+                            + '<a data-toggle="collapse" data-parent="#accordion" href="#collapse' + i + '">' + sInfo[i].name + '</a>'
+                            + '</h4>'
+                            + '</div>');
+
+                        var divCollapse = '';
+                        if (i === 0) {
+                            divCollapse = $('<div id="collapse' + i + '" class="panel-collapse collapse in" style="cursor:pointer"></div>');
+                        } else {
+                            divCollapse = $('<div id="collapse' + i + '" class="panel-collapse collapse" style="cursor:pointer"></div>');
+                        }
+
+
+                        var infoStatus = '';
+                        if (sInfo[i].available === '1') {//可用
+                            infoStatus = '<span class="label label-success">available</span>';
+                        } else {
+                            infoStatus = '<span class="label label-error">disabled</span>';
+                        }
+                        // 单个重构服务详情
+                        var detail = compiled({
+                            sSnapshot: sInfo[i].snapshot,
+                            name: sInfo[i].name,
+                            author: sInfo[i].author,
+                            tags: sInfo[i].tags,
+                            datetime: sInfo[i].datetime,
+                            status: infoStatus,
+                            description: sInfo[i].description,
+                            sid: sInfo[i]._id,
+                            ip: ip
+                        });
+
+                        panelParent.append(panelHeading);
+                        divCollapse.append($(detail));
+                        panelParent.append(divCollapse);
+                    }
+
+
+                    $('#accordion').append(panelParent);
+
+
+
+                    //*******************加载运行记录信息*************************
+                    // 调用者
+                    $('#rInvoker').text(runInfo.username);
+                    // 调用开始时间
+                    $('#rStartTime').text(runInfo.starttime);
+                    // 历时
+                    var start = new Date(runInfo.starttime);
+                    var end = new Date(runInfo.endtime);
+                    $('#rClamp').text((end - start) / 1000 + ' s');
+                    // guid
+                    // $('#rGuid').text(runInfo.guid);
+
+                    // 实例快照
+                    $('#rSnapshot').attr('src', runInfo.imgData);
+
+                    // I/O
+                    var orderedMethods = runInfo.cfg.orders;
+                    var navHeader = $('<ul class="nav nav-tabs"></ul>');
+                    var navContent = $('<div class="tab-content"></div>');
+
+                    for (var i = 0; i < orderedMethods.length; i++) {
+                        var curMethod = matchMethod(runInfo.cfg.methods, orderedMethods[i]);
+                        var navHeaderItem = '';
+                        var navTab = '';
+                        if (i === 0) {
+                            navHeaderItem = $('<li class="active"><a href="#' + orderedMethods[i] + i + '" data-toggle="tab">' + orderedMethods[i] + '</a></li>');
+                            navTab = $('<div class="tab-pane fade in active" id="' + orderedMethods[i] + i + '"></div>');
+                        } else {
+                            navHeaderItem = $('<li><a href="#' + orderedMethods[i] + i + '" data-toggle="tab">' + orderedMethods[i] + '</a></li>');
+                            navTab = $('<div class="tab-pane fade" id="' + orderedMethods[i] + i + '"></div>');
+                        }
+                        navHeader.append(navHeaderItem);
+
+
+                        // 服务id
+                        var curParams = curMethod.params;//数组
+                        var content = '<div>' +
+                            '<p><strong>Service ID: <a href="/rmt/refactor/description?id=' + curMethod.serviceId + '&ip="' + GetQueryString('ip') + '>' + curMethod.serviceId + '</a></strong></p>' +
+                            '<p><strong>Method: <a href="/rmt/refactor/use?id=' + curMethod.serviceId + '&method=' + curMethod.name + '&ip="' + GetQueryString('ip') + '>' + curMethod.name + '</a></strong></p>' +
+                            '<p><strong>Inputs: </strong></p>';
+
+                        var inCount = curMethod.inCount;
+                        // 添加输入数据
+                        for (var j = 0; j < inCount; j++) {
+                            content += '<strong><a href="/rmt/user/download?ip=' + GetQueryString('ip') + '&filename=' + curParams[j].value + '">' + curParams[j].name + ' : ' + curParams[j].filename + '</a></strong><br>';
+                        }
+                        content += '<p><strong>Outputs: </strong></p>';
+                        // 添加输出数据
+                        for (var j = inCount; j < curParams.length; j++) {
+                            content += '<strong><a href="/rmt/user/download?ip=' + GetQueryString('ip') + '&filename=' + curParams[j].value + '">' + curParams[j].name + ' : ' + curParams[j].filename + '</a></strong><br>';
+                        }
+                        content += '</div>';
+
+                        navTab.append($(content));
+                        navContent.append(navTab);
+                    }
+
+                    $('#rIODetail').append(navHeader);
+                    $('#rIODetail').append(navContent);
+
+                    var html = '';
+                    // 标准输出
+                    if (runInfo.status === '1') { // 正常结束
+                        // $('#rLog').text(runInfo.log);
+                        html += '<span class="label label-info">standard output</span>';
+                        html += '<pre>' + runInfo.log + '</pre>';
+
+                    } else if (runInfo.status === '-1') { // 发生异常
+                        html += '<span class="label label-danger">error log</span>';
+                        var result = JSON.stringify(runInfo.error).replace(/\\r\\n/g, '<br>');
+                        html += '<pre>' + result + '</pre>';
+                    }
+                    // console.log(runInfo.error);
+                    $('#rLog').append($(html));
+
+
+                });
+
+            });
+        </script>
+</body>
+
+</html>

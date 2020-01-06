@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <% include ../include_css.ejs %>
+
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/jquery-ui.min.css" />
+  <link rel="stylesheet" href="/css/jquery.dataTables.min.css" />
+
+</head>
+
+<body>
+
+  <div style="margin: 10px;">
+    <table class="table table-bordered table-hover" id='serTable'>
+      <thead>
+        <tr>
+          <th>
+            <center>Id</center>
+          </th>
+          <th>
+            <center>Name</center>
+          </th>
+          <th>
+            <center>User</center>
+          </th>
+          <th>
+            <center>Datetime</center>
+          </th>
+          <th>
+            <center>Operation</center>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="tBody">
+
+      </tbody>
+    </table>
+
+    <button class="btn btn-primary btn-sm" style="float: right; width:100px;margin-top: 10px;" id='btnOK'>OK</button>
+
+  </div>
+
+  <% include ../include_js.ejs %>
+  <script src="/js/jquery-ui.min.js"></script>
+  <script src="/js/jquery.dataTables.min.js"></script>
+
+  <script>
+
+    $(function () {
+      $.get('/common/services', { type: 'dps', ids: 'all' }, function (data) {
+        if (data === '-1') {
+          toastr.error('failed to get refactor services.', 'Error', { timeOut: 5000 });
+          return;
+        }
+        console.log(data)
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+          html += '<tr>' +
+            '<td>' + i + '</td>' +
+            '<td>' + data[i].name + '</td>' +
+            '<td>' + data[i].uname + '</td>' +
+            '<td>' + data[i].datetime + '</td>' +
+            '<td><input type="checkbox" name="cb" json=\'' + JSON.stringify(data[i].json) + '\' /><label for="' + data[i]._id + '">choose</label></td>' +
+            '</tr>';
+        }
+        $('tBody').append($(html));
+
+        // TODO:一次只能选择一个
+
+        $('#serTable').DataTable();
+      });
+
+      $('#btnOK').click(function () {
+        // 选择的服务ids
+        var sids = new Array();
+
+        var cbs = $("input[name='cb']:checked");
+        if (cbs.length > 1 || cbs.length <= 0)
+          toastr.error('You can only select one item ', { timeOut: 100 });
+
+        // console.log($(cbs[0]).attr('json'))
+        window.opener.subSelected($(cbs[0]).attr('json'));
+
+        return;
+      });
+    });
+
+
+
+
+  </script>
+
+</body>
+
+</html>

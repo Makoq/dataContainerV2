@@ -1,0 +1,99 @@
+h1,h3{
+    color: #666;
+}
+.content-nav{
+    min-width: 700px;
+    overflow: auto;
+}
+p{
+    margin:8px 1px 8px 1px!important;
+    color: #777;
+    text-indent:2em;
+    text-align:justify;
+    /*transition: color 1s 0.5s;
+    /*-moz-transition: color 1s 0.5s;	*//* Firefox 4 */
+    /*-webkit-transition:  color 1s 0.5s;	/* Safari 和 Chrome */
+    /*-o-transition:  color 1s 0.5s;	/* Opera */
+}
+
+.detail-hr{
+   height:2px;
+   border:none;
+   background: #eee;
+}
+li{
+    margin-top:3px;
+}
+address{
+    margin-left: 20px;
+}
+.thumbnail{
+  position: absolute;
+  margin-left: 45%;
+  margin-top:3%;
+  width:auto;
+  border: none;
+}
+/*****content nav bar***/
+.right-content-nav{
+    padding:2px 2px 2px 10px;
+         position:fixed;              
+            min-height:300px;  
+            max-height: 400px;
+            width:200px;              
+            right:30px;  
+            top:30%;  
+            right: 15px;
+            overflow:auto; 
+    border-left: 1px solid #ccc;
+    background-color: #fff;
+}
+@media (max-width: 970px) {
+   .right-content-nav{
+        top:30%;  
+         right: 10px;
+        width:150px;      
+   }
+ 
+}
+
+#main_content{
+    width: 75%;
+}
+dl dt{
+    margin-top:4px!important;
+   
+}
+dl dt a{
+    color: #777!important;
+    text-decoration: none!important;
+}
+::-webkit-scrollbar {
+		  width: 0px;
+}
+#up-down{
+    position: fixed;
+    top:50%;
+    right: 50px;
+    opacity: 0.0;
+    width:1%;
+    transition: opacity 0.5s;
+    -moz-transition: opacity 0.5s;	/* Firefox 4 */
+    -webkit-transition:  opacity 0.5s;	/* Safari 和 Chrome */
+    -o-transition:  opacity  0.5s;	/* Opera */
+
+}
+#up-down button{
+    background: none;
+    border-radius: 0px;
+}
+#up-down #scroll-up:hover{
+    background-color: #eee;
+}
+#up-down #scroll-down:hover{
+    background-color: #eee;
+}
+
+.right-content-nav:hover #up-down{
+     opacity: 1.0;
+}

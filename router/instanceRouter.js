@@ -1,0 +1,784 @@
+var Instance = require('../models/instance.js');
+var sd = require('silly-datetime');
+// guid
+var uuid = require('node-uuid');
+var child_process = require('child_process');
+var ObjectID = require('mongodb').ObjectID;//数据库ObjectId
+var fs = require('fs');
+var db = require("../models/db.js");
+var formidable = require('formidable');
+var path = require("path");
+
+module.exports = function (app) {
+
+    // 调用映射服务 ( src -> udx  、  udx -> src )
+    app.get('/datamap/use/call', function (req, res, nex) {
+        var paramObj = req.query;
+        var serviceid = paramObj.id; // 服务id
+        var in_oid = paramObj.in_oid; // 输入文件名，即原始数据的文件名， oid
+        var in_filename = paramObj.in_filename; // 输入文件别名
+
+        var outdir = paramObj.out_dir; // 输出文件保存的目录的id
+        var out_filename = paramObj.out_filename;// 输出文件名，只是一个别名
+
+        var username = req.session.username; // 用户名
+        // 远程用户
+        if (username === undefined) {
+            username = req.query.username;
+        }
+
+        // 使用类型：src2udx还是udx2src
+        var callType = req.query.callType;
+
+        // 当前服务器时间
+        var time = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+
+
+        // 查询对应的服务
+        db.find('datamap', { _id: ObjectID(serviceid) }, function (e, r) {
+
+            if (e) {
+                console.log(e);
+                res.send('-2');
+                return;
+            }
+            // 服务名
+            var sname = r[0].name;
+
+            // 生成实例
+            var guid = uuid.v4();// v4随机生成，v1基于时间戳
+            var ins = {
+                'guid': guid,
+                'username': username,
+                'sname': sname, //服务的名字
+                'sid': serviceid,  // service id
+                'starttime': time, // 开始时间
+                'status': '0'  // 0 正在执行， 1 执行完毕 ， -1 发生异常
+            };
+            var instance = new Instance(ins);// 新建一个实例对象
+            app.mappingInsCol.addInstance(instance); //将当前实例添加到集合中。
+
+            // 原始输入数据的路径
+            var srcPath = __dirname + '/../upload/userdata/' + username + '/' + in_oid;
+
+            var basedir = __dirname + "/../upload/datamap/" + serviceid + '/';
+            // 1. 读取配置文件，获取该映射服务的调用信息
+            var cfgJson = '';
+            try {
+                cfgJson = JSON.parse(fs.readFileSync(basedir + 'cfg.json'));
+            } catch (e) {
+                console.log('read cfg.json error: ' + e);
+                res.send('-1');
+                return;
+            }
+
+            var type = cfgJson.type;//映射服务的调用类型：jar、exe
+            var start = cfgJson.start;//映射服务的入口
+            var cmd = '';
+            if (type === 'exe') {
+                cmd = basedir + start;
+            } else if (type === 'jar') {
+                cmd = 'java -jar ' + basedir + start;
+            }
+
+            // 新生成的数据的oid
+            var oid = new ObjectID();
+            var outputfile = __dirname + '/../upload/userdata/' + username + '/' + oid;
+
+            // 参数
+            var p = '';
+            if (callType === 'src2udx') {
+                p = ' -r -f ' + srcPath + ' -u ' + outputfile; // src -> udx
+            } else if (callType === 'udx2src') {
+                p = ' -w -u ' + srcPath + ' -f ' + outputfile; // udx -> src
+            }
+
+            // 开启子进程执行映射
+            child_process.exec(cmd + p, { cwd: basedir }, function (err1, data, stderr) {
+                var error = '';
+                // 发生异常，没有输出文件。
+                if (err1 || stderr) {
+                    app.mappingInsCol.changeStatus(guid, '-1');
+                    error = err1 + '\r\n' + stderr;
+                    console.log(err1, stderr);
+
+                    // 移除实例
+                    //app.mappingInsCol.removeByGuid(guid);
+                    // res.send("-1");
+                } else {
+                    app.mappingInsCol.changeStatus(guid, '1');
+                }
+
+                // 判断是否生成输出文件。
+                if (fs.existsSync(outputfile)) {
+                    var stat = null;
+                    try {
+                        stat = fs.statSync(outputfile);
+                    } catch (ex) {
+                        console.log('stat the file error: ' + ex);
+                        stat = { size: -1 };//强制设置文件大小为负数
+                        // res.send('-2');
+                    }
+
+                    var size = parseFloat(stat.size) / 1024;
+                    if (size < 1024) {
+                        size = Math.ceil(size) + ' KB';
+                    } else if (size < 1024 * 1024) {
+                        size = Math.ceil(size / 1024) + ' M';
+                    } else if (size < 1024 * 1024 * 1024) {
+                        size = Math.ceil(size / 1024 / 1024) + ' G';
+                    } else {
+                        size = Math.ceil(size / 1024) + ' KB';
+                    }
+
+                    // 将输出数据插入数据库
+                    db.insertOne('userdata', {
+                        _id: ObjectID(oid), name: out_filename, format: 'file', datetime: sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                        size: size, creator: username, parentid: outdir, type: 'private', favoriteby: username
+                    }, function (err3, results) {
+                        if (err3) {
+                            console.log('insert the output file to db error: ' + err3);
+                            // res.send('-2');
+                            // return;
+                        }
+
+                        // 生成运行记录
+                        var run_record = {
+                            guid: guid,
+                            'username': username,
+                            'service': r[0],
+                            // 'sid': serviceid,
+                            'input': [{ filename: in_filename, oid: in_oid }],
+                            'output': [{ filename: out_filename, oid: oid }],
+                            'starttime': time, // 服务开始的时间，服务结束的时间
+                            'endtime': sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                            'status': app.mappingInsCol.getStatus(guid),//状态信息
+                            'error': error,//异常信息，只有status = -1 的时候才会有值。
+                            'log': data,   // 转换输出的日志信息
+                            'calltype': callType, // 调用类型：src->udx或者udx->src
+                            'delete': '-1',
+                            'deletetime': ''
+                        };
+
+                        // 将运行记录插入数据库
+                        db.insertOne('mappingrecord', run_record, function (err4, results) {
+                            if (err4) {
+                                console.log('insert the running record error: ' + err4);
+                                // res.send('-2');
+                                return;
+                            }
+                            // 此时实例运行结束，应该删除
+                            app.mappingInsCol.removeByGuid(guid);
+                        });
+                    });
+                } else {//没有输出文件，则只记录运行记录
+                    // 生成运行记录
+                    var run_record = {
+                        guid: guid,
+                        'username': username,
+                        'service': r[0],
+                        // 'sid': serviceid,
+                        'input': [{ filename: in_filename, oid: in_oid }],
+                        'output': [], // 没有输出文件
+                        'starttime': time, // 服务开始的时间，服务结束的时间
+                        'endtime': sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                        'status': app.mappingInsCol.getStatus(guid),//状态信息
+                        'error': error,//异常信息，只有status = -1 的时候才会有值。
+                        'log': data,   // 转换输出的日志信息
+                        'calltype': callType,
+                        'delete': '-1',
+                        'deletetime': ''
+                    };
+
+                    // 将运行记录插入数据库
+                    db.insertOne('mappingrecord', run_record, function (err4, results) {
+                        if (err4) {
+                            console.log('insert the running record error: ' + err4);
+                            // res.send('-2');
+                            return;
+                        }
+
+                        // 此时实例运行结束，应该删除
+                        app.mappingInsCol.removeByGuid(guid);
+                    });
+                }
+
+                // oid: 直接发送数据到前台，下载。   
+                // res.set({
+                //     'Content-Type': 'file/xml',
+                //     'Content-Length': data.length
+                // });
+                // res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
+                // res.end(data);
+
+            });
+            // 返回 服务实例的 guid
+            res.send(guid);
+        });
+    });
+
+    // 查看实例信息
+    app.get('/common/instances', function (req, res, nex) {
+        var type = req.query.type;
+
+        var guid = req.query.guid;
+        // 默认获取本地用户的运行实例
+        var username = req.session.username;
+
+        if (username != undefined) {
+            // 本地用户
+            if (guid === undefined) {
+                // app.mappingInsCol  //instances数组
+                if (type === 'dp') {
+                    res.send(app.dpInstanceCol.getAllInstances());
+                } else if (type === 'dps') {
+                    res.send(app.refacorAdvanceCol.getAllInstances());
+                }
+
+            } else {
+                // res.send(app.mappingInsCol.getInstanceByGuid(guid));
+                if (type === 'dp') {
+                    res.send(app.dpInstanceCol.getInstanceByGuid(guid));
+                } else if (type === 'dps') {
+                    res.send(app.refacorAdvanceCol.getInstanceByGuid(guid));
+                }
+            }
+
+        } else if (username === undefined) {
+            // 远程用户
+            username = req.query.username;
+            if (guid === undefined) {
+                 if (type === 'dp') {
+                    res.send(app.dpInstanceCol.getAllInstancesByName(username));
+                } else if (type === 'dps') {
+                    res.send(app.refacorAdvanceCol.getAllInstancesByName(username));
+                }
+            } else {
+               if (type === 'dp') {
+                    res.send(app.dpInstanceCol.getInstanceByGuidAndName(guid, username));
+                } else if (type === 'dps') {
+                    res.send(app.refacorAdvanceCol.getInstanceByGuidAndName(guid, username));
+                }
+            }
+        }
+    });
+
+    // 重构服务实例
+    app.get('/dp/call', function (req, res, next) {
+        var paramObj = req.query;
+        // 用户名
+        var username = req.session.username;
+        if (username === undefined) {
+            username = req.query.username;
+        }
+
+        var serviceid = paramObj.id;
+        var method = paramObj.method;
+        var params = paramObj.params; //json数组   [{'oid':'', 'filename':'','pid':'', 'iotype':'', 'datatype': ''},{}]
+        // datatype==String则从数据源中的取数据，为File则从文件管理器中取数据。
+        // params 存储的内容：对于输入数据是oid， 对于输出数据是 parentid
+
+        if (!(params instanceof Object)){
+            params = JSON.parse(params)
+        }
+
+        //获取exe的路径
+        var servicePath = path.normalize(__dirname + '/../upload/dp/' + serviceid + '/' + 'dp.exe');
+
+        // 参数列表，用于拼接可执行exe后面的参数
+        var pList = '';
+        // 获取用户数据的路径
+        var basedir = path.normalize(__dirname + '/../upload/userdata/' + username + '/');
+        // 数据源的目录
+        var datadir = path.normalize(__dirname + '/../upload/data/');
+        // 如果有输入参数是数据源（datatype=Strig)，则为数据服务中的数据，传递参数：xxx/upload/data/uid/
+        var outputs = new Array();// 存储 { oid: newoid, pid: ioInfo.pid, filename: ioInfo.filename }
+        var inputs = new Array();//存 储输入数据：包括控制参数和文件数据
+
+        for (var i = 0; i < params.length; i++) {
+            var ioInfo = params[i];  //{'oid':'', 'filename':'','pid':'', 'iotype':'', 'datatype': ''}
+            // 兼容远程请求
+            if ((typeof ioInfo == 'string') && ioInfo.constructor == String) {
+                ioInfo = JSON.parse(ioInfo);
+            }
+
+            if (ioInfo.iotype == "out") {//输出路径
+                //pList += __dirname + '/../tmp/' + ioInfo.path;
+                //TODO: 
+                var newoid = new ObjectID();
+                pList += basedir + newoid + ' ';
+                // 保存新生成的文件的路径
+                // outputs.push(newoid + '|' + ioInfo.pid);// filename + '|' + parentid
+                outputs.push({ oid: newoid, pid: ioInfo.pid, filename: ioInfo.filename });
+            } else {//输入文件
+                // 如果文件存在，说明是文件数据。
+                // if (fs.existsSync(basedir + ioInfo.oid)) {
+                //     pList += basedir + ioInfo.oid + ' ';
+                // } else { //控制参数
+                //     pList += ioInfo.oid + ' ';// 文件不存在，说明有可能是单值的参数
+                // }
+
+                // 这里即使是控制参数也要以udx数据传入，因为控制参数可以很简单也可以很复杂，也需要以结构化的方式描述。
+                // 这里要区分的是输入参数数据源（目录）还是参数文件（userdata）
+                if(ioInfo.datatype == 'String'){
+                    // 如果是数据源，oid是数据源的oid
+                    pList += datadir + ioInfo.oid + ' ';
+                }else{
+                    pList += basedir + ioInfo.oid + ' ';
+                }
+
+                // 保存输入参数
+                inputs.push({ oid: ioInfo.oid, filename: ioInfo.filename });
+            }
+        }
+
+        //****************************开启实例******************************* */
+        // 当前服务器时间
+        var time = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+
+        db.find('dp', { _id: ObjectID(serviceid) }, function (e, r) {
+            if (e) {
+                console.log(e);
+                res.send('-2');
+                return;
+            }
+
+            // 生成实例
+            var guid = uuid.v4();// v4随机生成，v1基于时间戳
+            var ins = {
+                'guid': guid,
+                'sname': r[0].name, // 服务的名字
+                'username': username,
+                'method': method,
+                'sid': serviceid,  // service id
+                'starttime': time, // 开始时间
+                'status': '0'  // 0 正在执行， 1 执行完毕 ， -1 发生异常
+            };
+            var instance = new Instance(ins);// 新建一个实例对象
+            app.dpInstanceCol.addInstance(instance); //将当前实例添加到集合中。
+
+            //执行后台方法
+            child_process.exec(servicePath + ' ' + method + ' ' + pList.trim(), { cwd: path.normalize(__dirname + '/../upload/dp/' + serviceid) }, function (err, data, stderr) {
+                var errorlog = '';
+                if (err || stderr) {
+                    app.dpInstanceCol.changeStatus(guid, '-1');//发生异常， 修改状态 -1
+                    errorlog = err + '\r\n' + stderr;
+                    console.log(err, stderr);
+                    // 发生错误，删除实例
+                    // app.dpInstanceCol.removeByGuid(guid);
+                    // res.send("-1");
+                    // return;
+                } else {
+                    app.dpInstanceCol.changeStatus(guid, '1');// 正常结束，修改状态 1
+                }
+
+                // 保存真正的输出数据。前面outputs是记录期望的输出数据。但是运行过程中，如果发生异常了，是不会输出数据的，或者输出数据不完整，这时就需要对真正输出的数据进行管理。
+                var realOutput = new Array();
+
+                // 将新生成的数据 存入数据库 。  在此之前要判断文件是否存在，如果不存在，则有可能是遇到错误了。
+                (function iterator(i) {
+                    if (i === outputs.length) {
+                        // res.send({ 'paths': outputs, 'log': data });//  log: refactor 服务运行时产生的日志信息
+
+                        // 将运行日志插入数据库
+                        // 生成运行记录
+                        var run_record = {
+                            'guid': guid,
+                            'username': username,
+                            'service': r[0],
+                            // 'sid': serviceid,
+                            'input': inputs,
+                            'output': realOutput,
+                            'method': method,
+                            'starttime': ins.starttime, // 服务开始的时间，服务结束的时间
+                            'endtime': sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                            'status': app.dpInstanceCol.getStatus(guid),//状态信息
+                            'error': errorlog,// 异常信息，只有status = -1 的时候才会有值。
+                            'log': data,  // 转换输出的日志信息
+                            'delete': '-1',
+                            'deletetime': ''
+                        };
+
+                        // 将运行记录插入数据库
+                        db.insertOne('dprecord', run_record, function (err4, results) {
+                            if (err4) {
+                                console.log('insert the running record error: ' + err4);
+                                // res.send('-2');
+                                return;
+                            }
+
+                            // 此时实例运行结束，应该删除
+                            app.dpInstanceCol.removeByGuid(guid);
+                        });
+
+                        return;
+                    }
+
+                    //outputs中存存储的是 filename  '|'  parentid
+                    // var arr = outputs[i].split('|');
+                    //对于文件的oid我们重新生成一个，可以不和文件名一致，因为文件名也是new了一个ObjectID
+
+                    // var filename = arr[0];
+                    // var parentid = arr[1];
+                    var out_oid = outputs[i].oid; // ObjectID
+                    var filename = outputs[i].filename;
+                    var parentid = outputs[i].pid;
+
+                    // 判断输出文件是否存在
+                    if (fs.existsSync(basedir + out_oid)) {
+                        // 很关键！！！
+                        realOutput.push({ filename: filename, oid: out_oid });//记录真正的输出数据
+
+                        var stat = null;
+                        try {
+                            stat = fs.statSync(basedir + out_oid);
+                        } catch (e) {
+                            console.log('stat output file error: ' + e);
+                            stat = { size: -1 }; // 强制设置文件大小为负数。
+                        }
+
+                        var size = parseFloat(stat.size) / 1024;
+                        if (size < 1024) {
+                            size = Math.ceil(size) + ' KB';
+                        } else if (size < 1024 * 1024) {
+                            size = Math.ceil(size / 1024) + ' M';
+                        } else if (size < 1024 * 1024 * 1024) {
+                            size = Math.ceil(size / 1024 / 1024) + ' G';
+                        } else {
+                            size = Math.ceil(size / 1024) + ' KB';
+                        }
+
+                        // 结果文件插入数据库
+                        db.insertOne('userdata', { _id: ObjectID(out_oid), name: filename, format: 'file', datetime: sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'), size: size, creator: username, parentid: parentid, type: 'private', favoriteby: username }, function (error, results) {
+                            if (error) {
+                                console.log('insert the output file to db error: ' + error);
+                                // res.send('-2');
+                                // return;
+                            }
+
+                            iterator(i + 1);
+                        });
+                    } else // 没有输出文件，看下一个
+                        iterator(i + 1);
+
+                })(0);
+            });
+
+            // 先返回
+            res.send(guid);
+
+        });
+    });
+
+    // app.get('/refactor/instanceInfo', function (req, res, nex) {
+    //     var guid = req.query.guid;
+    //     if (guid === undefined) {//请求全部实例
+    //         res.send(app.dpInstanceCol.getAllInstances());
+    //     } else {
+    //         res.send(app.dpInstanceCol.getInstanceByGuid(guid));
+    //     }
+    // });
+
+    // ***********************************串联运行开始*************************************************
+    //根据方法名，找其对应的参数，并用逗号链接起来。
+    function findParams(arr, mName) {
+        // 参数结构：
+        // { value:oid,  filename:filename,   dir: parentid , ...}
+
+        var res = '';
+        for (var i = 0; i < arr.length; i++) {
+            if (mName === arr[i].name) {
+                for (var j = 0; j < arr[i].params.length; j++) {
+                    // if (arr[i].params[j].isParam === '0') { //不是控制参数，就是实体文件，要加上路径。
+                    //     res += 'datapath+"' + arr[i].params[j].value + '",';
+                    // } else if (arr[i].params[j].isParam === '1') {
+                    //     res += '"' + arr[i].params[j].value + '",';
+                    // }
+                    res += 'datapath+"' + arr[i].params[j].value + '",';
+               
+                }
+                res = res.substring(0, res.length - 1);
+                return res;
+            }
+        }
+    }
+
+    // 根据方法名找对应的 service id。
+    function findServiceId(arr, mName) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].name === mName) {
+                return arr[i].serviceId;
+            }
+        }
+    }
+
+    // 根据底层的方法名，找对应的js方法名。（查找advance文件夹中的cfg.json文件）
+    function findJsMethod(arr, mName) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i]['@from'] === mName) {
+                return arr[i]['@to'];
+            }
+        }
+    }
+
+    // 查看当前的计算，共涉及到多少个service
+    function processService(methods, arr) {
+        for (var i = 0; i < methods.length; i++) {
+            var sid = methods[i].serviceId;
+            if (arr.indexOf(sid) === -1) {//数组中没有则添加
+                arr.push(sid);
+            }
+        }
+    }
+
+    // 当运行发生错误时，删除所有生成的输出文件，因为还没有入库，如果不删除，会造成数据库和本地物理文件不同步。
+    function delteAllOutputs(methods, basefiledir) {
+        for (var i = 0; i < methods.length; i++) {
+            var inCount = methods[i].inCount;
+            var params = methods[i].params;
+            for (var j = inCount; j < params.length; j++) {
+                if (fs.existsSync(basefiledir + params[j].value)) {
+                    fs.unlinkSync(basefiledir + params[j].value);
+                }
+            }
+        }
+    }
+
+    // 运行串联方法
+    app.post('/dps/run', function (req, res, next) {
+        var form = new formidable.IncomingForm();
+
+        var methodArr = new Array();
+        var serviceIds = new Array();
+        form.parse(req, function (err, fields, files) {
+            //console.log(fields.json);
+            serviceIds.length = 0;
+            methodArr.length = 0;
+
+            // 当前场景图片
+            var imgData = fields.imgData;
+            var ins_alias = fields.ins_alias;//当前实例的别名
+
+            var json = JSON.parse(fields.json);
+            var username = req.session.username;//当前用户名
+            if (username === undefined) {
+                username = req.query.username;
+            }
+
+            var methods = json.methods;// 所有的方法
+            var orders = json.orders;// 被排好序的方法
+            // var links = json.links;
+            var js = '';
+
+            //获取共有多少个service参与计算
+            processService(methods, serviceIds);
+
+            for (var i = 0; i < serviceIds.length; i++) {
+                var cfgPath = path.normalize(__dirname + '/../upload/dp/' + serviceIds[i] + '/scripts/cfg.json');  // 在advance文件夹中，配置底层方法与js方法的对应关系。
+                var cfgJson = JSON.parse(fs.readFileSync(cfgPath));
+                var jsModuleName = cfgJson.RefactorEngine.Startup; // 模块名
+
+                js += 'var vge_' + serviceIds[i] + ' = require("' + '../upload/dp/' + serviceIds[i] + '/scripts/' + jsModuleName + '");';
+            }
+
+            // 我们规定：所有的数据都存放在userdata目录下 ，由用户自行组织文件夹结构。
+            // 脚本文件中的datapath之所以使用__dirname，是因为我们后面将脚本文件放在tmp文件夹下了！！！ 这个十分关键。
+            js += 'var datapath = __dirname + "/../upload/userdata/' + username + '/";';
+
+            for (var i = 0; i < orders.length; i++) {
+                var curMethod = orders[i];//当前函数名
+                var sid = findServiceId(methods, curMethod);//service id
+                // 其中，输出参数是动态生成的oid
+                var params = findParams(methods, curMethod);//当前方法串联起来的参数
+
+                var cfgPath = path.normalize(__dirname + '/../upload/dp/' + sid + '/scripts/cfg.json');  // 在advance文件夹中，配置底层方法与js方法的对应关系。
+                var cfgJson = JSON.parse(fs.readFileSync(cfgPath));
+                //根据底层函数名找到对应的js中的函数名
+                var jsMethod = findJsMethod(cfgJson.RefactorEngine.MethodMappings.MethodMapping, curMethod);
+
+                var mStr = 'vge_' + sid + '.' + jsMethod + '(function(data){' + "[[" + (i + 1) + "]]" + '},' + params + ');';
+                methodArr.push(mStr);
+            }
+
+            //替换占位符
+            var mStr = methodArr[0];
+            //替换占位符[[index]]
+            for (var i = 0; i < methodArr.length - 1; i++) {
+                mStr = mStr.replace("[[" + (i + 1) + "]]", methodArr[i + 1]);
+            }
+
+            //处理最后一个
+            mStr = mStr.replace("[[" + methodArr.length + "]]", '');
+
+            js += mStr;
+
+            //console.log(js);
+            var dir = path.normalize(__dirname + '/../tmp/');
+            // 生成的脚本要保存到数据库
+            try {
+                fs.writeFileSync(dir + 'index.js', js);
+            } catch (ex) {
+                console.log('write file error: ' + ex);
+            }
+
+            //****************生成计算实例************************** */
+            // 当前运行实例集合
+            // app.refacorAdvanceCol
+            var time = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+
+            var findConditioin = new Array();
+            for (var i = 0; i < serviceIds.length; i++) {
+                findConditioin.push({ "_id": ObjectID(serviceIds[i]) });
+            }
+
+            db.find('dp', { "$or": findConditioin }, function (e, r) {
+                if (e) {
+                    console.log(e);
+                    res.send('-2');
+                    return;
+                }
+
+                // 生成实例
+                var guid = uuid.v4();// v4随机生成，v1基于时间戳
+                var ins = {
+                    'guid': guid,
+                    'username': username,
+                    'sname': ins_alias,  //数组
+                    // 'service': r,
+                    'sid': serviceIds,  // 数组
+                    'starttime': time, // 开始时间
+                    'status': '0'  // 0 正在执行， 1 执行完毕 ， -1 发生异常
+                };
+                var instance = new Instance(ins);// 新建一个实例对象
+                app.refacorAdvanceCol.addInstance(instance); //将当前实例添加到集合中。
+
+                // 用户文件存放的根目录
+                var basefiledir = path.normalize(__dirname + '/../upload/userdata/' + username + '/');
+
+                // 后台执行
+                child_process.exec('node ' + dir + 'index.js', { cwd: dir }, function (err, data, stderr) {
+                    var error = '';
+                    if (err || stderr) {
+                        app.refacorAdvanceCol.changeStatus(guid, '-1');
+                        error = err + '\r\n' + stderr;
+                        console.log(err, stderr);
+
+                        //删除所有生成的数据
+                        delteAllOutputs(methods, basefiledir);
+
+                    } else {
+                        app.refacorAdvanceCol.changeStatus(guid, '1');
+                    }
+
+                    // 至此，脚本有可能运行成功，有可能运行不成功。
+                    // 生成运行记录
+                    var run_record = {
+                        guid: guid,
+                        'username': username,
+                        'ins_alias': ins_alias, //当前实例（记录）的别名
+                        'service': r,
+                        // 'sid': serviceIds,
+                        'cfg': json,// 前端传到后端的配置文件
+                        'js': js,// 后端生成的js文件
+                        'starttime': time, // 服务开始的时间，服务结束的时间
+                        'endtime': sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                        'status': app.refacorAdvanceCol.getStatus(guid),//状态信息
+                        'error': error,//异常信息，只有status = -1 的时候才会有值。
+                        'log': data,   // 转换输出的日志信息
+                        'imgData': imgData,
+                        'delete': '-1',
+                        'deletetime': ''
+                    };
+
+                    // 将运行记录插入数据库
+                    db.insertOne('dpsrecord', run_record, function (err4, results) {
+                        if (err4) {
+                            console.log('insert the running record error: ' + err4);
+                            // res.send('-2');
+                            return;
+                        }
+
+                        // 只有运行成功，才往数据库中插入生成的数据。运行失败不执行。且前面已经物理删除中间的文件。
+                        if (app.refacorAdvanceCol.getStatus(guid) === '1') {
+                            // 将生成的结果数据插入数据库
+                            (function iterator(i) {
+                                if (i === methods.length) {
+                                    // 此时实例运行结束，应该删除
+                                    app.refacorAdvanceCol.removeByGuid(guid);
+                                    return;
+                                }
+
+                                var inCount = methods[i].inCount;
+                                var params = methods[i].params;
+
+                                (function piterator(j) {
+                                    if (j === params.length) {
+                                        iterator(i + 1);
+                                        return;
+                                    }
+                                    // 输出文件
+                                    var outputfile = basefiledir + params[j].value;
+                                    // 测量文件大小
+                                    if (fs.existsSync(outputfile)) {
+                                        var stat = null;
+                                        try {
+                                            stat = fs.statSync(outputfile);
+                                        } catch (ex) {
+                                            console.log('stat the file error: ' + ex);
+                                            stat = { size: -1 };//强制设置文件大小为负数
+                                            // res.send('-2');
+                                        }
+
+                                        var size = parseFloat(stat.size) / 1024;
+                                        if (size < 1024) {
+                                            size = Math.ceil(size) + ' KB';
+                                        } else if (size < 1024 * 1024) {
+                                            size = Math.ceil(size / 1024) + ' M';
+                                        } else if (size < 1024 * 1024 * 1024) {
+                                            size = Math.ceil(size / 1024 / 1024) + ' G';
+                                        } else {
+                                            size = Math.ceil(size / 1024) + ' KB';
+                                        }
+
+                                        var dataJson = {
+                                            _id: ObjectID(params[j].value), name: params[j].filename, format: 'file', datetime: sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+                                            size: size, creator: username, parentid: params[j].dir, type: 'private', favoriteby: username
+                                        };
+                                        db.insertOne('userdata', dataJson, function (err3, result) {
+                                            if (err3) {
+                                                console.log('write file record to db error: ' + err3);
+                                                // return;
+                                            }
+                                            piterator(j + 1);
+                                        });
+                                    } else {
+                                        piterator(j + 1);
+                                    }
+
+                                })(inCount);
+
+                            })(0);
+                        }
+
+                    });
+                });
+
+                // 发送新生成的实例的 guid
+                res.send(guid);
+            });
+
+        });
+    });
+
+    // ****************************************************************************************
+
+    // 查询高级操作实例信息
+    // app.get('/refactor/advanceInstanceInfo', function (req, res, next) {
+    //     var guid = req.query.guid;
+    //     if (guid === undefined) {//请求全部实例
+    //         res.send(app.dpInstanceCol.getAllInstances());
+    //     } else {
+    //         res.send(app.dpInstanceCol.getInstanceByGuid(guid));
+    //     }
+    // });
+}

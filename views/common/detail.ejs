@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link href="/css/custom-css/detail.css" rel="stylesheet" type="text/css" />
+        <link href="/plugins/editor_md/css/editormd.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white ">
+    <div id="test-editormd">
+        <textarea style="display:none;"></textarea>
+    </div>
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a id='alink'></a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Detail</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+
+                                <div id="main_content" class="content-nav right-nav markdown-body editormd-preview-container">
+                                    <a href="" id='goEdit' class='btn btn-success pull-right'>Edit</a>
+                                </div>
+                                <!-- END CONTAINER-->
+                        </div>
+                    </div>
+            </div>
+            <%include ../footer.ejs%>
+    </div>
+
+    <% include ../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src="/myjs/datamap_tools.js"></script>
+        <script src="/js/custom-js/detail.js"></script>
+        <script src="/plugins/editor_md/editormd.js"></script>
+
+        <script>
+            var testEditor = editormd("test-editormd", {
+                markdown: "",
+                path: "/plugins/editor_md/lib/",
+                width: "90%",
+                height: 640,
+                onload: function () {
+                    appendHtml();
+                }
+            });
+
+            function init() {
+                testEditor.hide();
+                getContext();
+                // 设置跳转链接
+                $('#goEdit').attr('href', '/common/detail/eidt?id=' + GetQueryString('id') + '&type=' + GetQueryString('type'));
+            }
+
+            // 从数据库读取datamap描述
+            function getContext() {
+                $.get("/common/detailcontent", { sid: GetQueryString('id'), type: GetQueryString('type') }, function (result) {
+                    $("#test-editormd textarea").text(result);
+                });
+            }
+
+             function appendHtml() {
+                // $("#main_content").append();
+                $("#main_content").append(testEditor.getPreviewedHTML());
+                addToNav("#main_content");
+            }
+
+            $(function () {
+                init();
+                
+                if (GetQueryString('type') === 'data') {
+                    $('#alink').attr('href', '/data');
+                    $('#alink').html('Data');
+                } else if (GetQueryString('type') === 'datamap') {
+                    $('#alink').attr('href', '/dp/mapping');
+                    $('#alink').html('Mappings');
+                } else if (GetQueryString('type') === 'dp') {
+                    $('#alink').attr('href', '/dp');
+                    $('#alink').html('Data Processing');
+                }else if(GetQueryString('type') === 'visualization'){
+                    $('#alink').attr('href', '/visualization');
+                    $('#alink').html('Visualization');
+                }
+            });
+        </script>
+</body>
+
+</html>

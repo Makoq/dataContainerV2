@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!--分页  -->
+        <link href="/plugins/ogms.paginator/ogms.page.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li>
+                                            <i class="fa fa-home" aria-hidden="true"></i>
+                                            <a href="index.html">Home</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/visualization">Visualization</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <span>Use</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+
+                                <div class="container-fluid row">
+
+                                    <div id="method_list" class="col-xs-3" style="border:1px solid #666666; min-height:700px;background-color: #fff; border-radius:5px;padding-top: 12px;">
+                                        <!--  方法组列表  -->
+                                        <div class="panel-group" id="accordion" style="margin-top:10px;">
+                                            <ul id='pItems' class="list-group">
+                                                <!-- <li class="list-group-item" style="cursor:pointer;">免费域名注册</li> -->
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div id="container" class="col-xs-9" style='border:1px solid #666666; min-height:700px;background-color: #fff; border-radius:5px;padding-top: 12px;'>
+                                        <div class="col-md-12" style="padding:0px;margin-top:10px;">
+                                            <div class="panel panel-info">
+                                                <div class="panel-heading">
+                                                    <span id="methodName" class="panel-title"></span>
+                                                    <!--<a href="/refactor/use?id={{=id}}&method={{=methodName}}" class="btn btn-info  pull-right" style="margin-top: -6px;width:100px">调用</a>-->
+                                                </div>
+                                                <div class="panel-body">
+                                                    <p>
+                                                        <font size="4px">Method Description：</font><span id="methodDesc"></span>
+                                                    </p>
+                                                    <!--参数列表-->
+                                                    <p>
+                                                        <font size="4px">Paramter List：</font>
+                                                    </p>
+
+                                                    <ul id="myTab" class="nav nav-tabs"></ul>
+
+                                                    <div id="myTabContent" class="tab-content"></div>
+
+                                                    <!--调用按钮-->
+                                                    <center style="width:auto;margin-top:10px">
+                                                        <button style="width:200px" id="btnOK" class="btn btn-success">Call</button>
+                                                        <button style="width:200px" id="btnCancel" class="btn btn-warning">Cancel</button>
+                                                    </center>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- END CONTAINER-->
+                        </div>
+
+                    </div>
+                    <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+    </div>
+    <!-- END CONTAINER -->
+    <!-- BEGIN FOOTER -->
+    <%include ../footer.ejs%>
+
+        <% include ../include_js.ejs %>
+            <script src="/js/underscore-noflect.js"></script>
+            <script src="/myjs/datamap_tools.js"></script>
+            <script src="/myjs/xmlUtil.js"></script>
+            <!--分页  -->
+            <script src="/plugins/ogms.paginator/ogms.pageEn.js"></script>
+
+            <script>
+                var index = 0;
+                // 加载指定组的数据 index：组的索引号，data：包含所有支持的显示组的信息
+                function loadGroup(index, data) {
+                    index = index;//记录，当前使用的是第几组schema，因为有的可视化包支持多个schema数据
+                    var cur_params = data.paramlist[index]; // 参数数组
+
+                    $('#myTabContent').html('');
+                    $('#myTab').html('');
+
+                    $('#methodName').text(data.wkname);
+                    $('#methodDesc').text(data.description);
+
+                    // 生成参数列表
+                    (function iterator(j) {
+                        if (j === cur_params.length) {
+                            return;
+                        }
+
+                        var param = cur_params[j];
+                        trHtml = '';
+
+                        if (j === 0) {
+                            trHtml += '<li class="active">';
+                        } else {
+                            trHtml += '<li>'
+                        }
+                        trHtml += '<a href="#' + param.name + '" data-toggle="tab">Parameter' + (j + 1) + '</a></li>';
+                        $('#myTab').append($(trHtml));
+
+                        trHtml = '';
+                        if (j === 0) {
+                            trHtml += '<div class="tab-pane fade in active" id="' + param.name + '">';
+                        } else {
+                            trHtml += '<div class="tab-pane fade in" id="' + param.name + '">';
+                        }
+
+                        var schema = param.schema.replace(/</g, "&lt;");
+
+                        trHtml += '<div style="margin-top:10px"><font size="4px">Name: </font><label class="label label-info">' + param.name + '</label></div><br />' +
+                            '<div style="margin-top:0px"><font size="4px">Type:</font>' + param.type + '</div><br />' +
+                            '<div style="margin-top:0px"><font size="4px">Description:</font>' + param.description + '</div><br />' +
+                            '<div style="margin-top:0px"><font size="4px">Schema:</font><pre style="width:auto;height:auto;">' + schema + '</pre></div>';
+
+                        //<!--文件选择框-->
+                        var parentDiv = $('<div class="input-group">');
+                        var txtInput = $('<input disabled type="text" name="raster-src-file" class="form-control input-args-field" placeholder="Please choose the input file from your filemanager" required="required">');
+                        txtInput.attr('id', "datapath" + (j + 1));
+
+                        var div = $('<div class="input-group-addon file-choose-btn" id="input-file-btn">');
+                        var span1 = $('<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>');
+                        var span2 = $('<span style="padding-left: 5px;cursor:pointer">Choose …</span>');
+
+                        span2.mousedown(function () {
+                            //打开窗口
+                            win = window.open('/user/filemanager', 'self-filemanager-dlg-' + (j + 1), 'height=500,width=900,top=100,left=100');
+                        });
+
+                        span2.attr('id', "chooseFile" + (j + 1));
+                        div.append(span1);
+                        div.append(span2);
+                        parentDiv.append(txtInput);
+                        parentDiv.append(div);
+
+                        trHtml += '</div>';
+
+                        $('#myTabContent').append($(trHtml).append(parentDiv));
+
+                        iterator(j + 1);
+                    })(0);
+                }
+
+                function loadUdxSchema() {
+                    $.get('/visualization/schemas', { sid: GetQueryString('id') }, function (data) {
+                        if (data === '-1') {
+                            toastr.error('failed to get current visualization method\'s schema information.', 'Error', { timeOut: 3000 });
+                            return;
+                        }
+
+                        console.log(data);
+                        // return;
+
+                        var trHtml = '';
+                        for (var i = 0; i < data.paramlist.length; i++) {
+                            // 生成一个方法组
+                            var item = $('<li id="g' + (i + 1) + '" index="' + i + '" class="list-group-item" style="cursor:pointer;">Supported Parameter Group' + (i + 1) + '</li>');
+                            $('#pItems').append(item);
+
+                            if(i === 0){
+                                loadGroup(i, data);
+                            }
+                            
+                            $('#g' + (i + 1)).click(function () {
+                                // alert($(this).attr('index'));
+                                loadGroup($(this).attr('index'), data);
+                            });
+                        }
+                    });
+                }
+
+                //将选择的数据填充到文本框中。
+                function fileinput(data) {
+                    var arr = win.name.split('-');
+
+                    if (data.format === 'Folder') {
+                        toastr.warning('you must choose a file.', 'Warning', { timeOut: 5000 });
+                        return;
+                    }
+
+                    $('#datapath' + arr[arr.length - 1]).val(data.filename);
+                    $('#datapath' + arr[arr.length - 1]).attr('data', JSON.stringify(data));
+
+                    win.close();
+                }
+
+                // 指向可视化
+                $('#btnOK').click(function () {
+                    // 跳转到可视化页面
+                    //window.location.href = '/visualization/' + GetQueryString('id') + '/index.html?filename=/user/download?filename=' + JSON.parse($('#in_datapath').attr('data')).oid;
+                    var params = '';
+                    // 获取界面上有多少输入文本框
+                    for (var i = 0; i < $('.file-choose-btn').length; i++) {
+                        params += 'filename' + (i + 1) + '=/user/download?filename=' + JSON.parse($('#datapath' + (i + 1)).attr('data')).oid + '&';
+                    }
+                    // 去掉结尾的&
+                    params = params.substring(0, params.length - 1);
+
+                    window.location.href = '/visualization/' + GetQueryString('id') + '/index.html?index=' +index+'&'+ params;
+
+                });
+
+                $('#btnCancel').click(function () {
+                    // window.location.href = '/visualization/' + GetQueryString('id') + '/index.html?filename1=/user/download?filename=597c41d284931168c0ba82cd&filename2=/user/download?filename=597c456484931168c0ba82de';
+                });
+
+                $(function () {
+                    loadUdxSchema();
+                });
+            </script>
+</body>
+
+</html>

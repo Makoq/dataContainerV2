@@ -1,0 +1,142 @@
+var fs = require('fs');
+var xml2js = require('xml2js');
+
+//显示分享页面
+exports.showVisualPage = function (req, res, next) {
+    // req.session.currentRouter = "/visualization";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+
+    res.render('visual/visualpage', {
+        "login": login,
+        "username": username,
+        "active": "visualization",
+        "subactive": "visualization_0",
+        'th_active': 'visualization_0_0'
+    });
+
+}
+
+
+// 显示可视化方法的使用界面
+exports.showVisualizationUsePage = function (req, res, next) {
+    // req.session.currentRouter = "/visualization";
+    if (req.session.login != "1") {//未登录
+        //重定向
+        res.redirect('/accounts/login');
+        return;
+    }
+
+    if (req.session.login == "1") {
+        //如果登陆了
+        var username = req.session.username;
+        var login = true;
+    } else {
+        //没有登陆
+        var username = "";  //制定一个空用户名
+        var login = false;
+    }
+
+
+    res.render('visual/visualusepage', {
+        "login": login,
+        "username": username,
+        "active": "visualization",
+        "subactive": "visualization_0",
+        'th_active': 'visualization_0_0'
+    });
+}
+
+
+
+// 获取可视化方法支持的shcema信息
+exports.getVisualizationSchemas = function (req, res, next) {
+    var sid = req.query.sid;
+
+    var basedir = __dirname + '/../upload/visualization/' + sid + '/';
+    var path = basedir + 'DataVisualizationMethod.xml';
+
+
+    var schemaInfo = '';
+    try {
+        schemaInfo = fs.readFileSync(path, 'utf-8');
+
+        // 转换为json，传json到前端
+        var parser = new xml2js.Parser();
+        parser.parseString(schemaInfo, function (err, result) {
+            if (err) {
+                console.log('visualization schema parse json error: ' + err);
+                res.send('-2');
+                return;
+            }
+            //console.log(JSON.stringify(result));
+            // 重新组织json
+            //{"id":'',"name":'',"params":[{},{}],"description":'',''}
+            var mtdJson = {};
+
+            // method基本信息
+            mtdJson.id = result.DataVisualizationMethod['$'].id;
+            mtdJson.wkname = result.DataVisualizationMethod['$'].wkname;
+            mtdJson.version = result.DataVisualizationMethod['$'].version;
+            mtdJson.description = result.DataVisualizationMethod.Localizations[0].Localization[0].Abstract[0];
+
+            var p_items = new Array();//支持多组参数
+            // var p_arr = new Array();//每组参数的列表
+            // 参数信息
+            var items = result.DataVisualizationMethod['Params'][0].Item;//数组，一个Item为一组参数
+
+            // 遍历， 看支持的参数组数
+            for (var i = 0; i < items.length; i++) {
+                var params = items[i].Param;//改组参数列表，是一个数组
+                
+                var p_arr = new Array();
+                for (var j = 0; j < params.length; j++) {
+                    var p = {};
+                    var param = params[j]['$'];
+                    p.description = param.description;
+                    p.type = param.type;
+                    p.name = param.name;
+
+                    // 服务schema文件
+                    try {
+                        p.schema = fs.readFileSync(basedir + param.schema, 'utf-8');
+
+                    } catch (e) {
+                        p.schema = '';
+                        console.log('failed to read ' + param.schema + ": " + e);
+                    }
+
+                    p_arr.push(p);
+                }
+                
+                p_items.push(p_arr);
+            }
+
+            // 二层数组
+            mtdJson.paramlist = p_items;
+
+            res.send(mtdJson);
+        });
+
+
+    } catch (e) {
+        console.log('faild to read visualization method\'s schema information' + e);
+        res.send('-1');
+        return;
+    }
+
+}

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+        <!-- <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/> -->
+        <!-- END GLOBAL MANDATORY STYLES -->
+        <!--上传数据文件-->
+        <link rel="stylesheet" href="/plugins/jquery.upload/css/jquery.fileupload.css">
+        <link rel="stylesheet" href="/plugins/jquery.upload/css/jquery.fileupload-ui.css">
+
+        <link rel="stylesheet" href="/assets/global/plugins/bootstrap-tags/css/bootstrap-tags.css">
+        <!--上传图片-->
+        <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css" />
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!--stepy  -->
+        <!-- <link href="/plugins/jquery.stepy/jquery.stepy.css" rel="stylesheet" type="text/css" /> -->
+        <link rel="shortcut icon" href="favicon.ico" />
+        <!-- END HEAD -->
+
+        <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+            <div class="page-wrapper">
+                <!-- BEGIN HEADER -->
+                <%include ../header.ejs%>
+                    <!-- END HEADER -->
+                    <!-- BEGIN HEADER & CONTENT DIVIDER -->
+                    <div class="clearfix"> </div>
+                    <!-- END HEADER & CONTENT DIVIDER -->
+                    <!-- BEGIN CONTAINER -->
+                    <div class="page-container">
+                        <!-- BEGIN SIDEBAR -->
+                        <% include ../sidebar.ejs %>
+                            <!-- END SIDEBAR -->
+                            <!-- BEGIN CONTENT -->
+                            <div class="page-content-wrapper">
+                                <!-- BEGIN CONTENT BODY -->
+                                <div class="page-content">
+                                    <!-- BEGIN PAGE HEADER-->
+                                    <!-- BEGIN THEME PANEL -->
+                                    <% include ../theme_setting.ejs %>
+                                        <!-- END THEME PANEL -->
+                                        <!-- BEGIN PAGE BAR -->
+                                        <div class="page-bar">
+                                            <ul class="page-breadcrumb">
+                                                <li><a href="/">
+                                                <i class="fa fa-home" aria-hidden="true"></i>
+                                                Home
+                                                </a>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </li>
+
+                                                <li><a href="/data">Data</a>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </li>
+
+                                                <li><span>Upload</span></li>
+                                            </ul>
+                                        </div>
+                                        <!-- END PAGE BAR -->
+                                        <!-- BEGIN PAGE TITLE-->
+                                        <!-- <header class="panel-heading" style="background: #32C5D2;border-bottom: none;opacity:0.8;">
+                                            <h3 style="margin: 0;">Upload Data</h3>
+                                        </header> -->
+                                        <!-- END PAGE TITLE-->
+                                        <!-- END PAGE HEADER-->
+
+                                        <!-- BEGIN CONTAINER-->
+                                        <div class="container-fluid" style="margin-top:20px;">
+
+                                            <div class="row col-md-7 col-md-offset-3">
+                                                <div class="panel-group" id="accordion" style="margin-top:10px;">
+                                                    <div class="panel panel-success" style='border:0px;'>
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#">Create Data Service</a></h4>
+                                                        </div>
+                                                        <div id="collapse2" class="panel-collapse collapse in" style="cursor:pointer">
+
+                                                            <ul id="myTab" class="nav nav-tabs">
+                                                                <li class="active">
+                                                                    <a href="#step1" data-toggle="tab">(1) User Information</a>
+                                                                </li>
+                                                                <li><a href="#step2" data-toggle="tab">(2) Data Service Information</a></li>
+                                                                <li><a href="#step3" data-toggle="tab">(3) Upload Data</a></li>
+                                                            </ul>
+                                                            <div id="myTabContent" class="tab-content">
+                                                                <!--step1  -->
+                                                                <div class="tab-pane fade in active" id="step1">
+                                                                    <div class="form-group">
+                                                                        <label for="u_name" class="control-label"><strong>Uploader<font color='red'>(*)</font></strong></label>
+                                                                        <input id="u_name" type="text" class="form-control" placeholder="Please input uploader's name">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="u_email" class="control-label"><strong>Email</strong></label>
+                                                                        <input id="u_email" type="text" class="form-control" placeholder="Please input uploader's email">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <button class="btn btn-info pull-right" id='btn_1_step2' style="width:100px;height:30px;">Next</button>
+                                                                    </div>
+                                                                </div>
+                                                                <!--step2  -->
+                                                                <div class="tab-pane fade" id="step2">
+                                                                    <div class="form-group">
+                                                                        <label for="d_name" class="control-label"><strong>Data Name<font color='red'>(*)</font></strong></label>
+                                                                        <input id="d_name" type="text" class="form-control" placeholder="Please input name for this data">
+                                                                    </div>
+                                                                    <!-- <div class="form-group">
+                                                                        <label for="d_tags" class="control-label"><strong>Tags</strong></label>
+                                                                        <div id="d_tags" class="tag-list"></div>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div id='tagsContainer' class="row-fluid tags-container">
+
+                                                                        </div>
+                                                                    </div> -->
+                                                                    <div class="form-group">
+                                                                        <label for="d_authority" class="control-label"><strong>Authority<font color='red'>(*)</font></strong></label>
+                                                                        <select id="d_authority" name="d_authority" class="form-control">
+                                                                            <option value="1" selected="">public</option>
+                                                                            <option value="-1">private</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="d_description" class="control-label"><strong>Description<font color='red'>(*)</font></strong></label>
+                                                                        <textarea id="d_description" style="min-height:10em;" class="form-control textarea" placeholder="Please input description for this data"></textarea>
+                                                                    </div>
+
+                                                                    <div class="form-group">
+                                                                        <label class="control-label"><strong>Snapshot</strong></label><br>
+                                                                        <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                                            <div id='snapshotContainer' class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
+                                                                                <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" />                                                                                </div>
+                                                                            <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"> </div>
+                                                                            <div>
+                                                                                <span class="btn default btn-file">
+                                                                                <span class="fileinput-new"> Select image </span>
+                                                                                <span class="fileinput-exists"> Change </span>
+                                                                                <input type="file" name="..."> </span>
+                                                                                <a href="javascript:;" class="btn red fileinput-exists" data-dismiss="fileinput"> Remove </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group pull-left">
+                                                                        <button class="btn btn-info" id='btn_2_step1' style="width:100px;height:30px;">Previous</button>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <button class="btn btn-info pull-right" id='btn_2_step3' style="width:100px;height:30px;">Next</button>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- step3 -->
+                                                                <div class="tab-pane fade" id="step3">
+                                                                    <div class="form-group">
+                                                                        <label class="control-label"><strong>Upload</strong></label><br>
+                                                                        <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+                                                                            <div class="row fileupload-buttonbar">
+                                                                                <!-- class="col-lg-7"-->
+                                                                                <div class="container">
+                                                                                    <!-- The fileinput-button span is used to style the file input field as button -->
+                                                                                    <span class="btn btn-success fileinput-button">
+                                                                                        <i class="glyphicon glyphicon-plus"></i>
+                                                                                    <span>Add files...</span>
+                                                                                    <input type="file" name="files" multiple>
+                                                                                    </span>
+                                                                                    <button type="submit" class="btn btn-primary start">
+                                                                                        <i class="glyphicon glyphicon-upload"></i>
+                                                                                        <span>Start upload</span>
+                                                                                    </button>
+                                                                                    <button type="reset" class="btn btn-warning cancel">
+                                                                                        <i class="glyphicon glyphicon-ban-circle"></i>
+                                                                                        <span>Cancel upload</span>
+                                                                                    </button>
+                                                                                    <button type="button" class="btn btn-danger delete">
+                                                                                        <i class="glyphicon glyphicon-trash"></i>
+                                                                                        <span>Clear</span>
+                                                                                    </button>
+                                                                                    <!--<input type="checkbox" class="toggle" />-->
+                                                                                    <!-- The global file processing state -->
+                                                                                    <span class="fileupload-process"></span>
+                                                                                </div>
+
+                                                                                <!-- The global progress state -->
+
+                                                                            </div>
+                                                                            <!-- The table listing the files available for upload/download -->
+                                                                            <table role="presentation" class="table table-striped">
+                                                                                <tbody class="files"></tbody>
+                                                                            </table>
+
+                                                                            <div class="fileupload-progress fade">
+                                                                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                                                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                                                                </div>
+
+                                                                                <div class="progress-extended">&nbsp;</div>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                    <div class="form-group pull-left">
+                                                                        <button class="btn btn-info" id='btn_3_step2' style="width:100px;height:30px;">Previous</button>
+                                                                    </div>
+                                                                    <!--提交  -->
+                                                                    <div class="form-group pull-right">
+                                                                        <button type="submit" id="submit" style="width:100px;height:30px;" class="btn btn-info start">Submit</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- <div class="row col-md-7 col-md-offset-3"> -->
+                                                        <!-- <div class="form-group">
+                                                    <label for="d_name" class="control-label"><strong>Data Name</strong></label>
+                                                    <input id="d_name" type="text" class="form-control" placeholder="Please input name for this data">
+                                                </div> -->
+                                                        <!-- <div class="form-group">
+                                                    <label for="d_description" class="control-label"><strong>Description</strong></label>
+                                                    <textarea id="d_description" style="min-height:10em;" class="form-control textarea" placeholder="Please input description for this data"></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="d_tags" class="control-label"><strong>Tags</strong></label>
+                                                    <div id="d_tags" class="tag-list"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div id='tagsContainer' class="row-fluid tags-container">
+
+                                                    </div>
+                                                </div> -->
+
+                                                        <!--权限信息-->
+                                                        <!-- <div class="form-group">
+                                                    <label for="permissions" class="control-label"><strong>Permissions</strong></label>
+                                                    <div class="radio">
+                                                        <label class="col-md-offset-2">
+                                                            <input type="radio" name="permissions" style="width:18px;height:18px;" value="public" checked>
+                                                            public
+                                                        </label>
+                                                        <label class="col-md-offset-4">
+                                                            <input type="radio" name="permissions" style="width:18px;height:18px;" value="private">
+                                                            private
+                                                        </label>
+                                                    </div>
+                                                </div> -->
+
+                                                        <!--映射服务快照-->
+                                                        <!-- <div class="form-group">
+                                                    <label class="control-label"><strong>Snapshot</strong></label><br>
+                                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                        <div id='snapshotContainer' class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
+                                                            <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" />                                                            </div>
+                                                        <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"> </div>
+                                                        <div>
+                                                            <span class="btn default btn-file">
+                                                            <span class="fileinput-new"> Select image </span>
+                                                            <span class="fileinput-exists"> Change </span>
+                                                            <input type="file" name="..."> </span>
+                                                            <a href="javascript:;" class="btn red fileinput-exists" data-dismiss="fileinput"> Remove </a>
+                                                        </div>
+                                                    </div>
+                                                </div> -->
+
+                                                        <!--上传数据-->
+                                                        <!--*************begin****************-->
+                                                        <!-- <div class="form-group">
+                                                                <label class="control-label"><strong>Upload</strong></label><br>
+                                                                <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+                                                                    <div class="row fileupload-buttonbar">
+                                                                        <div class="container">
+                                                                            <span class="btn btn-success fileinput-button">
+                                                                            <i class="glyphicon glyphicon-plus"></i>
+                                                                            <span>Add files...</span>
+                                                                            <input type="file" name="files" multiple>
+                                                                            </span>
+                                                                            <button type="submit" class="btn btn-primary start">
+                                                                            <i class="glyphicon glyphicon-upload"></i>
+                                                                            <span>Start upload</span>
+                                                                        </button>
+                                                                            <button type="reset" class="btn btn-warning cancel">
+                                                                            <i class="glyphicon glyphicon-ban-circle"></i>
+                                                                            <span>Cancel upload</span>
+                                                                        </button>
+                                                                            <button type="button" class="btn btn-danger delete">
+                                                                            <i class="glyphicon glyphicon-trash"></i>
+                                                                            <span>Clear</span>
+                                                                        </button>
+                                                                            <span class="fileupload-process"></span>
+                                                                        </div>
+
+
+                                                                    </div>
+                                                                    <table role="presentation" class="table table-striped">
+                                                                        <tbody class="files"></tbody>
+                                                                    </table>
+
+                                                                    <div class="fileupload-progress fade">
+                                                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                                                            <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                                                        </div>
+
+                                                                        <div class="progress-extended">&nbsp;</div>
+                                                                    </div>
+                                                                </form>
+                                                            </div> -->
+
+                                                        <!-- <div class="form-group">
+                                                                <button type="submit" id="submit" class="btn btn-primary start">Submit</button>
+                                                            </div> -->
+
+                                                        <!-- </div> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <!-- BEGIN CONTAINER-->
+                                </div>
+                                <!-- END CONTENT BODY -->
+                            </div>
+                            <!-- END CONTENT -->
+                    </div>
+            </div>
+            <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+            </div>
+            <!-- END CONTAINER -->
+            <!-- BEGIN FOOTER -->
+            <%include ../footer.ejs%>
+                </div>
+
+                <% include ../include_js.ejs %>
+
+                    <script src="/plugins/jquery.upload/js/jquery.ui.widget.js"></script>
+                    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+                    <script src="/assets/global/plugins/bootstrap-tags/js/bootstrap-tags.min.js"></script>
+                    <!--上传图片-->
+                    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js"></script>
+
+                    <!--**************************************************-->
+                    <!--juqery file upload-->
+                    <script src="/plugins/jquery.upload/js/jquery.ui.widget.js"></script>
+
+                    <!-- <script src="//blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+                    <script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+                    <script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+                    <script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script> -->
+
+                    <script src="/plugins/jquery.upload/js/tmpl.min.js"></script>
+                    <script src="/plugins/jquery.upload/js/load-image.all.min.js"></script>
+                    <script src="/plugins/jquery.upload/js/canvas-to-blob.min.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.blueimp-gallery.min.js"></script>
+
+                    <script src="/plugins/jquery.upload/js/jquery.iframe-transport.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload-process.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload-validate.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload-ui.js"></script>
+
+                    <script>
+                        $('#btn_1_step2').click(function () {
+                            $('#myTab a:eq(1)').tab('show')
+                        });
+                        $('#btn_2_step1').click(function () {
+                            $('#myTab a:eq(0)').tab('show')
+                        });
+                        $('#btn_2_step3').click(function () {
+                            $('#myTab a:eq(2)').tab('show')
+                        });
+                        $('#btn_3_step2').click(function () {
+                            $('#myTab a:eq(1)').tab('show')
+                        });
+
+                        // var authorizationMode = 0;//0：次数， 1：时间
+                        //存储上传的所有的数据名称，上传分为两部：1.上传数据到临时目录；2.保存数据信息到数据库，顺便移动数据到指定的受管理的目录。
+                        var allData = new Array();
+
+                        if (!window.localStorage) {
+                            alert('This browser does NOT support localStorage');
+                        } else {
+                            var upload_data;
+                            // 文档加载完毕
+                            $(function () {
+                                // 请求tags
+                                // $.get('/user/tags', {}, function (data) {
+                                //     // console.log('tags: '+data);
+                                //     var html = '';
+                                //     for (var i = 0; i < data.length; i++) {
+                                //         html += '<span>' + data[i] + '<i class="fa fa-plus" aria-hidden="true"></i></span>';
+                                //     }
+                                //     //添加到dom上
+                                //     $('#tagsContainer').append($(html));
+
+                                //     //初始化tags
+                                //     var tags = $("#d_tags").tags({
+                                //         tagSize: "lg",
+                                //         maxNumTags: 6
+                                //     })
+
+                                //     //已存在的标签点击事件
+                                //     $(".tags-container span").click(function () {
+                                //         tags.addTag(this.innerText);
+                                //     });
+                                // });
+
+                                //初始化日历
+                                // $('#d_gen_time').datetimepicker({
+                                //     autoclose: true,
+                                //     pickerPosition: "top-right"
+                                // });
+
+
+                                // 文件上传控件初始化
+                                $("#fileupload").fileupload({
+                                    url: '/data/upload',
+                                    dataType: 'text',
+                                    sequentialUploads: false,
+                                    done: function (e, data) {
+                                        // console.log(data.result);
+                                        // $.each(data.result.files, function (index, file) {
+                                        // 	$('p').text(file.name).appendTo($('#uploaddiv'));
+                                        // });
+                                        // 返回上传路径（全路径） +  原始文件名   filepath + '[$]' + filename
+                                        allData.push(data.result);
+                                        toastr.success('upload file success.', 'Congratulation', { timeOut: 5000 });
+                                    }
+                                }).bind('fileuploadprogress', function (e, data) {
+                                    //var progress = parseInt(data.loaded / data.total * 100, 10);  
+                                    // alert(progress);
+                                }).bind('fileuploaddone', function (e, data) {
+                                    //console.log('ok');
+                                    
+                                });
+                            });
+
+                            // 最后提交数据的元数据信息. 同时在后台将临时目录中的数据移到真正的数据存储的地方。
+                            $("#submit").click(function () {
+
+                                // 获取tags
+                                // var spans = $('#d_tags span');
+                                // var arr = new Array();
+                                // for (var i = 0; i < spans.length; i++) {
+                                //     arr.push(spans[i].innerText);
+                                // }
+
+                                if ($('#u_name').val().length <= 0) {
+                                    toastr.error('please input uploader\' name.', 'Error', { timeOut: 5000 });
+                                    return;
+                                }
+                                if ($('#d_name').val().length <= 0) {
+                                    toastr.error('please input the name of data service.', 'Error', { timeOut: 5000 });
+                                    return;
+                                }
+                                if ($('#d_description').val().length <= 0) {
+                                    toastr.error('please input the description of data service.', 'Error', { timeOut: 5000 });
+                                    return;
+                                }
+
+                                if(allData.length<=0){
+                                    toastr.error('you must upload some data files.', 'Error', { timeOut: 5000 });
+                                    return;
+                                }
+
+                                $.post('/data/saveDataInfo', {
+                                    'uName': $('#u_name').val(),
+                                    'uEmail': $('#u_email').val(),
+                                    'dName': $('#d_name').val(),
+                                    'dDescription': $('#d_description').val(),
+                                    // 'dTags': arr,
+                                    // 'dGenTime': $('#d_gen_time').val(),
+                                    // 'dPropertyOwner': $('#d_property_owner').val(),
+                                    // 'dRemarkers': $('#d_remarkers').val(),
+                                    // 'dAuthorizationMode': authorizationMode,
+                                    'dAuthority': $('#d_authority').val(),
+                                    "dSnapshot": $('#snapshot').attr('src'),//img base64
+                                    'dFiles': allData
+                                }, function (data) {
+                                    if (data == 'ok') {
+                                        //清空已经上传的数据数组
+                                        allData.length = 0;
+                                        toastr.success('Upload Successful.', 'Congratulation', { timeOut: 3000 });
+
+                                        window.location = "/data";
+                                    } else if (data == '-2') {
+                                        // alert('插入数据库失败.');
+                                        toastr.error('failed to insert to db.', 'Error', { timeOut: 3000 });
+                                    }
+                                });
+                            });
+
+                            // 清空上传界面下面的列表
+                            $('.delete').click(function () {
+                                $('.files').html('');
+                            });
+
+                            //radio事件
+                            // permissions
+                            // $('input:radio[name="permissions"]').change(function () {
+                            //     if (this.value === 'public') {
+                            //         permissions = 1;
+                            //     } else if (this.value === 'private') {
+                            //         permissions = 0;
+                            //     }
+                            // });
+                            // authorization_mode
+                            // $('input:radio[name="authorization_mode"]').change(function () {
+                            //     //var authorizationMode = 0;//0：次数， 1：时间
+                            //     if (this.value === 'F') {
+                            //         authorizationMode = 0;
+                            //     } else if (this.value === 'T') {
+                            //         authorizationMode = 1;
+                            //     }
+                            // });
+                        }
+                    </script>
+
+                    <!-- The template to display files available for upload -->
+                    <script id="template-upload" type="text/x-tmpl">
+                        {% for (var i=0, file; file=o.files[i]; i++) { %}
+                        <tr class="template-upload fade">
+                            <td>
+                                <span class="preview"></span>
+                            </td>
+                            <td>
+                                <p class="name">{%=file.name%}</p>
+                                <strong class="error text-danger"></strong>
+                            </td>
+                            <td>
+                                <p class="size">Processing...</p>
+                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if (!i && !o.options.autoUpload) { %}
+                                <button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Start</span>
+                </button> {% } %} {% if (!i) { %}
+                                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button> {% } %}
+                            </td>
+                        </tr>
+                        {% } %}
+                    </script>
+
+                    <!-- The template to display files available for download -->
+                    <script id="template-download" type="text/x-tmpl">
+                        {% for (var i=0, file; file=o.files[i]; i++) { %}
+                        <tr class="template-download fade">
+                            <td>
+                                <span class="preview">
+							{% if (file.thumbnailUrl) { %}
+								<a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+							{% } %}
+						</span>
+                            </td>
+                            <td>
+                                <p class="name">
+                                    {% if (file.url) { %}
+                                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl? 'data-gallery': ''%}>{%=file.name%}</a>                                    {% } else { %}
+                                    <span>{%=file.name%}</span> {% } %}
+                                </p>
+                                {% if (file.error) { %}
+                                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+                                {% } %}
+                            </td>
+                            <td>
+                                <span class="size">{%=o.formatFileSize(file.size)%}</span>
+                            </td>
+                            <td>
+                                {% if (file.deleteUrl) { %}
+                                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}" {% if (file.deleteWithCredentials)
+                                    { %} data-xhr-fields='{"withCredentials":true}' {% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+                                <input type="checkbox" name="delete" value="1" class="toggle"> {% } else { %}
+                                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button> {% } %}
+                            </td>
+                        </tr>
+                        {% } %}
+                    </script>
+        </body>
+
+</html>

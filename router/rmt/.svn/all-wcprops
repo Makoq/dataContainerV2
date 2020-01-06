@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/VgeData/!svn/ver/42/router/rmt
+END
+rmt_refactor.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/VgeData/!svn/ver/47/router/rmt/rmt_refactor.js
+END
+rmt_recycle.js
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/VgeData/!svn/ver/47/router/rmt/rmt_recycle.js
+END
+rmt_datamap.js
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/VgeData/!svn/ver/47/router/rmt/rmt_datamap.js
+END
+rmt_common.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/VgeData/!svn/ver/47/router/rmt/rmt_common.js
+END
+rmt_data.js
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/VgeData/!svn/ver/47/router/rmt/rmt_data.js
+END
+rmt_user.js
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/VgeData/!svn/ver/42/router/rmt/rmt_user.js
+END
+rmt_router.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/VgeData/!svn/ver/47/router/rmt/rmt_router.js
+END

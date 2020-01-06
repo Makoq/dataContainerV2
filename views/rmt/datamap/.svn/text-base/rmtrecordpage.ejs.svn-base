@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../../include_css.ejs %>
+        <!-- END THEME LAYOUT STYLES -->
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href='/datamap'>Mappings</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <span>Records</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+
+                                    <p><strong>Datamap Service Records</strong></p>
+
+                                    <!--选择主机ip-->
+                                    <div class="dropdown" style="margin:0px">
+                                        <button type="button" class="btn dropdown-toggle btn-success" id="dropdownMenu1" data-toggle="dropdown">
+											主机IP
+											<span class="caret"></span>
+										</button>
+                                        <ul id='hosts' class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                            <!--<li role="presentation">
+												<a role="menuitem" tabindex="-1" href="#">Java</a>
+											</li>-->
+                                        </ul>
+                                    </div>
+
+                                    <!--table  -->
+                                    <div class="table-responsive">
+                                        <table id="tab_services" class="table table-bordered table-hover table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <center>Id</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Name</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Start Time</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Duration</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>CallType</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Invoker</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Status</center>
+                                                    </th>
+                                                    <th>
+                                                        <center>Operation</center>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBody">
+
+                                            </tbody>
+                                        </table>
+                                        <div id='rinfo' style="display:none;text-align:center">there has no more items now.</div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+            <%include ../../footer.ejs%>
+    </div>
+
+
+    <script type="text/template" id="moban">
+        <tr>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= id }}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><a href='/rmt/datamap/result?guid={{=guid}}&ip={{=ip}}'>{{= name }}</a></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= starttime }}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= duration }}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= calltype }}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= invoker }}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;">
+                <div><span>{{= status }}</span></div>
+            </td>
+            <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                <!--<div>
+                    <span><a class='btn btn-primary' href='#'>详情</a></span>
+                </div>-->
+                <a href='/rmt/datamap/result?guid={{=guid}}&ip={{=ip}}' class="btn btn-info btn-xs" type="button"><i class="fa fa-book"></i>Details</a>
+                <a href='javascript:void(0);' onclick='deleteRecord("{{=guid}}","datamap","{{=ip}}")' class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash"></i>Delete</a>
+            </td>
+        </tr>
+    </script>
+
+
+    <% include ../../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src="/js/custom-js/my-filter.js"></script>
+        <script src='/myjs/rmt_tools.js'></script>
+
+        <script>
+            $(function () {
+                // setInterval(function () {
+
+                // 获取远程ip
+                // 拿到所有的局域网的ip地址
+                $.get('/rmt/ips', {}, function (data) {
+                    // 获取局域网内的ip所有主机的ip地址
+                    if (data === '-1') {
+                        toastr.error('failed to get the host information, the server is busy.', 'Error', { timeOut: 3000 });
+                        return;
+                    }
+
+
+                    var firstip = '';
+                    var html = '';
+                    for (var i = 0; i < data.length; i++) {
+                        if (i === 0) {
+                            firstip = data[i].host + ':' + data[i].port;
+                        }
+                        html += '<li role="presentation">';
+                        html += '<a role="menuitem" tabindex="-1" onclick="loadRmtMappingRecord(\'' + data[i].host + ':' + data[i].port + '\');" href="javascript:void(0);">' + data[i].host + ':' + data[i].port + '</a>';
+                        html += '</li>';
+                    }
+
+                    $('#hosts').append($(html));
+
+                    // 加载第一个host的mapping record
+                    loadRmtMappingRecord(firstip);
+                });
+
+                //toastr.success('failed to update name, the server is busy.', 'Error', { timeOut: 3000 });
+                // }, 250);
+            });
+
+            // load rmt mapping record
+            function loadRmtMappingRecord(ip) {
+                // 请求运行实例信息
+                $.get('/rmt/common/records', { type: 'datamap', pageamount: 10, page: 0, ip: ip }, function (data) {
+                    data = JSON.parse(data);
+
+                    if (data.length <= 0) {
+                        // toastr.warning('there has no more records now.', 'Warning', { timeOut: 3000 });
+                        $('#rinfo').css('display', 'block');
+                        return;
+                    }
+
+                    $("#tBody").html('');
+                    $('#rinfo').css('display', 'none');
+
+                    var compiled = _.template($("#moban").html());
+
+                    for (var i = 0; i < data.length; i++) {
+                        var statusHtml = '';
+                        if (data[i].status === '1') {
+                            statusHtml = '<span class="label label-success">success</span>';
+                        } else if (data[i].status === '-1') {
+                            statusHtml = '<span class="label label-danger">error</span>';
+                        }
+
+                        var end = new Date(data[i].endtime);
+                        var start = new Date(data[i].starttime);
+                        var duration = (end - start) / 1000;
+
+                        // 填充表格
+                        var html = compiled({
+                            id: i + 1,
+                            name: data[i].service.name,
+                            starttime: data[i].starttime,
+                            duration: duration + ' s',
+                            status: statusHtml,
+                            guid: data[i].guid,
+                            calltype: data[i].calltype,
+                            invoker: data[i].username,
+                            ip: ip
+                        });
+                        $("#tBody").append($(html));
+                    }
+
+                });
+            }
+        </script>
+</body>
+
+</html>

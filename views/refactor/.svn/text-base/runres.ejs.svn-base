@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li>
+                                            <a href="/">
+                                                <i class="fa fa-home" aria-hidden="true"></i>
+                                                Home
+                                             </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/refactor">Refactor</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <span>Record</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+
+                                    <!--服务信息-->
+                                    <div style='margin-top:10px;' class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Refactor Service Information</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <div class="blog-img">
+                                                        <img style='width:200px;height:150px;' id='sSnapshot' src="" alt="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <div style="font-size: 14px; color:#aaa">
+                                                        <strong>Service Name&nbsp;:&nbsp;</strong><span id='sName'></span>
+                                                        <br>
+                                                        <strong>Author&nbsp;:&nbsp;</strong><span id='sAuthor'></span>
+                                                        <br>
+                                                        <!-- <strong>Tags&nbsp;:&nbsp;</strong><span id='sTags'></span>
+                                                        <br> -->
+                                                        <strong>Platform&nbsp;:&nbsp;</strong>
+                                                        <span class="label custom-label"><i class="fa fa-windows"></i>windows</span>
+                                                        <br>
+                                                        <strong>Upload Datetime&nbsp;:&nbsp;</strong><span id='sDatetime'></span>
+                                                        <br>
+                                                        <strong>Status&nbsp;:&nbsp;</strong><span id='sStatus'></span>
+                                                        <br>
+                                                        <strong>Service Description&nbsp;:&nbsp;</strong>
+                                                        <span id='sDescription'></span>
+                                                    </div>
+                                                    <br>
+                                                    <a id='sMore' href="#">More Information >></a>
+                                                    <br>
+                                                    <p></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--运行信息-->
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Refactor Service Running Record Information</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="panel-body" id="msrInfo" style="padding:0px;">
+                                                <div style="padding:0px;margin:0px;">
+                                                    <p><strong>Method&nbsp;:&nbsp;</strong><span id='rMethod'></span></p>
+                                                    <p><strong>Invoker&nbsp;:&nbsp;</strong><span id='rInvoker'></span></p>
+                                                    <p><strong>Start Time&nbsp;:&nbsp;</strong><span id='rStartTime'></span></p>
+                                                    <p><strong>Duriation&nbsp;:&nbsp;</strong><span id='rClamp'></span></p>
+                                                    <!-- <p><strong>Instance GUID&nbsp;:&nbsp;</strong><span id='rGuid'></span></p> -->
+                                                    <p><strong>InputData&nbsp;:&nbsp;</strong>
+                                                        <br>
+                                                        <div id='rInput'></div>
+                                                        <!--<br>
+                                                        <a href='#' style="font-size:16px;">shussadsads</a>
+                                                        <br>
+                                                        <a href='#' style="font-size:16px;">shussadsads</a>
+                                                        <br>-->
+                                                    </p>
+                                                    <p><strong>Output Data&nbsp;:&nbsp;</strong><br>
+                                                        <div id='rOutput'></div>
+                                                    </p>
+                                                    <p>
+                                                        <strong>Running information&nbsp;:&nbsp;</strong>
+                                                        <br>
+                                                        <div id='rLog'></div>
+
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+            </div>
+            <%include ../footer.ejs%>
+    </div>
+
+    <% include ../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src="/js/custom-js/my-filter.js"></script>
+
+        <script>
+            $(function () {
+                // 当前模型的运行实例    
+                var guid = GetQueryString('guid');
+
+                // 获取运行记录信息
+                $.get('/common/records', { type: 'refactor', guid: guid }, function (data) {
+                    if (data === '-1') {
+                        toastr.error('failed to load record information.', 'Error', { timeOut: 3000 });
+                        return;
+                    }
+
+                    // 服务id
+                    var runInfo = {
+                        sid: data[0].service.sid,
+                        guid: data[0].guid,
+                        inputArr: data[0].input,
+                        outputArr: data[0].output,
+                        starttime: data[0].starttime,
+                        method: data[0].method,
+                        endtime: data[0].endtime,
+                        status: data[0].status,  // 0 正在运行    1运行完毕    -1 运行错误
+                        error: data[0].error,
+                        log: data[0].log,
+                        username: data[0].username
+                    };
+
+                    // 跳转到重构服务的详情页面
+                    $('#sMore').attr('href', '/common/detail?id=' + runInfo.sid + '&type=refactor');
+
+                    // 从运行记录中直接获得模型的信息
+                    sInfo = data[0].service;
+
+                    //组织html
+                    $('#sName').text(sInfo.name);
+                    $('#sAuthor').text(sInfo.author);
+                    // $('#sTags').text(sInfo.tags);
+                    $('#sDatetime').text(sInfo.datetime);
+                    if (sInfo.available === '1') {//可用
+                        $('#sStatus').addClass('label label-success');
+                        $('#sStatus').text('available');
+                    } else {
+                        $('#sStatus').addClass('label label-error');
+                        $('#sStatus').text('disabled');
+                    }
+                    // 
+                    $('#sDescription').text(sInfo.description);
+
+                    $('#sSnapshot').attr('src', sInfo.snapshot);
+
+
+                    //*******************加载运行记录信息*************************
+                    // 调用的方法名, 超链接，点击跳转到具体方法的使用页面
+                    $('#rMethod').html('<a href="/refactor/use?id=' + runInfo.sid + '&method=' + runInfo.method + '">' + runInfo.method + '</a>');
+                    // 调用者
+                    $('#rInvoker').text(runInfo.username);
+                    // 调用开始时间
+                    $('#rStartTime').text(runInfo.starttime);
+                    // 历时
+                    var start = new Date(runInfo.starttime);
+                    var end = new Date(runInfo.endtime);
+                    $('#rClamp').text((end - start) / 1000 + ' s');
+                    // guid
+                    // $('#rGuid').text(runInfo.guid);
+                    var html = '';
+                    //输入数据
+                    for (var i = 0; i < runInfo.inputArr.length; i++) {
+                        html += '<a href="/user/download?filename=' + runInfo.inputArr[i].oid + '" style="font-size:16px;">' + runInfo.inputArr[i].filename + '</a>';
+                        html += '<br>';
+                    }
+                    $('#rInput').append($(html));
+
+                    html = '';
+                    // 输出数据
+                    for (var i = 0; i < runInfo.outputArr.length; i++) {
+                        html += '<a href="/user/download?filename=' + runInfo.outputArr[i].oid + '" style="font-size:16px;">' + runInfo.outputArr[i].filename + '</a>';
+                        html += '<br>';
+                    }
+                    $('#rOutput').append($(html));
+
+
+                    html = '';
+                    // 标准输出
+                    if (runInfo.status === '1') { // 正常结束
+                        // $('#rLog').text(runInfo.log);
+                        html += '<span class="label label-info">standard output</span>';
+                        html += '<pre>' + runInfo.log + '</pre>';
+
+                    } else if (runInfo.status === '-1') { // 发生异常
+                        html += '<span class="label label-danger">error log</span>';
+                        var result = JSON.stringify(runInfo.error).replace(/\\r\\n/g, '<br>');
+                        html += '<pre>' + result + '</pre>';
+                    }
+                    // console.log(runInfo.error);
+                    $('#rLog').append($(html));
+                });
+
+            });
+        </script>
+</body>
+
+</html>

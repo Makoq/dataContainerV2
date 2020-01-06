@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../../include_css.ejs %>
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include ../../header.ejs%>
+            <!-- END HEADER -->
+            <!-- BEGIN HEADER & CONTENT DIVIDER -->
+            <div class="clearfix"> </div>
+            <!-- END HEADER & CONTENT DIVIDER -->
+            <!-- BEGIN CONTAINER -->
+            <div class="page-container">
+                <!-- BEGIN SIDEBAR -->
+                <% include ../../sidebar.ejs %>
+                    <!-- END SIDEBAR -->
+                    <!-- BEGIN CONTENT -->
+                    <div class="page-content-wrapper">
+                        <!-- BEGIN CONTENT BODY -->
+                        <div class="page-content">
+                            <!-- BEGIN PAGE HEADER-->
+                            <!-- BEGIN THEME PANEL -->
+                            <% include ../../theme_setting.ejs %>
+                                <!-- END THEME PANEL -->
+                                <!-- BEGIN PAGE BAR -->
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/refactor">Refactoring Services</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Detail</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="padding:0px;margin:0px;min-height:655px">
+                                    <div class="col-md-12" style="padding:0px;margin-top:20px;margin-bottom:20px;">
+                                        <div style="margin-top:0px;padding-top:0px">
+
+                                            <div id='divMethods'></div>
+
+                                        </div>
+                                    </div>
+                                    <!--</div>-->
+                                </div>
+                                <!-- BEGIN CONTAINER-->
+                        </div>
+                        <!-- END CONTENT BODY -->
+                    </div>
+                    <!-- END CONTENT -->
+            </div>
+            <!-- END CONTAINER -->
+            <!-- BEGIN FOOTER -->
+            <%include ../../footer.ejs%>
+    </div>
+
+    <!--重构服务方法模板-->
+    <script type="text/template" id="method_moban">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">{{=methodName}}</span>
+                <a href="/rmt/refactor/use?id={{=id}}&method={{=methodName}}&ip={{=ip}}" class="btn btn-info  pull-right" style="margin-top: -6px;width:100px">Call</a>
+            </div>
+            <div style="padding:0px;" class="panel-body">
+                <p><span><font size="4px">Method Description：</font></span>{{=methodDescription}}</p>
+            </div>
+        </div>
+    </script>
+
+    <% include ../../include_js.ejs %>
+
+        <script src="/js/underscore-noflect.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+
+        <script>
+            //页面加载完毕，请求服务信息。
+            $(function () {
+                //获取重构服务中的所有方法
+                $.get('/rmt/refactor/methods', { 'id': GetQueryString('id'), ip: GetQueryString('ip') }, function (data) {
+                    //console.log(data);
+
+                    //解析json
+                    var compiled = _.template($("#method_moban").html());
+
+                    var methodInfo = JSON.parse(data).RefactorMethodInfo;
+                    //console.log(json.RefactorMethodInfo['@name']);
+                    for (var i = 0; i < methodInfo.Method.length; i++) {
+                        var info = methodInfo.Method[i];
+                        //console.log(info['@name'],info['@class'],info['@description']);
+                        var methodName = info['@name'];//方法名
+                        var methodDescription = info['@description'];
+
+                        // var params = info['Params'];
+                        // var trHtml = '';
+                        // for (var j = 0; j < params.length; j++) {
+                        //     var param = params[j];
+                        //     var name = param['@name'];
+                        //     var type = param['@type']=='System.String'?"String":param['@type'];
+                        //     var description = param['@description'];
+                        //     var schema = param['@schema'];
+
+                        //     //动态构建tr
+                        //     //    <tr>
+                        //     //         <td>paramter{{=id}}: {{=name}}</td>
+                        //     //         <td>type: {{=type}}</td>
+                        //     //         <td>description: {{=description}}</td>
+                        //     //     </tr>
+
+                        //     trHtml += '<tr>' +
+                        //         '<td>paramter'+(j+1)+'</td>'+
+                        //         '<td>'+name+'</td>' +
+                        //         '<td>'+type+'</td>' +
+                        //         '<td><a href="/refactor/paramSchema?id='+GetQueryString('id')+'schema='+schema+'">'+description+'</a></td>' +
+                        //         '</tr>';
+                        // }
+
+                        var html = compiled({
+                            id: GetQueryString('id'),
+                            methodName: methodName,
+                            methodDescription: methodDescription,
+                            ip:GetQueryString('ip')
+                            // trs:trHtml
+                        });
+
+                        //添加到页面上
+                        $('#divMethods').append($(html));
+
+                    }
+                });
+
+            });
+        </script>
+</body>
+
+</html>

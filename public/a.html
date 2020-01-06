@@ -1,0 +1,22 @@
+<html>
+
+<body>
+      
+  <input id=b type=file webkitdirectory>
+      
+
+  <script type="text/javascript" charset="UTF-8">
+
+    document.querySelector('#b').addEventListener('change', e => {
+      for (let entry of e.target.files)
+        console.log(entry.name, entry.webkitRelativePath);
+    });
+
+
+  </script>
+
+
+      
+</body>
+
+</html>

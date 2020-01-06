@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../include_css.ejs %>
+        <!-- END THEME LAYOUT STYLES -->
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!--stepy  -->
+        <!-- <link href="/plugins/jquery.stepy/jquery.stepy.css" rel="stylesheet" type="text/css" /> -->
+        <!--bootstrap treeview  -->
+        <link href="/plugins/bootstrap-treeview/bootstrap-treeview.min.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/datamap">Mapping Services</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Create</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <div class="container-fluid" style="margin-top:0px;padding:0px;">
+                                    <!-- <div class="row col-md-7 col-md-offset-3"> -->
+
+                                    <div class="panel-group  col-md-6" id="accordion" style="margin-top:10px;">
+                                        <div class="panel panel-success" style="border-color:#ffffff">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#">Mapping Service Category</a></h4>
+                                            </div>
+                                            <div id="collapse2" class="panel-collapse collapse in" style="cursor:pointer;">
+                                                <div id="tree"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel-group  col-md-6" id="accordion" style="margin-top:10px;">
+                                        <div class="panel panel-success" style="border-color:#ffffff">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#">Extra Information</a></h4>
+                                            </div>
+                                            <div id="collapse3" class="panel-collapse collapse in" style="cursor:pointer">
+                                                File Name：<input type="text" name="pkg_name" class="form-control" placeholder="Mapping Service Package Name"
+                                                    id="pkg_name" /> Service Items：<input id='txtServiceItem' class="form-control"
+                                                    type="text" disabled value="Vector Data" /> Version：
+                                                <input type="text" name='s_version' id='s_version' class='form-control' placeholder="Mapping Service Version" value='1.0'
+                                                /> Portal Information：<input
+                                                    type="text" class="form-control" /> Description：
+                                                <textarea style="min-height:7em;" class="form-control" name='s_description' id='s_description' placeholder="Mapping Service Description"></textarea>
+                                                <button style="width:100px;height:30px;margin-top:10px;" class="btn btn-info pull-right">Push</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- <form>
+                                        <fieldset title="Step 1">
+                                            <legend>Service Items</legend>
+                                           
+                                            <div class="container col-md-7 col-md-offset-3">
+                                                <div id="tree"></div>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </fieldset>
+
+                                        <fieldset title="Step 2">
+                                            <legend>Validation</legend>
+                                          
+                                            <div class="container col-md-7 col-md-offset-3">
+                                                File Name：<input type="text" name="pkg_name" class="form-control" placeholder="Mapping Service Package Name"
+                                                    id="pkg_name" /> Service Items：<input id='txtServiceItem' class="form-control"
+                                                    type="text" disabled value="Vector Data" /> Version：
+                                                <input type="text" name='s_version' id='s_version' class='form-control' placeholder="Mapping Service Version" value='1.0'
+                                                /> Portal Information：<input
+                                                    type="text" class="form-control" /> Description：
+                                                <textarea class="form-control" name='s_description' id='s_description' placeholder="Mapping Service Description"></textarea>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </fieldset>
+
+                                        <input type="submit" id='btnSubmit' value="Submit" />
+                                    </form> -->
+
+
+                                </div>
+
+                                <!-- END CONTAINER-->
+                        </div>
+                    </div>
+            </div>
+            <%include ../footer.ejs%>
+    </div>
+
+    <% include ../include_js.ejs %>
+        <!-- <script src="/plugins/jquery.stepy/jquery.stepy.js"></script> -->
+        <script src="/plugins/bootstrap-treeview/bootstrap-treeview.min.js"></script>
+        <script src='/myjs/datamap_tools.js'></script>
+        <script src="/myjs/tools.js"></script>
+
+        <script>
+            $(function () {
+                // 配置stepy插件
+                // $('form').stepy({ titleClick: true });
+
+                // 分类
+                var json = [{ "name": "Vector Data", "id": "Vector Data", "isLeaf": "true" }, { "name": "Raster Data", "id": "Raster Data", "isLeaf": "true" }, { "name": "Mesh Data", "id": "Mesh Data", "isLeaf": "true" }, { "name": "Image Data", "id": "Image Data", "isLeaf": "true" }, { "name": "Video Data", "id": "Video Data", "isLeaf": "true" }, { "name": "Audio Data", "id": "Audio Data", "isLeaf": "true" }, { "name": "Structural Data", "id": "Structural Data", "isLeaf": "true" }, { "name": "Model Related Data", "id": "Model Related Data", "isLeaf": "true" }, { "children": ["Vector Data", "Raster Data", "Mesh Data", "Image Data", "Video Data", "Audio Data", "Structural Data", "Model Related Data"], "name": "Earth System Science", "id": "0", "isLeaf": "false" }];
+
+                var data = [];
+
+                // 
+                for (var i = 0; i < json.length; i++) {
+                    if (json[i].id === '0') {//根节点
+                        // json[i].children
+                        var parent = {};
+
+                        parent.text = json[i].name;
+                        parent.selectable = false;// 使节点不能被选中，只是将节点展开
+                        var childs = new Array();
+                        var children = json[i].children;
+                        for (var j = 0; j < children.length; j++) {
+                            var child = {};
+                            child.text = children[j];
+                            child.icon = "icon node-icon fa fa-book";
+                            child.selectedIcon = "icon node-icon fa fa-check";
+                            childs.push(child);
+                        }
+                        parent.nodes = childs;
+
+                        data.push(parent);
+                    }
+                }
+
+                // var data = [
+                //     {
+                //         text: "Parent 1",
+                //         nodes: [
+                //             {
+                //                 text: "Child 1",
+                //                 nodes: [
+                //                     {
+                //                         text: "Grandchild 1"
+                //                     },
+                //                     {
+                //                         text: "Grandchild 2"
+                //                     }
+                //                 ]
+                //             },
+                //             {
+                //                 text: "Child 2"
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         text: "Parent 2"
+                //     },
+                //     {
+                //         text: "Parent 3"
+                //     },
+                //     {
+                //         text: "Parent 4"
+                //     },
+                //     {
+                //         text: "Parent 5"
+                //     }
+                // ];
+
+                $('#tree').treeview({
+                    data: data,
+                    multiSelect: true
+                });
+
+                var nodeId;
+                $('#tree').on('nodeSelected', function (event, data) {
+                    //console.log(data);
+                    // $('#txtServiceItem').val(data.text);
+
+                    // console.log($('#tree').treeview(true).getSelected());
+                    var nodes = $('#tree').treeview(true).getSelected();
+                    var arr = new Array();
+                    for (var i = 0; i < nodes.length; i++) {
+                        arr.push(nodes[i].text);
+                    }
+                    $('#txtServiceItem').val(arr.join(','));
+                });
+
+                $('#tree').on('nodeUnselected', function (event, data) {
+                    var nodes = $('#tree').treeview(true).getSelected();
+                    var arr = new Array();
+                    for (var i = 0; i < nodes.length; i++) {
+                        arr.push(nodes[i].text);
+                    }
+                    $('#txtServiceItem').val(arr.join(','));
+                });
+                
+
+                // 提交到门户网站
+                $('#btnSubmit').click(function () {
+
+                    // 获取映射服务信息
+                    $.get('/datamap/services', { ids: [GetQueryString('id')] }, function (mapingInfo) {
+                        if (mapingInfo === '-1') {
+                            toastr.error('failed to get mapping service information.', 'Error', { timeOut: 3000 });
+                            return;
+                        }
+
+                        console.log(mapingInfo);
+
+                        // 提交到门户网站
+                        $.post('', {}, function (data) {
+
+                        });
+
+                    });
+
+                    return false;   //组织表单提交
+                });
+
+            });
+        </script>
+</body>
+
+</html>

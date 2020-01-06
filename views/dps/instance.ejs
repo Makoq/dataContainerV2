@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+    <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" href="favicon.ico" />
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../header.ejs%>
+        <div class="clearfix"> </div>
+        <div class="page-container">
+            <% include ../sidebar.ejs %>
+            <div class="page-content-wrapper">
+                <div class="page-content">
+                    <% include ../theme_setting.ejs %>
+                    <div class="page-bar">
+                        <ul class="page-breadcrumb">
+                            <li><a href="/">
+                                    <i class="fa fa-home" aria-hidden="true"></i>
+                                    Home
+                                </a>
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                                <a href='/refactor'>DPS</a>
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                                <span>Instances</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- BEGIN CONTAINER-->
+                    <div class="container-fluid" style="padding:0px;margin-top:0px;min-height:655px">
+
+                        <p><strong>DPS Instances</strong></p>
+
+                        <div class="table-responsive">
+                            <table id="tab_services" class="table table-bordered table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <center>Alias</center>
+                                        </th>
+                                        <th>
+                                            <center>Start Time</center>
+                                        </th>
+                                        <th>
+                                            <center>Status</center>
+                                        </th>
+                                        <th>
+                                            <center>Operation</center>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="advanceBody">
+
+                                </tbody>
+                            </table>
+                            <div id='divinfo2' style="display:none;text-align:center">there has no more instances now.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%include ../footer.ejs%>
+    </div>
+
+    <% include ../include_js.ejs %>
+
+
+    <script type="text/template" id="refactor_advance_moban">
+            <tr>
+                <td style="text-align:center;vertical-align:inherit;">
+                    <div><span>{{= alias }}</span></div>
+                </td>
+                <td style="text-align:center;vertical-align:inherit;">
+                    <div><span>{{= starttime }}</span></div>
+                </td>
+                <td style="text-align:center;vertical-align:inherit;">
+                    <div><span>{{= status }}</span></div>
+                </td>
+                <td style="text-align:center;vertical-align:inherit;cursor:pointer">
+                    <div>
+                        <span><a class='btn btn-primary' href="#">Details</a></span>
+                    </div>
+                </td>
+            </tr>
+        </script>
+
+    <script src="/js/underscore-noflect.js"></script>
+    <script src='/myjs/datamap_tools.js'></script>
+    <script src="/js/custom-js/my-filter.js"></script>
+
+    <script>
+        var clock_id2 = '';
+
+        function loadDPSInstances() {
+            // 请求串联运行实例信息
+            $.get('/common/instances', { type: 'dps' }, function (data) {
+                $("#advanceBody").html('');
+
+                if (data.length <= 0) {
+                    clearInterval(clock_id2);
+                    $('#divinfo2').css('display', 'block');
+                    return;
+                }
+
+                $('#divinfo2').css('display', 'none');
+
+                var compiled = _.template($("#refactor_advance_moban").html());
+
+                for (var i = 0; i < data.length; i++) {
+                    // 填充表格
+                    var html = compiled({
+                        guid: data[i].guid,
+                        alias: data[i].sname, // 其实就是实例的别名
+                        starttime: data[i].starttime,
+                        status: data[i].status
+                    });
+                    $("#advanceBody").append($(html));
+                }
+            });
+        }
+
+        $(function () {
+            loadDPSInstances();
+            clock_id2 = setInterval(function () {
+                loadDPSInstances();
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

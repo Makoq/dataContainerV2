@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/LICENSE
+END
+codemirror.min.js
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/codemirror.min.js
+END
+package.json
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/package.json
+END
+modes.min.js
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/modes.min.js
+END
+AUTHORS
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/AUTHORS
+END
+addons.min.js
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/addons.min.js
+END
+bower.json
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/bower.json
+END
+README.md
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/README.md
+END
+codemirror.min.css
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/VgeData/!svn/ver/27/public/plugins/editor_md/lib/codemirror/codemirror.min.css
+END

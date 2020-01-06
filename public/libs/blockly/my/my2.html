@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Demo: Generating JavaScript</title>
+
+  <script src="./../blockly_compressed.js"></script>
+  <script src="./../blocks_compressed.js"></script>
+  <script src="./../javascript_compressed.js"></script>
+  <script src="./../msg/js/en.js"></script>
+
+  <script src="./my.js"></script>
+
+  <script src="./block_udx_dataset.js"></script>
+  <script src="./block_udx_kernel_type.js"></script>
+  <script src="./block_get_node_by_name.js"></script>
+  <script src="./block_get_child_by_index.js"></script>
+  <script src="./block_get_item_by_index.js"></script>
+  <script src="./block_get_child_count.js"></script>
+  <script src="./block_get_node_length.js"></script>
+  <!-- <script src="./test_mutator.js"></script> -->
+
+
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+
+    #switch {
+      height: 300px;
+      width: 300px;
+      border-radius: 50%;
+      background-color: white;
+      border: solid 1px black;
+      position: absolute;
+      left: 760px;
+      top: 110px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+
+  <div id='mydiv' style="display: none"></div>
+
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+    <category name="UDX" colour="#5B67A5">
+      <block type="block_udx_dataset"></block>
+      <block type="block_udx_kernel_type">
+        <field name="dd_udx_kernel_type">any</field>
+      </block>
+      <block type="block_get_node_by_name"></block>
+      <block type="block_get_child_by_index"></block>
+      <block type="block_get_item_by_index"></block>
+      <block type="block_get_child_count"></block>
+      <block type="block_get_node_length"></block>
+      <!-- <block type='en'></block> -->
+    </category>
+    <sep></sep>
+    <category name="Logic" colour="#5b80a5">
+      <block type="controls_if"></block>
+      <block type="logic_compare">
+        <field name="OP">EQ</field>
+      </block>
+      <block type="logic_operation">
+        <field name="OP">AND</field>
+      </block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean">
+        <field name="BOOL">TRUE</field>
+      </block>
+      <block type="logic_null"></block>
+      <block type="logic_ternary"></block>
+    </category>
+    <category name="Loops" colour="#5ba55b">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_whileUntil">
+        <field name="MODE">WHILE</field>
+      </block>
+      <block type="controls_for">
+        <field name="VAR" id="k_)72qs$%).YYxrt_CJ^">i</field>
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach">
+        <field name="VAR" id="QK5=sSTHlf3eu7D8v~(E">j</field>
+      </block>
+      <block type="controls_flow_statements">
+        <field name="FLOW">BREAK</field>
+      </block>
+    </category>
+    <category name="Math" colour="#5b67a5">
+      <block type="math_number">
+        <field name="NUM">0</field>
+      </block>
+      <block type="math_arithmetic">
+        <field name="OP">ADD</field>
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <field name="OP">ROOT</field>
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <field name="OP">SIN</field>
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant">
+        <field name="CONSTANT">PI</field>
+      </block>
+      <block type="math_number_property">
+        <mutation divisor_input="false">
+      </block>
+      <field name="PROPERTY">EVEN</field>
+      <value name="NUMBER_TO_CHECK">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      </block>
+      <block type="math_round">
+        <field name="OP">ROUND</field>
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list">
+        <mutation op="SUM">
+      </block>
+      <field name="OP">SUM</field>
+      </block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+    <category name="Text" colour="#5ba58c">
+      <block type="text">
+        <field name="TEXT">
+      </block>
+      </block>
+      <block type="text_join">
+        <mutation items="2">
+      </block>
+      </block>
+      <block type="text_append">
+        <field name="VAR" id="p#TznzFE?Iu?Xvoq@uR@">item</field>
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">
+      </block>
+      </shadow>
+      </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">
+      </block>
+      </shadow>
+      </value>
+      </block>
+      <block type="text_indexOf">
+        <field name="END">FIRST</field>
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR" id="R=OUCr|L`kiHL!iYHZ(d">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <mutation at="true">
+      </block>
+      <field name="WHERE">FROM_START</field>
+      <value name="VALUE">
+        <block type="variables_get">
+          <field name="VAR" id="R=OUCr|L`kiHL!iYHZ(d">text</field>
+        </block>
+      </value>
+      </block>
+      <block type="text_getSubstring">
+        <mutation at1="true" at2="true">
+      </block>
+      <field name="WHERE1">FROM_START</field>
+      <field name="WHERE2">FROM_START</field>
+      <value name="STRING">
+        <block type="variables_get">
+          <field name="VAR" id="R=OUCr|L`kiHL!iYHZ(d">text</field>
+        </block>
+      </value>
+      </block>
+      <block type="text_changeCase">
+        <field name="CASE">UPPERCASE</field>
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <field name="MODE">BOTH</field>
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <mutation type="TEXT">
+      </block>
+      <field name="TYPE">TEXT</field>
+      <value name="TEXT">
+        <shadow type="text">
+          <field name="TEXT">abc</field>
+        </shadow>
+      </value>
+      </block>
+    </category>
+    <category name="Lists" colour="#745ba5">
+      <block type="lists_create_with">
+        <mutation items="0">
+      </block>
+      </block>
+      <block type="lists_create_with">
+        <mutation items="3">
+      </block>
+      </block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf">
+        <field name="END">FIRST</field>
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR" id="Uk(sS+qU?`VHqwL-+qp4">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getIndex">
+        <mutation statement="false" at="true">
+      </block>
+      <field name="MODE">GET</field>
+      <field name="WHERE">FROM_START</field>
+      <value name="VALUE">
+        <block type="variables_get">
+          <field name="VAR" id="Uk(sS+qU?`VHqwL-+qp4">list</field>
+        </block>
+      </value>
+      </block>
+      <block type="lists_setIndex">
+        <mutation at="true">
+      </block>
+      <field name="MODE">SET</field>
+      <field name="WHERE">FROM_START</field>
+      <value name="LIST">
+        <block type="variables_get">
+          <field name="VAR" id="Uk(sS+qU?`VHqwL-+qp4">list</field>
+        </block>
+      </value>
+      </block>
+      <block type="lists_getSublist">
+        <mutation at1="true" at2="true">
+      </block>
+      <field name="WHERE1">FROM_START</field>
+      <field name="WHERE2">FROM_START</field>
+      <value name="LIST">
+        <block type="variables_get">
+          <field name="VAR" id="Uk(sS+qU?`VHqwL-+qp4">list</field>
+        </block>
+      </value>
+      </block>
+      <block type="lists_split">
+        <mutation mode="SPLIT">
+      </block>
+      <field name="MODE">SPLIT</field>
+      <value name="DELIM">
+        <shadow type="text">
+          <field name="TEXT">,</field>
+        </shadow>
+      </value>
+      </block>
+      <block type="lists_sort">
+        <field name="TYPE">NUMERIC</field>
+        <field name="DIRECTION">1</field>
+      </block>
+    </category>
+    <category name="Colour" colour="#a5745b">
+      <block type="colour_picker">
+        <field name="COLOUR">#ff0000</field>
+      </block>
+      <block type="colour_random"></block>
+      <block type="colour_rgb">
+        <value name="RED">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="GREEN">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="BLUE">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="colour_blend">
+        <value name="COLOUR1">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="COLOUR2">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#3333ff</field>
+          </shadow>
+        </value>
+        <value name="RATIO">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <sep></sep>
+    <category name="Variables" colour="#a55b80" custom="VARIABLE"></category>
+    <category name="Functions" colour="#995ba5" custom="PROCEDURE"></category>
+  </xml>
+
+  <div id='switch'></div>
+
+  <button onclick="showCode()">show</button>
+  <button onclick="runCode()">run</button>
+  <button onclick="save()">save</button>
+  <button onclick="load()">load</button>
+
+  <script>
+    var myWorkspace = Blockly.inject('blocklyDiv',
+      {
+        media: '../media/',
+        toolbox: document.getElementById('toolbox')
+      });
+
+    myWorkspace.addChangeListener(function (event) {
+      // console.log(event.type,event.element);
+
+      // Blockly.Events.CREATE||
+
+      // console.log(event.blockId)
+
+      // var block = demoWorkspace.getBlockById(event.blockId);
+      // if (block)
+      //   console.log(block, block.type);
+    });
+
+    // Blockly.Xml.domToWorkspace(document.getElementById('startBlocks'),
+    //                            demoWorkspace);
+
+    /* TODO: Change toolbox XML ID if necessary. Can export toolbox XML from Workspace Factory. */
+    // var toolbox = document.getElementById("toolbox");
+
+    // var options = {
+    //   toolbox: toolbox,
+    //   collapse: true,
+    //   comments: true,
+    //   disable: true,
+    //   maxBlocks: Infinity,
+    //   trashcan: true,
+    //   horizontalLayout: false,
+    //   toolboxPosition: 'start',
+    //   css: true,
+    //   media: '../../media/',
+    //   rtl: false,
+    //   scrollbars: true,
+    //   sounds: true,
+    //   oneBasedIndex: true,
+    //   grid: {
+    //     spacing: 20,
+    //     length: 1,
+    //     colour: '#888',
+    //     snap: false
+    //   }
+    // };
+
+    // /* Inject your workspace */
+    // var workspace = Blockly.inject('blocklyDiv', options);
+
+    // /* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
+
+    // /* TODO: Change workspace blocks XML ID if necessary. Can export workspace blocks XML from Workspace Factory. */
+    // var workspaceBlocks = document.getElementById("workspaceBlocks");
+
+    // /* Load blocks to workspace. */
+    // Blockly.Xml.domToWorkspace(workspaceBlocks, workspace);
+
+    function save() {
+      // Generate XML and set attributes.
+      var xmlDom = Blockly.Xml.workspaceToDom(myWorkspace);
+      xmlDom.id = 'workspaceBlocks';
+      xmlDom.setAttribute('style', 'display: none');
+      var xmlStr = (new XMLSerializer()).serializeToString(xmlDom);
+      localStorage.workspace = xmlStr;
+
+      var xml = document.getElementById('workspaceBlocks');
+      if (xml != undefined)
+        document.getElementById('mydiv').removeChild(xml);
+
+      console.log('save ok');
+    }
+
+    function load() {
+      if (localStorage.workspace != undefined) {
+        var xml = document.getElementById('workspaceBlocks');
+        if (xml == undefined) {
+          var mydiv = document.getElementById('mydiv');
+          mydiv.innerHTML = localStorage.workspace;
+        }
+
+        Blockly.Xml.domToWorkspace(document.getElementById('workspaceBlocks'), myWorkspace);
+        console.log('load ok');
+      }
+    }
+
+    function showCode() {
+      // Generate JavaScript code and display it.
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      var code = Blockly.JavaScript.workspaceToCode(myWorkspace);
+      console.log(code)
+    }
+
+    function runCode() {
+      // Generate JavaScript code and run it.
+      window.LoopTrap = 1000;
+      Blockly.JavaScript.INFINITE_LOOP_TRAP =
+        'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+      var code = Blockly.JavaScript.workspaceToCode(myWorkspace);
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      try {
+        console.log(code);
+        eval(code);
+      } catch (e) {
+        alert(e);
+      }
+    }
+  </script>
+
+</body>
+
+</html>

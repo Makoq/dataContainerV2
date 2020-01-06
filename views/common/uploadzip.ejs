@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+
+    <% include ../include_css.ejs %>
+        <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"
+        />
+
+        <link rel="stylesheet" href="/plugins/jquery.upload/css/jquery.fileupload.css">
+        <link rel="stylesheet" href="/plugins/jquery.upload/css/jquery.fileupload-ui.css">
+        <link rel="stylesheet" href="/assets/global/plugins/bootstrap-tags/css/bootstrap-tags.css">
+        <!--上传图片-->
+        <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css" />
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <link rel="shortcut icon" href="favicon.ico" />
+
+        <!-- END HEAD -->
+
+        <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+            <div class="page-wrapper">
+                <!-- BEGIN HEADER -->
+                <%include ../header.ejs%>
+                    <!-- END HEADER -->
+                    <!-- BEGIN HEADER & CONTENT DIVIDER -->
+                    <div class="clearfix"> </div>
+                    <!-- END HEADER & CONTENT DIVIDER -->
+                    <!-- BEGIN CONTAINER -->
+                    <div class="page-container">
+                        <!-- BEGIN SIDEBAR -->
+                        <% include ../sidebar.ejs %>
+                            <!-- END SIDEBAR -->
+                            <!-- BEGIN CONTENT -->
+                            <div class="page-content-wrapper">
+                                <!-- BEGIN CONTENT BODY -->
+                                <div class="page-content">
+                                    <!-- BEGIN PAGE HEADER-->
+                                    <!-- BEGIN THEME PANEL -->
+                                    <% include ../theme_setting.ejs %>
+                                        <!-- END THEME PANEL -->
+                                        <!-- BEGIN PAGE BAR -->
+                                        <div class="page-bar">
+                                            <ul class="page-breadcrumb">
+                                                <li>
+                                                    <a href="/">
+                                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                                        Home
+                                                    </a>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </li>
+
+                                                <li>
+                                                    <a id='alink'></a>
+                                                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                                </li>
+
+                                                <li><span>Upload</span></li>
+                                            </ul>
+                                        </div>
+                                        <!-- END PAGE BAR -->
+                                   
+                                        <div class="container-fluid" style="margin-top:20px;">
+
+                                            <!-- 填写上传信息  -->
+                                            <div class="row col-md-7 col-md-offset-3">
+                                                <div class="panel-group" id="accordion" style="margin-top:10px;">
+                                                    <div class="panel panel-success" style='border:0px;'>
+                                                        <div class="panel-heading">
+                                                            <h4 class="panel-title"><a data-toggle="collapse" id='aTitle' data-parent="#accordion"
+                                                                    href="#"></a></h4>
+                                                        </div>
+                                                        <div id="collapse2" class="panel-collapse collapse in" style="cursor:pointer">
+
+                                                            <ul id="myTab" class="nav nav-tabs">
+                                                                <li class="active">
+                                                                    <a href="#step1" data-toggle="tab">(1) User Information</a>
+                                                                </li>
+                                                                <li><a href="#step2" data-toggle="tab">(2) Service Information</a></li>
+                                                                <li><a href="#step3" data-toggle="tab">(3) Upload Zip File</a></li>
+                                                            </ul>
+                                                            <div id="myTabContent" class="tab-content">
+                                                                <!--step1  -->
+                                                                <div class="tab-pane fade in active" id="step1">
+                                                                    <div class="form-group">
+                                                                        <label for="u_name" class="control-label" ><strong>Uploader<font color='red'>(*)</font></strong></label>
+                                                                        <input id="u_name" type="text" class="form-control" value='KingW' placeholder="Please input uploader's name">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="u_email" class="control-label"><strong>Email</strong></label>
+                                                                        <input id="u_email" type="text" class="form-control" value="giswangjin@gmail.com" placeholder="Please input uploader's email">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <button class="btn btn-info pull-right" id='btn_1_step2' style="width:100px;height:30px;">Next</button>
+                                                                    </div>
+                                                                </div>
+                                                                <!--step2  -->
+                                                                <div class="tab-pane fade" id="step2">
+                                                                    <div class="form-group">
+                                                                        <label for="s_name" class="control-label"><strong>Service Name<font color='red'>(*)</font></strong></label>
+                                                                        <input id="s_name" type="text" class="form-control" placeholder="Please input name for the service">
+                                                                    </div>
+
+                                                                    <div class="form-group">
+                                                                        <label for="s_authority" class="control-label"><strong>Authority<font color='red'>(*)</font></strong></label>
+                                                                        <select id="s_authority" name="d_authority" class="form-control">
+                                                                            <option value="1" selected="">public</option>
+                                                                            <option value="-1">private</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="s_description" class="control-label"><strong>Description<font color='red'>(*)</font></strong></label>
+                                                                        <textarea id="s_description" style="min-height:10em;" class="form-control textarea" placeholder="Please input description for the service"></textarea>
+                                                                    </div>
+
+                                                                    <div class="form-group">
+                                                                        <label class="control-label"><strong>Snapshot</strong></label><br>
+                                                                        <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                                            <div id='snapshotContainer' class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
+                                                                                <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" />                                                                                </div>
+                                                                            <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"> </div>
+                                                                            <div>
+                                                                                <span class="btn default btn-file">
+                                                                                <span class="fileinput-new"> Select image </span>
+                                                                                <span class="fileinput-exists"> Change </span>
+                                                                                <input type="file" name="..."> </span>
+                                                                                <a href="javascript:;" class="btn red fileinput-exists" data-dismiss="fileinput"> Remove </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-group pull-left">
+                                                                        <button class="btn btn-info" id='btn_2_step1' style="width:100px;height:30px;">Previous</button>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <button class="btn btn-info pull-right" id='btn_2_step3' style="width:100px;height:30px;">Next</button>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- step3 -->
+                                                                <div class="tab-pane fade" id="step3">
+                                                                    <div class="form-group">
+                                                                        <!--上传映射服务压缩包-->
+                                                                        <div class="form-group">
+                                                                            <form id="file_upload" role="form" action="" method="POST" enctype="multipart/form-data">
+                                                                                <div class="form-group">
+                                                                                    <label for="file_name" class="m_label"><strong>Choose Zip File</strong></label>
+                                                                                    <div class=" input-group">
+                                                                                        <input readonly id="file_name" type="text" class="form-control" placeholder="zip file">
+                                                                                        <span class="input-group-addon input_add">
+                                                                                        <div class="btn btn_upload fileinput-button">
+                                                                                            <span>Add files...</span>
+                                                                                        <input type="file" name="files" accept="application/zip">
+                                                                                    </div>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div id="progress" class="progress" style="margin-top:7px;">
+                                                                                    <div class="progress-bar progress-bar-success progress-bar-striped"></div>
+                                                                                </div>
+                                                                        </div>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="form-group pull-left">
+                                                                    <button class="btn btn-info" id='btn_3_step2' style="width:100px;height:30px;">Previous</button>
+                                                                </div>
+                                                                <!--提交  -->
+                                                                <div class="form-group pull-right">
+                                                                    <button type="submit" id="submit" style="width:100px;height:30px;" class="btn btn-info start">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- **************************************************** -->
+
+                                </div>
+                            </div>
+                            <!-- BEGIN CONTAINER-->
+                    </div>
+                    <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+            </div>
+
+            <!--END CONTAINER-->
+            </div>
+            <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+            </div>
+            <!-- END CONTAINER -->
+            <!-- BEGIN FOOTER -->
+            <%include ../footer.ejs%>
+                </div>
+                <% include ../include_js.ejs %>
+                    <script src="/plugins/jquery.upload/js/jquery.ui.widget.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.iframe-transport.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload-process.js"></script>
+                    <script src="/plugins/jquery.upload/js/jquery.fileupload-validate.js"></script>
+                    <script src="/assets/global/plugins/bootstrap-tags/js/bootstrap-tags.min.js"></script>
+                    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js"></script>
+                    <script src="/myjs/datamap_tools.js"></script>
+
+                    <script>
+                        $('#btn_1_step2').click(function () {
+                            $('#myTab a:eq(1)').tab('show');
+                        });
+                        $('#btn_2_step1').click(function () {
+                            $('#myTab a:eq(0)').tab('show');
+                        });
+                        $('#btn_2_step3').click(function () {
+                            $('#myTab a:eq(2)').tab('show');
+                        });
+                        $('#btn_3_step2').click(function () {
+                            $('#myTab a:eq(1)').tab('show');
+                        });
+
+
+                        $("#submit").click(function () {
+
+                            // 判断信息是否填写完善
+                            if ($('#u_name').val().length <= 0) {
+                                toastr.warning('please input uploader\' name.', 'Warning', { timeOut: 5000 });
+                                return;
+                            }
+                            if ($('#s_name').val().length <= 0) {
+                                toastr.warning('please input the name of data service.', 'Warning', { timeOut: 5000 });
+                                return;
+                            }
+                            if ($('#s_description').val().length <= 0) {
+                                toastr.warning('please input the description of mapping service.', 'Warning', { timeOut: 5000 });
+                                return;
+                            }
+
+                            if (upload_data === null) {
+                                toastr.warning('please choose a zip file.', 'Warning', { timeOut: 5000 });
+                                return;
+                            }
+
+                            if ($('#file_name').val().split('.')[1] != 'zip') {
+                                toastr.warning('you must choose a zip file.', 'Warning', { timeOut: 5000 });
+                                return;
+                            }
+
+                            upload_data.submit();
+
+                            // console.log();
+                        });
+
+                        function init() {
+                            // 文件上传控件初始化
+                            $("#file_upload").fileupload({
+                                url: '/common/upload?type='+GetQueryString('type'),
+                                dataType: 'text',
+                                autoUpload: false,
+                                sequentialUploads: false,
+                                progressall: function (e, data) {
+                                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                                    $('#progress .progress-bar').css(
+                                        'width',
+                                        progress + '%'
+                                    );
+                                }
+                            }).bind('fileuploadadd', function (e, data) {
+                                $("#file_name").val(data.files[0].name);
+                                upload_data = data;
+                            }).bind('fileuploaddone', function (e, data) {//文件上传成功后，上传基本描述信息
+
+                                if(data.result === '0'){
+                                    toastr.warning('current service has already existed..', 'Warning', { timeOut: 3000 });
+                                     $('#progress .progress-bar').css(
+                                        'width',
+                                        0 + '%'
+                                    );
+                                    return;
+                                }else if(data.result === '-1'){
+                                    toastr.warning('the server is busing now.', 'Warning', { timeOut: 3000 });
+                                     $('#progress .progress-bar').css(
+                                        'width',
+                                        0 + '%'
+                                    );
+                                    return;
+                                }
+
+                                if (data.result.split('_')[1] === "ok") {
+                                    // console.log('上传zip成功.');
+
+                                    //  提交上传内容
+                                    $.post("/common/upload?type="+GetQueryString('type'),
+                                        {
+                                            'uName': $('#u_name').val(),
+                                            'uEmail': $('#u_email').val(),
+
+                                            "s_name": $('#s_name').val(),
+                                            's_authority': $('#s_authority').val(),
+                                            "s_description": $("#s_description").val(),
+                                            "s_snapshot": $('#snapshot').attr('src'),//img
+                                            's_id': data.result.split('_')[0],//当前服务的id
+                                            'uid': data.result.split('_')[2]
+                                        }, function (data) {
+                                            // 上传服务成功
+                                            if (data === "1") {
+                                                toastr.success('Upload datamap service successfully.', 'Congratulation', { timeOut: 3000 });
+                                                window.location = "/" +  GetQueryString('type');
+                                            } else {
+                                                // alert(data);
+                                                toastr.error(data, 'Error', { timeOut: 3000 });
+                                                $('#progress .progress-bar').css(
+                                                    'width',
+                                                    0 + '%'
+                                                );
+                                            }
+                                        }, "text");
+                                } else {
+                                    alert(data.result);
+                                    $('#progress .progress-bar').css(
+                                        'width',
+                                        0 + '%'
+                                    );
+                                }
+                            });
+                        }
+
+                        
+                        if (!window.localStorage) {
+                            alert('This browser does NOT support localStorage');
+                        } else {
+                            var upload_data = null;
+                            //文档加载完毕
+                            $(function () {
+                                init();
+
+                                if (GetQueryString('type') === 'data'){
+                                    $('#alink').attr('href', '/data');
+                                    $('#alink').html('Data Services');
+                                    $('#aTitle').html('Create Data Service');
+                                }
+                                 else if (GetQueryString('type') === 'dp') {
+                                    $('#alink').attr('href', '/dp');
+                                    $('#alink').html('Servive Items');
+                                    $('#aTitle').html('Create Service');
+                                }else if(GetQueryString('type') === "visualization"){
+                                    $('#alink').attr('href', '/visualization');
+                                    $('#alink').html('Visualization Services');
+                                    $('#aTitle').html('Create Visualization Service');
+                                }
+                            });
+                        }
+                    </script>
+        </body>
+
+</html>

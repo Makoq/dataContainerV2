@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <% include ../../include_css.ejs %>
+
+        <!--jstree-->
+        <link rel="stylesheet" href="/plugins/jstree/themes/default/style.min.css">
+        <!--jquery ui-->
+        <link rel="stylesheet" href="/css/jquery-ui.min.css">
+        <!-- END THEME LAYOUT STYLES -->
+        <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+        <!--动画  -->
+        <link rel="stylesheet" href="/assets/global/plugins/loader/loaders.css">
+        <link rel="shortcut icon" href="favicon.ico" />
+
+
+</head>
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <%include ../../header.ejs%>
+            <div class="clearfix"> </div>
+            <div class="page-container">
+                <% include ../../sidebar.ejs %>
+                    <div class="page-content-wrapper">
+                        <div class="page-content">
+                            <% include ../../theme_setting.ejs %>
+                                <div class="page-bar">
+                                    <ul class="page-breadcrumb">
+                                        <li><a href="/">
+                                        <i class="fa fa-home" aria-hidden="true"></i>
+                                        Home
+                                        </a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li>
+                                            <a href="/refactor">Mapping Services</a>
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </li>
+                                        <li><span>Detail</span></li>
+                                    </ul>
+                                </div>
+
+                                <!-- BEGIN CONTAINER-->
+                                <%include ../../loading.ejs%>
+
+                                    <div class="container-fluid" style="padding:0px;margin-top:0px;min-height: 700px;">
+
+                                        <!--<div class="container">-->
+                                        <div style="margin-top:20px;margin-bottom:20px;">
+
+
+                                            <div class="row">
+                                                <!-- col-md-offset-1-->
+                                                <div class="col-md-3" style="margin-top:10px;">
+                                                    <!-- 搜索框 -->
+                                                    <div class="search_input">
+                                                        <input type="text" id="search_ay" />
+                                                        <img src="/images/datamap/search.png" />
+                                                    </div>
+
+                                                    <!-- jstree -->
+                                                    <div class="reason_list">
+                                                        <div id="treeview1" class="treeview">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-9" style="margin-top:10px;">
+
+                                                    <!--使用模式  -->
+                                                    <label class="control-label"><strong>Mapping Type</strong></label>
+                                                    <div class="radio">
+                                                        <label>
+                                                        <input type="radio" name="mappingtype" id="s2u" value="s2u" checked>Src Data -> Udx Data
+                                                    </label> &nbsp;&nbsp;
+                                                        &nbsp;&nbsp;
+                                                        <label>
+                                                        <input type="radio" name="mappingtype" id="u2s" value="u2s">Udx Data -> Src Data 
+                                                    </label>
+                                                    </div>
+
+                                                    <!--文件选择框-->
+                                                    <label class="control-label"><strong>Input data</strong></label>
+                                                    <div class="input-group">
+                                                        <input disabled type="text" id='in_datapath' name="raster-src-file" class="form-control input-args-field" placeholder="Please choose the input file."
+                                                            required="required">
+                                                        <div class="input-group-addon file-choose-btn" id="input-file-btn">
+                                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                                                            <span style="padding-left: 5px;cursor:pointer" id="chooseFile">Choose …</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!--tab-->
+                                                    <div style="margin-top:10px;margin-bottom:10px;">
+                                                        <ul id="myTab" class="nav nav-tabs">
+                                                            <li class="active"><a href="#xml" data-toggle="tab">XML</a></li>
+                                                            <!--<li><a href="#json" data-toggle="tab">JSON</a></li>-->
+                                                            <!--<li><a href="#visual" data-toggle="tab">Visualization</a></li>-->
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane fade in active" id="xml">
+                                                            <pre style="height:400px" id="p_xml"></pre>
+                                                        </div>
+                                                        <!--<div class="tab-pane fade" id="json">
+                                                        <pre style="height:400px" id="p_json"></pre>
+                                                    </div>-->
+                                                        <!--<div class="tab-pane fade" id="visual">
+                                                        <div id='div_see' style="width:600px;height:400px;"></div>
+                                                    </div>-->
+                                                    </div>
+
+                                                    <!--文件选择框-->
+                                                    <label class="control-label"><strong>Output data</strong></label>
+                                                    <div class="input-group">
+                                                        <input disabled type="text" id='out_datapath' name="raster-src-file" class="form-control input-args-field" placeholder="Please choose the output file."
+                                                            required="required">
+                                                        <div class="input-group-addon file-choose-btn">
+                                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                                                            <span style="padding-left: 5px;cursor:pointer" id="choosedir">Choose …</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!--保存按钮-->
+                                                    <center style='margin-top:10px;'>
+                                                        <button style="width:200px" id="btnRun" class="btn btn-success">Run</button>
+                                                        <button style="width:200px" id="btnCancel" class="btn btn-warning">Cancel</button>
+                                                    </center>
+
+                                                    <!--进度条-->
+                                                    <label class="control-label"><strong>mapping process</strong></label>
+                                                    <div class="progress progress-striped active" style="margin-top:10px;">
+                                                        <div id='probar' class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"
+                                                            style="width: 0%;">
+                                                            <!--<span class="sr-only">90% 完成</span>-->
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- END CONTAINER-->
+                        </div>
+                    </div>
+            </div>
+            <%include ../../footer.ejs%>
+    </div>
+
+    <% include ../../include_js.ejs %>
+        <script src="/plugins/jstree/jstree.min.js"></script>
+        <!--jquery ui-->
+        <script src="/js/jquery-ui.min.js"></script>
+        <!--引入自己写的工具包：udx schema 的 json转tree -->
+        <script src="/myjs/datamap_tools.js"></script>
+
+        <!--加载动画-->
+        <script src='/assets/global/plugins/loader/loaders.css.js'></script>
+
+        <script>
+            // var curNodeText = "";//当前选择的udx schema节点的文本
+            // var curTabText = "xml";
+            // var curNodeData = '';
+
+            // mapping type radio 切换事件
+            $('input:radio[name="mappingtype"]').change(function () {
+                var select_radio = $('input:radio:checked').val();
+                if (select_radio === 's2u') {
+                    // src -> udx
+                    enable_jstree();
+                } else if (select_radio === 'u2s') {
+                    // udx -> src
+                    disable_jstree();
+                }
+            });
+
+
+            $('#btnRun').click(function () {
+                if ($('input:radio:checked').val() === 's2u') {
+                    callService('src2udx');
+                } else if ($('input:radio:checked').val() === 'u2s') {
+                    callService('udx2src');
+                }
+            });
+
+            // 取消运行
+            $('#btnCancel').click(function () {
+
+            });
+
+
+            // 调用datamap服务
+            function callService(callType) {
+                // 输入src数据
+                if ($('#in_datapath').val() === "") {
+                    toastr.warning('please input the src data.', 'Warning', { timeOut: 3000 });
+                    return;
+                }
+                // 输出udx数据
+                if ($('#out_datapath').val() === '') {
+                    toastr.warning('please choose the directory for the output data.', 'Warning', { timeOut: 3000 });
+                    return;
+                }
+
+                // 选择的数据的oid
+                var in_filename = JSON.parse($('#in_datapath').attr('data')).filename; // 实体文件名
+                var in_oid = JSON.parse($('#in_datapath').attr('data')).oid; // 实体文件名
+                var out_dir = JSON.parse($('#out_datapath').attr('data')).parentid; // 目录id
+                var out_filename = JSON.parse($('#out_datapath').attr('data')).filename;// 输出文件名
+
+                // 执行映射, 开启运行实例，立即返回
+                $.get('/rmt/datamap/use/call', { 'id': GetQueryString('id'), 'in_oid': in_oid, 'in_filename': in_filename, 'out_dir': out_dir, 'out_filename': out_filename, 'callType': callType,ip:GetQueryString('ip') }, function (guid) {
+                    // if (data != 'start') {
+                    //     toastr.error('can not call the datamap service, please have a try later.', 'Error', { timeOut: 3000 });
+                    //     return;
+                    // }
+                    // 返回开启的服务实例的guid
+                    // console.log('guid: ' + guid);
+
+                    //如果当前的页面不关闭，则拿着这个guid去请求 当前实例的状态，如果完成了，则跳转另一个页面
+                    setInterval(function () {
+                        $.get('/rmt/datamap/instanceInfo', { guid: guid ,ip:GetQueryString('ip')}, function (instance) {
+                            // console.log('instance: ' + instance);
+
+                            // 映射服务运行完毕之后，就删除实例了。所以，在这里就请求不到了。
+                            // if (instance != undefined) {
+                            //     // 判断它的status
+                            //     if (instance.status === '0') {
+                            //         // 0 ： 正在执行    
+                            //     } else if (instance.status === '1' || instance.status === '-1') {
+                            //         // 1 :  已经完成   -1 : 发生异常
+                            //         // 无论是已完成还是发生异常 ，都执行跳转到另一个结果页面、
+                            //     }
+                            // }
+
+                            // 说明已经执行完毕了
+                            if (instance === '') {
+                                window.location = '/rmt/datamap/result?guid=' + guid+'&ip='+GetQueryString('ip');
+                            }
+
+                        });
+                    }, 1000);
+
+                    $('#probar').css('width', '100%');
+                });
+
+                // 以前的做法：download src->udx
+                //window.open('/datamap/use/callRead?id=' + GetQueryString('id') + "&inputfilename=" + filename);
+            }
+
+
+            $(function () {
+                $('#loading').hide();
+
+                // 页面加载完毕之后，请求Udx Schema，并显示
+                $.get('/rmt/datamap/use/udxSchema', { "id": GetQueryString("id"),type:'json' ,ip:GetQueryString('ip')}, function (data) {
+                    data = JSON.parse(data);
+
+                    var nodes = new UdxNode();
+                    index = 1;//调用trans方法之前，要设置index=1，以让udx schema 的节点从1开始编号。
+                    trans_new({ UdxNode: data.UdxDeclaration.UdxNode }, nodes);
+
+
+                    // 设置jstree
+                    $("#treeview1").jstree({
+                        'type': {
+                            'default': {
+                                "icon": false//关闭默认图标
+                            }
+                        },
+                        'core': {
+                            "multiple": false,
+                            'data': nodes.children,
+                            'dblclick_toggle': false          //禁用tree的双击展开  
+                        },
+                        "plugins": ["search"]
+                    });
+
+                });
+            });
+
+            var win;
+            // 选择输入文件
+            $('#chooseFile').click(function () {
+                //打开窗口
+                win = window.open('/rmt/user/filemanager?ip='+GetQueryString('ip'), 'sel-filemanager-dlg-in', 'height=500,width=900,top=100,left=100');
+            });
+
+            //选择输出文件的目录
+            $('#choosedir').click(function () {
+                win = window.open('/rmt/user/filemanager?ip='+GetQueryString('ip'), 'sel-filemanager-dlg-out', 'height=500,width=900,top=100,left=100');
+            });
+
+            //将选择的数据填充到文本框中。
+            function fileinput(data) {
+                if (data.format === 'Folder') {
+                    toastr.warning('you must choose a file.', 'Warning', { timeOut: 5000 });
+                    return;
+                }
+
+                // 根据弹出的window的name属性的最后一个单词，是file还是dir判断是选择输入数据还是选择输出数据。
+                var arr = win.name.split('-');
+                var type = arr[arr.length - 1];
+                if (type === 'in') { // 输入文件
+                    //如果选择的是文件夹，则无效
+                    // if (data.format === 'Folder') {
+                    //     toastr.error('you have to choose the file item.', 'Error', { timeOut: 5000 });
+                    //     return;
+                    // }
+
+                    $('#in_datapath').attr('data', JSON.stringify(data));
+                    $('#in_datapath').val(data.filename);
+                } else if (type === 'out') {// 输出文件
+                    // 如果输出文件目录选择的是普通文件，则无效
+                    if (data.format === 'Common File') {
+                        toastr.warning('the file already exist, you may override the file.', 'Warning', { timeOut: 5000 });
+                        // return;
+                    }
+
+                    $('#out_datapath').attr('data', JSON.stringify(data));
+                    $('#out_datapath').val(data.filename);
+                }
+                win.close();
+            }
+
+            //jstree的change事件
+            $('#treeview1').on("changed.jstree", function (e, data) {
+                // console.log("The selected nodes are:");
+                // console.log(data.node.id);               //选择的node id  
+                // console.log(data.node.text);            //选择的node text  
+                // curNodeText = data.node.text;
+
+                getNode(data.node.text);
+            });
+
+            function getNode(nodename) {
+              
+                if (nodename == "")
+                    return;
+
+                //获取选择的数据
+                if ($('#in_datapath').val() === "") {
+                    toastr.warning('please input the src data.', 'Warning', { timeOut: 3000 });
+                    return;
+                }
+
+                $('#loading').show();
+
+                // 只返回xml格式的数据
+                $.get('/rmt/datamap/use/getNode', { 'id': GetQueryString('id'), 'nodename': nodename, 'oid': JSON.parse($('#in_datapath').attr('data')).oid ,ip:GetQueryString('ip')}, function (data) {
+                    if (data == -1) {
+                        toastr.error('oops.the server is busing.', 'Error', { timeOut: 3000 });
+                        $('#loading').hide();
+                        return;
+                    } else if (data === '-2') {
+                        toastr.error('failed to get the node value, please check the file you input.', 'Error', { timeOut: 3000 });
+                        $('#loading').hide();
+                        return;
+                    } else {
+
+                        // 只有显示 xml
+                        $('#p_xml').text(data);
+                    }
+                    $('#loading').hide();
+                    // curNodeData = data;
+                });
+            }
+
+            //jstree单击事件
+            $("#treeview1").bind("select_node.jstree", function (e, data) {
+                // if (data.node.id != 1) {                           //排除第一个节点(2011民事案由)  
+                //     data.instance.toggle_node(data.node);        //单击展开下面的节点  
+                // }
+            });
+
+            //输入框输入定时自动搜索  
+            var to = false;
+            $('#search_ay').keyup(function () {
+                if (to) {
+                    clearTimeout(to);
+                }
+                to = setTimeout(function () {
+                    $('#treeview1').jstree(true).search($('#search_ay').val());
+                }, 250);
+            });
+        </script>
+</body>
+
+</html>

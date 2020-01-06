@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Data services | distributed geographic modeling platform</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <% include ../include_css.ejs %>
+    <link href="/css/custom-style.css" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <%include ../header.ejs%>
+        <!-- END HEADER -->
+        <!-- BEGIN HEADER & CONTENT DIVIDER -->
+        <div class="clearfix"> </div>
+        <!-- END HEADER & CONTENT DIVIDER -->
+        <!-- BEGIN CONTAINER -->
+        <div class="page-container">
+            <!-- BEGIN SIDEBAR -->
+            <% include ../sidebar.ejs %>
+            <!-- END SIDEBAR -->
+            <!-- BEGIN CONTENT -->
+            <div class="page-content-wrapper">
+                <!-- BEGIN CONTENT BODY -->
+                <div class="page-content">
+                    <!-- BEGIN PAGE HEADER-->
+                    <!-- BEGIN THEME PANEL -->
+                    <% include ../theme_setting.ejs %>
+                    <!-- END THEME PANEL -->
+                    <!-- BEGIN PAGE BAR -->
+                    <div class="page-bar">
+                        <ul class="page-breadcrumb">
+                            <li><a href="/">
+                                    <i class="fa fa-home" aria-hidden="true"></i>
+                                    Home
+                                </a>
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </li>
+                            <li>
+                                <a href="/dp">Service Items</a>
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                            </li>
+                            <li><span>Detail</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- BEGIN CONTAINER-->
+                    <div class="container-fluid" style="padding:0px;margin:0px;min-height:655px">
+                        <div class="col-md-12" style="padding:0px;margin-top:20px;margin-bottom:20px;">
+                            <div style="margin-top:0px;padding-top:0px">
+
+                                <div id='divMethods'></div>
+
+                            </div>
+                        </div>
+                        <!--</div>-->
+                    </div>
+                    <!-- BEGIN CONTAINER-->
+                </div>
+                <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <!-- END CONTAINER -->
+        <!-- BEGIN FOOTER -->
+        <%include ../footer.ejs%>
+    </div>
+
+    <!--重构服务方法模板-->
+    <script type="text/template" id="method_moban">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span class="panel-title">{{=methodName}}</span>
+                <a href="/dp/{{=id}}/{{=methodName}}" class="btn btn-info  pull-right" style="margin-top: -6px;width:100px">Invoke</a>
+            </div>
+            <div style="padding:0px;" class="panel-body">
+                <p><span><font size="4px">Method Description：</font></span>{{=methodDescription}}</p>
+            </div>
+        </div>
+    </script>
+
+    <% include ../include_js.ejs %>
+
+    <script src="/js/underscore-noflect.js"></script>
+    <script src='/myjs/datamap_tools.js'></script>
+
+    <script>
+         $(function () {
+            $.get('/dp/methods', {
+                'id': GetParamsString(0)
+            }, function (data) {
+
+                var compiled = _.template($("#method_moban").html());
+
+                var methodInfo = JSON.parse(data).RefactorMethodInfo;
+
+                if (methodInfo.Method instanceof Array) {
+                    for (var i = 0; i < methodInfo.Method.length; i++) {
+                        var info = methodInfo.Method[i];
+
+                        var methodName = info['@name'];
+                        var methodDescription = info['@description'];
+
+                        var html = compiled({
+                            id: GetParamsString(0),
+                            methodName: methodName,
+                            methodDescription: methodDescription,
+
+                        });
+
+                        $('#divMethods').append($(html));
+                    }
+                } else {
+                    var info = methodInfo.Method;
+
+                    var methodName =  info['@name'];
+                    var methodDescription = info['@description'];
+
+
+                    var html = compiled({
+                        id: GetParamsString(0),
+                        methodName: methodName,
+                        methodDescription: methodDescription,
+
+                    });
+
+
+                    $('#divMethods').append($(html));
+                }
+
+            });
+
+        });
+        
+        
+    </script>
+</body>
+
+</html>
